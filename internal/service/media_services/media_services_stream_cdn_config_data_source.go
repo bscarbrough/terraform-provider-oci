@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2023, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2024, Oracle and/or its affiliates. All rights reserved.
 // Licensed under the Mozilla Public License v2.0
 
 package media_services
@@ -101,6 +101,12 @@ func (s *MediaServicesStreamCdnConfigDataSourceCrud) SetData() error {
 	if s.Res.LifecyleDetails != nil {
 		s.D.Set("lifecyle_details", *s.Res.LifecyleDetails)
 	}
+
+	locks := []interface{}{}
+	for _, item := range s.Res.Locks {
+		locks = append(locks, ResourceLockToMap(item))
+	}
+	s.D.Set("locks", locks)
 
 	s.D.Set("state", s.Res.LifecycleState)
 

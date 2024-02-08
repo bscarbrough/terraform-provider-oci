@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2023, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2024, Oracle and/or its affiliates. All rights reserved.
 // Licensed under the Mozilla Public License v2.0
 
 
@@ -9,8 +9,6 @@ variable "media_workflow_media_workflow_configuration_ids" {
 variable "media_workflow_parameters" {
   default = "{\"inputs\":{\"namespace\":\"namespace\"}}"
 }
-
-variable "media_workflow_tasks_enable_parameter_reference" {}
 
 variable "media_workflow_tasks_key" {
   default = "move"
@@ -50,8 +48,19 @@ resource "oci_media_services_media_workflow" "test_media_workflow" {
     version       = var.media_workflow_tasks_version
 
     #Optional
-    enable_parameter_reference = var.media_workflow_tasks_enable_parameter_reference
     prerequisites              = var.media_workflow_tasks_prerequisites
+  }
+  locks {
+    #Required
+    compartment_id = var.compartment_id
+    type = var.locks_type
+
+    #Optional
+    message = var.locks_message
+  }
+  is_lock_override = var.is_lock_override
+  lifecycle {
+    ignore_changes = [defined_tags, locks, is_lock_override]
   }
 }
 

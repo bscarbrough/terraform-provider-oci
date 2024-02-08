@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2023, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2024, Oracle and/or its affiliates. All rights reserved.
 // Licensed under the Mozilla Public License v2.0
 
 package database_management
@@ -21,6 +21,10 @@ func DatabaseManagementManagedDatabaseCursorCacheStatementsDataSource() *schema.
 			"managed_database_id": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"opc_named_credential_id": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"sql_text": {
 				Type:     schema.TypeString,
@@ -96,6 +100,11 @@ func (s *DatabaseManagementManagedDatabaseCursorCacheStatementsDataSourceCrud) G
 	if managedDatabaseId, ok := s.D.GetOkExists("managed_database_id"); ok {
 		tmp := managedDatabaseId.(string)
 		request.ManagedDatabaseId = &tmp
+	}
+
+	if opcNamedCredentialId, ok := s.D.GetOkExists("opc_named_credential_id"); ok {
+		tmp := opcNamedCredentialId.(string)
+		request.OpcNamedCredentialId = &tmp
 	}
 
 	if sqlText, ok := s.D.GetOkExists("sql_text"); ok {

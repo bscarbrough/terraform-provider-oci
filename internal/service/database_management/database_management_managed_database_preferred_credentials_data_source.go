@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2023, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2024, Oracle and/or its affiliates. All rights reserved.
 // Licensed under the Mozilla Public License v2.0
 
 package database_management
@@ -43,6 +43,10 @@ func DatabaseManagementManagedDatabasePreferredCredentialsDataSource() *schema.R
 									},
 									"is_accessible": {
 										Type:     schema.TypeBool,
+										Computed: true,
+									},
+									"named_credential_id": {
+										Type:     schema.TypeString,
 										Computed: true,
 									},
 									"password_secret_id": {
@@ -149,6 +153,10 @@ func PreferredCredentialSummaryToMap(obj oci_database_management.PreferredCreden
 
 	if obj.IsAccessible != nil {
 		result["is_accessible"] = bool(*obj.IsAccessible)
+	}
+
+	if obj.NamedCredentialId != nil {
+		result["named_credential_id"] = string(*obj.NamedCredentialId)
 	}
 
 	if obj.PasswordSecretId != nil {

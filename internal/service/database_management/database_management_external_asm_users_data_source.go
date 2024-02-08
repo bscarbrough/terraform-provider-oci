@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2023, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2024, Oracle and/or its affiliates. All rights reserved.
 // Licensed under the Mozilla Public License v2.0
 
 package database_management
@@ -21,6 +21,10 @@ func DatabaseManagementExternalAsmUsersDataSource() *schema.Resource {
 			"external_asm_id": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"opc_named_credential_id": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"external_asm_user_collection": {
 				Type:     schema.TypeList,
@@ -91,6 +95,11 @@ func (s *DatabaseManagementExternalAsmUsersDataSourceCrud) Get() error {
 	if externalAsmId, ok := s.D.GetOkExists("external_asm_id"); ok {
 		tmp := externalAsmId.(string)
 		request.ExternalAsmId = &tmp
+	}
+
+	if opcNamedCredentialId, ok := s.D.GetOkExists("opc_named_credential_id"); ok {
+		tmp := opcNamedCredentialId.(string)
+		request.OpcNamedCredentialId = &tmp
 	}
 
 	request.RequestMetadata.RetryPolicy = tfresource.GetRetryPolicy(false, "database_management")

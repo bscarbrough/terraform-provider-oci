@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2023, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2024, Oracle and/or its affiliates. All rights reserved.
 // Licensed under the Mozilla Public License v2.0
 
 package database_management
@@ -30,6 +30,11 @@ func DatabaseManagementManagedDatabasePreferredCredentialDataSource() *schema.Re
 			"is_accessible": {
 				Type:     schema.TypeBool,
 				Computed: true,
+			},
+			"named_credential_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
 			},
 			"password_secret_id": {
 				Type:     schema.TypeString,
@@ -120,6 +125,22 @@ func (s *DatabaseManagementManagedDatabasePreferredCredentialDataSourceCrud) Set
 
 		if v.UserName != nil {
 			s.D.Set("user_name", *v.UserName)
+		}
+
+		if v.CredentialName != nil {
+			s.D.Set("credential_name", *v.CredentialName)
+		}
+
+		if v.IsAccessible != nil {
+			s.D.Set("is_accessible", *v.IsAccessible)
+		}
+
+		s.D.Set("status", v.Status)
+	case oci_database_management.NamedPreferredCredential:
+		s.D.Set("type", "NAMED_CREDENTIAL")
+
+		if v.NamedCredentialId != nil {
+			s.D.Set("named_credential_id", *v.NamedCredentialId)
 		}
 
 		if v.CredentialName != nil {

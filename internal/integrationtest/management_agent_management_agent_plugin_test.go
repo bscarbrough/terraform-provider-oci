@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2023, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2024, Oracle and/or its affiliates. All rights reserved.
 // Licensed under the Mozilla Public License v2.0
 
 package integrationtest
@@ -20,6 +20,7 @@ var (
 		"agent_id":       acctest.Representation{RepType: acctest.Optional, Create: `${var.test_agent_id}`},
 		"platform_type":  acctest.Representation{RepType: acctest.Optional, Create: []string{`LINUX`}},
 		"state":          acctest.Representation{RepType: acctest.Optional, Create: `ACTIVE`},
+		"display_name":   acctest.Representation{RepType: acctest.Required, Create: `Test Plugin`},
 	}
 
 	ManagementAgentPluginResourceConfig = ""

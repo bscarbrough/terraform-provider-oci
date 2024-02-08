@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2023, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2024, Oracle and/or its affiliates. All rights reserved.
 // Licensed under the Mozilla Public License v2.0
 
 package database_migration
@@ -110,7 +110,7 @@ func (s *DatabaseMigrationConnectionDataSourceCrud) SetData() error {
 		s.D.Set("lifecycle_details", *s.Res.LifecycleDetails)
 	}
 
-	s.D.Set("nsg_ids", s.Res.NsgIds)
+	s.D.Set("manual_database_sub_type", s.Res.ManualDatabaseSubType)
 
 	if s.Res.PrivateEndpoint != nil {
 		s.D.Set("private_endpoint", []interface{}{PrivateEndpointDetailsToMap(s.Res.PrivateEndpoint)})

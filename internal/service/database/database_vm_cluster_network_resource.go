@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2023, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2024, Oracle and/or its affiliates. All rights reserved.
 // Licensed under the Mozilla Public License v2.0
 
 package database
@@ -568,11 +568,6 @@ func (s *DatabaseVmClusterNetworkResourceCrud) Update() error {
 
 		return nil
 
-	}
-
-	if s.D.Get("state").(string) == string(oci_database.VmClusterNetworkLifecycleStateValidated) ||
-		s.D.Get("state").(string) == string(oci_database.VmClusterNetworkLifecycleStateAllocated) {
-		return fmt.Errorf("Update not allowed on validated vm cluster network")
 	}
 
 	request := oci_database.UpdateVmClusterNetworkRequest{}

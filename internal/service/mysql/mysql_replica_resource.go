@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2023, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2024, Oracle and/or its affiliates. All rights reserved.
 // Licensed under the Mozilla Public License v2.0
 
 package mysql
@@ -134,6 +134,27 @@ func MysqlReplicaResource() *schema.Resource {
 			"port_x": {
 				Type:     schema.TypeInt,
 				Computed: true,
+			},
+			"secure_connections": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						// Required
+
+						// Optional
+
+						// Computed
+						"certificate_generation_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"certificate_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
 			},
 			"shape_name": {
 				Type:     schema.TypeString,
@@ -441,6 +462,12 @@ func (s *MysqlReplicaResourceCrud) SetData() error {
 		s.D.Set("replica_overrides", []interface{}{ReplicaOverridesToMap(s.Res.ReplicaOverrides)})
 	} else {
 		s.D.Set("replica_overrides", nil)
+	}
+
+	if s.Res.SecureConnections != nil {
+		s.D.Set("secure_connections", []interface{}{SecureConnectionDetailsToMap(s.Res.SecureConnections)})
+	} else {
+		s.D.Set("secure_connections", nil)
 	}
 
 	if s.Res.ShapeName != nil {

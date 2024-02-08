@@ -1,6 +1,10 @@
-// Copyright (c) 2017, 2023, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2024, Oracle and/or its affiliates. All rights reserved.
 // Licensed under the Mozilla Public License v2.0
 
+
+variable "workspace_import_request_are_data_asset_references_included" {
+  default = false
+}
 
 variable "workspace_import_request_bucket" {
   default = "bucket"
@@ -61,6 +65,7 @@ resource "oci_dataintegration_workspace_import_request" "test_workspace_import_r
   workspace_id = var.workspace_id
 
   #Optional
+  are_data_asset_references_included = var.workspace_import_request_are_data_asset_references_included
   import_conflict_resolution {
     #Required
     import_conflict_resolution_type = var.workspace_import_request_import_conflict_resolution_import_conflict_resolution_type

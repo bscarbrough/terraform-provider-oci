@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2023, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2024, Oracle and/or its affiliates. All rights reserved.
 // Licensed under the Mozilla Public License v2.0
 
 package database_management
@@ -25,6 +25,10 @@ func DatabaseManagementExternalListenerServicesDataSource() *schema.Resource {
 			"managed_database_id": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"opc_named_credential_id": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"external_listener_service_collection": {
 				Type:     schema.TypeList,
@@ -97,6 +101,11 @@ func (s *DatabaseManagementExternalListenerServicesDataSourceCrud) Get() error {
 	if managedDatabaseId, ok := s.D.GetOkExists("managed_database_id"); ok {
 		tmp := managedDatabaseId.(string)
 		request.ManagedDatabaseId = &tmp
+	}
+
+	if opcNamedCredentialId, ok := s.D.GetOkExists("opc_named_credential_id"); ok {
+		tmp := opcNamedCredentialId.(string)
+		request.OpcNamedCredentialId = &tmp
 	}
 
 	request.RequestMetadata.RetryPolicy = tfresource.GetRetryPolicy(false, "database_management")

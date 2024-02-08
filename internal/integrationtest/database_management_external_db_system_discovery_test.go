@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2023, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2024, Oracle and/or its affiliates. All rights reserved.
 // Licensed under the Mozilla Public License v2.0
 
 package integrationtest
@@ -60,10 +60,10 @@ func TestDatabaseManagementExternalDbSystemDiscoveryResource_basic(t *testing.T)
 
 	config := acctest.ProviderTestConfig()
 
-	compartmentId := utils.GetEnvSettingWithBlankDefault("compartment_ocid")
+	compartmentId := utils.GetEnvSettingWithBlankDefault("dbmgmt_compartment_id")
 	compartmentIdVariableStr := fmt.Sprintf("variable \"compartment_id\" { default = \"%s\" }\n", compartmentId)
 
-	agentId := utils.GetEnvSettingWithBlankDefault("agent_id")
+	agentId := utils.GetEnvSettingWithBlankDefault("dbmgmt_agent_id")
 	agentIdVariableStr := fmt.Sprintf("variable \"agent_id\" { default = \"%s\" }\n", agentId)
 
 	resourceName := "oci_database_management_external_db_system_discovery.test_external_db_system_discovery"

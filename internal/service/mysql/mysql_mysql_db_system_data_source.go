@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2023, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2024, Oracle and/or its affiliates. All rights reserved.
 // Licensed under the Mozilla Public License v2.0
 
 package mysql
@@ -182,6 +182,12 @@ func (s *MysqlMysqlDbSystemDataSourceCrud) SetData() error {
 
 	if s.Res.PortX != nil {
 		s.D.Set("port_x", *s.Res.PortX)
+	}
+
+	if s.Res.SecureConnections != nil {
+		s.D.Set("secure_connections", []interface{}{SecureConnectionDetailsToMap(s.Res.SecureConnections)})
+	} else {
+		s.D.Set("secure_connections", nil)
 	}
 
 	if s.Res.ShapeName != nil {

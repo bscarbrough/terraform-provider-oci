@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2023, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2024, Oracle and/or its affiliates. All rights reserved.
 // Licensed under the Mozilla Public License v2.0
 
 package mysql
@@ -320,6 +320,27 @@ func MysqlMysqlBackupResource() *schema.Resource {
 						"port_x": {
 							Type:     schema.TypeInt,
 							Computed: true,
+						},
+						"secure_connections": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									// Required
+
+									// Optional
+
+									// Computed
+									"certificate_generation_type": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"certificate_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
 						},
 						"shape_name": {
 							Type:     schema.TypeString,
@@ -795,6 +816,10 @@ func DbSystemSnapshotToMap(obj *oci_mysql.DbSystemSnapshot) map[string]interface
 
 	if obj.PortX != nil {
 		result["port_x"] = int(*obj.PortX)
+	}
+
+	if obj.SecureConnections != nil {
+		result["secure_connections"] = []interface{}{SecureConnectionDetailsToMap(obj.SecureConnections)}
 	}
 
 	if obj.ShapeName != nil {

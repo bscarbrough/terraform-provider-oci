@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2023, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2024, Oracle and/or its affiliates. All rights reserved.
 // Licensed under the Mozilla Public License v2.0
 
 package dataintegration
@@ -75,6 +75,10 @@ func (s *DataintegrationWorkspaceImportRequestDataSourceCrud) SetData() error {
 	}
 
 	s.D.SetId(tfresource.GenerateDataSourceHashID("DataintegrationWorkspaceImportRequestDataSource-", DataintegrationWorkspaceImportRequestDataSource(), s.D))
+
+	if s.Res.AreDataAssetReferencesIncluded != nil {
+		s.D.Set("are_data_asset_references_included", *s.Res.AreDataAssetReferencesIncluded)
+	}
 
 	if s.Res.BucketName != nil {
 		s.D.Set("bucket", *s.Res.BucketName)

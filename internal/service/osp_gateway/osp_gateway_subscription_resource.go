@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2023, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2024, Oracle and/or its affiliates. All rights reserved.
 // Licensed under the Mozilla Public License v2.0
 
 package osp_gateway
@@ -721,6 +721,10 @@ func OspGatewaySubscriptionResource() *schema.Resource {
 						// Optional
 
 						// Computed
+						"giro": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"no_tax_reason_code": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -1807,6 +1811,10 @@ func SubscriptionSummaryToMap(obj oci_osp_gateway.SubscriptionSummary) map[strin
 
 func TaxInfoToMap(obj *oci_osp_gateway.TaxInfo) map[string]interface{} {
 	result := map[string]interface{}{}
+
+	if obj.Giro != nil {
+		result["giro"] = string(*obj.Giro)
+	}
 
 	if obj.NoTaxReasonCode != nil {
 		result["no_tax_reason_code"] = string(*obj.NoTaxReasonCode)

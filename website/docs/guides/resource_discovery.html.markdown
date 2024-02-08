@@ -165,6 +165,7 @@ Make sure the `output_path` is empty before running resource discovery
     * `file_storage` - Discovers file_storage resources within the specified compartment
     * `functions` - Discovers functions resources within the specified compartment
     * `fusion_apps` - Discovers fusion_apps resources within the specified compartment
+    * `generative_ai` - Discovers generative_ai resources within the specified compartment
     * `golden_gate` - Discovers golden_gate resources within the specified compartment
     * `health_checks` - Discovers health_checks resources within the specified compartment
     * `identity` - Discovers identity resources across the entire tenancy
@@ -332,6 +333,15 @@ Example for specifying multiple filters
 ```
 --filter="Type=oci_core_vcn" --filter="AttrName=dns_label;Value=test"     // discover resources of type oci_core_vcn such that they have dns_label attribute value as test
 ```
+### Discover all resources
+
+If TF_DISCOVER_ALL_STATES is set to 1, then Resource Discovery will try to discover all resources irrespective of 
+their lifecycle state.
+
+```
+export TF_DISCOVER_ALL_STATES=1
+```
+
 
 ### Supported Resources
 As of this writing, the list of Terraform services and resources that can be discovered by the command is as follows.
@@ -649,6 +659,7 @@ dataintegration
 * oci\_dataintegration\_workspace\_application
 * oci\_dataintegration\_workspace\_import\_request
 * oci\_dataintegration\_workspace\_export\_request
+* oci\_dataintegration\_workspace\_application\_patch
 
 datascience
 
@@ -736,6 +747,12 @@ fusion_apps
 * oci\_fusion\_apps\_fusion\_environment\_family
 * oci\_fusion\_apps\_fusion\_environment
 * oci\_fusion\_apps\_fusion\_environment\_data\_masking\_activity
+
+generative_ai
+    
+* oci\_generative\_ai\_dedicated\_ai\_cluster
+* oci\_generative\_ai\_endpoint
+* oci\_generative\_ai\_model
 
 golden_gate
 
@@ -886,6 +903,7 @@ management_agent
 
 * oci\_management\_agent\_management\_agent
 * oci\_management\_agent\_management\_agent\_install\_key
+* oci\_management\_agent\_management\_agent\_data\_source
 
 marketplace
 
@@ -1085,6 +1103,7 @@ stack_monitoring
 * oci\_stack\_monitoring\_monitored\_resource\_type
 * oci\_stack\_monitoring\_metric\_extension
 * oci\_stack\_monitoring\_baselineable\_metric
+* oci\_stack\_monitoring\_process\_set
 
 streaming
 

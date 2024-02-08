@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2023, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2024, Oracle and/or its affiliates. All rights reserved.
 // Licensed under the Mozilla Public License v2.0
 
 package database_management
@@ -23,6 +23,10 @@ func DatabaseManagementManagedDatabaseSqlPlanBaselineJobsDataSource() *schema.Re
 				Required: true,
 			},
 			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"opc_named_credential_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -101,6 +105,11 @@ func (s *DatabaseManagementManagedDatabaseSqlPlanBaselineJobsDataSourceCrud) Get
 	if name, ok := s.D.GetOkExists("name"); ok {
 		tmp := name.(string)
 		request.Name = &tmp
+	}
+
+	if opcNamedCredentialId, ok := s.D.GetOkExists("opc_named_credential_id"); ok {
+		tmp := opcNamedCredentialId.(string)
+		request.OpcNamedCredentialId = &tmp
 	}
 
 	request.RequestMetadata.RetryPolicy = tfresource.GetRetryPolicy(false, "database_management")

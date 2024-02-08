@@ -1,3 +1,34 @@
+## 5.28.0 (February 07, 2024)
+
+### Added
+Missing DatabaseManualConnectionSubTypes to oci_database_migration_connection_resource
+- Support for MySQL Database Service: Bring Your Own Certs (BYOC)
+- Support for secret rotation feature in SiV
+- Support for Configuration of Prometheus exporter for Management Agent
+- Support for Digital Media Services - Resource Locking
+### Bug Fix
+- Fix the document for how to update volumes in oci_core_volume_group
+
+## 5.27.0 (January 31, 2024)
+
+### Added
+- Support for Database Management: Database Named Credentials
+- New attribute are_data_asset_references_included in dataintegration import api
+- Upgrade and Manage Payment- Giro dataset fetch and add giro attribute to subscriptions resource
+- Support for DIS Application Patch API
+### Bug Fix
+- Validate VM Cluster tag addition failing in VALIDATED state
+- Consecutive Shrink action api calls fails.
+
+## 5.26.0 (January 24, 2024)
+
+### Added
+- Support for Stack Monitoring: Monitoring Custom Apps using Process Monitoring
+- Support for Oracle Cloud AI Service Generative AI Services
+- Support for International Expansion of Paid Listings - Phase 3
+### Bug Fix
+- Fix update drg attachment when vcn_route_type provided
+
 ## 5.25.0 (January 17, 2024)
 
 ### Added

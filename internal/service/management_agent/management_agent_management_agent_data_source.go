@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2023, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2024, Oracle and/or its affiliates. All rights reserved.
 // Licensed under the Mozilla Public License v2.0
 
 package management_agent
@@ -71,6 +71,12 @@ func (s *ManagementAgentManagementAgentDataSourceCrud) SetData() error {
 	if s.Res.CompartmentId != nil {
 		s.D.Set("compartment_id", *s.Res.CompartmentId)
 	}
+
+	dataSourceList := []interface{}{}
+	for _, item := range s.Res.DataSourceList {
+		dataSourceList = append(dataSourceList, DataSourceToMap(item))
+	}
+	s.D.Set("data_source_list", dataSourceList)
 
 	if s.Res.DefinedTags != nil {
 		s.D.Set("defined_tags", tfresource.DefinedTagsToMap(s.Res.DefinedTags))
