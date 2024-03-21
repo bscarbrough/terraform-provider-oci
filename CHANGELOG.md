@@ -1,3 +1,24 @@
+## 5.34.0 (March 19, 2024)
+
+### Added
+- Support for APM - Attribute Management - Synthetic Spans
+- Support for Enabling outbound private access using PE RCE for OIC Gen3 customers
+- Support for Stack Monitoring: Discovery & Monitoring of OHS
+### Bug Fix
+- [Docs] Other Terraform Feedback
+
+## 5.33.0 (March 12, 2024)
+
+### Added
+- Support for OCI Control Center (OCC) 2.0 Feature Release
+- Support for Adding task schedule API
+- Support for New Dev License type | ADB on ADB-C@C
+- Support for ACD Placement Parameters (Split, Affinity) | ADB-D and ADB-C@C
+- Support for OCI Data Science Model Deployment Autoscaling
+### Bug Fix
+- remove hardcoded values
+- remove space from url
+
 ## 5.32.0 (March 06, 2024)
 
 ### Added
