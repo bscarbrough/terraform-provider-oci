@@ -45,7 +45,7 @@ locals {
   ######################################################################################################################
   # IPV6 Constants
   ######################################################################################################################
-  ipv6_cidr_block = oci_core_vcn.vcn1.ipv6cidr_blocks[0] // this ends in 0::/56
+  ipv6_cidr_block = oci_core_vcn.vcn1.ipv6private_cidr_blocks[0] // this ends in 0::/56
 }
 
 provider "oci" {
@@ -69,6 +69,11 @@ resource "oci_core_vcn" "vcn1" {
   display_name   = "vcn1"
   dns_label      = "vcn1"
   is_ipv6enabled =  true
+  is_oracle_gua_allocation_enabled = false
+  ipv6private_cidr_blocks = ["2000:1000:1200::/56", "fc00:1000:1200::/56"]
+  lifecycle {
+    ignore_changes = [ is_ipv6enabled ]
+  }
 }
 
 resource "oci_core_subnet" "subnet1" {
@@ -94,9 +99,25 @@ resource "oci_core_ipv6" "nlb-ipv6-addr" {
 
 resource "oci_core_subnet" "subnet-ipv6" {
   cidr_block          = "10.1.21.0/24"
-  ipv6cidr_block      = "${substr(local.ipv6_cidr_block,0,length(local.ipv6_cidr_block)-6)}1::/64"
+  ipv6cidr_blocks      = ["2000:1000:1200:0005::/64"]
   display_name        = "subnet-ipv6"
   dns_label           = "subnetipv6"
+  security_list_ids   = [oci_core_security_list.securitylist1.id]
+  compartment_id      = var.compartment_ocid
+  vcn_id              = oci_core_vcn.vcn1.id
+  route_table_id      = oci_core_route_table.routetable-ipv6.id
+  dhcp_options_id     = oci_core_vcn.vcn1.default_dhcp_options_id
+
+  provisioner "local-exec" {
+    command = "sleep 5"
+  }
+}
+
+resource "oci_core_subnet" "subnet-ipv62" {
+  cidr_block          = "10.1.22.0/24"
+  ipv6cidr_blocks      = ["2000:1000:1200:0001::/64", "fc00:1000:1200:0001::/64"]
+  display_name        = "subnet-ipv62"
+  dns_label           = "subnetipv62"
   security_list_ids   = [oci_core_security_list.securitylist1.id]
   compartment_id      = var.compartment_ocid
   vcn_id              = oci_core_vcn.vcn1.id
@@ -233,12 +254,65 @@ EOF
 
 /* Network Load Balancer */
 
+resource "oci_network_load_balancer_network_load_balancer" "nlb-symmetic" {
+  compartment_id = var.compartment_ocid
+
+  subnet_id = oci_core_subnet.subnet1.id
+
+  display_name = "nlb-symmetic"
+
+  is_preserve_source_destination = true
+  is_symmetric_hash_enabled = true
+}
+
+resource "oci_network_load_balancer_backend_set" "nlb-bes-symmetric" {
+  name                     = "nlb-bes-symmetric"
+  network_load_balancer_id = oci_network_load_balancer_network_load_balancer.nlb-symmetic.id
+  policy                   = "TWO_TUPLE"
+
+  health_checker {
+    port                = "8090"
+    protocol            = "TCP"
+    request_data        = "SGVsbG9Xb3JsZA=="
+    response_data       = "SGVsbG9Xb3JsZA=="
+    timeout_in_millis   = 10000
+    interval_in_millis  = 10000
+    retries             = 3
+  }
+  depends_on = [oci_network_load_balancer_network_load_balancer.nlb-symmetic]
+}
+
+resource "oci_network_load_balancer_listener" "nlb-listener-symmetric" {
+  network_load_balancer_id    = oci_network_load_balancer_network_load_balancer.nlb-symmetic.id
+  name                        = "tcp_listener_symmetric"
+  default_backend_set_name    = oci_network_load_balancer_backend_set.nlb-bes-symmetric.name
+  port                        = 80
+  protocol                    = "TCP"
+  depends_on = [oci_network_load_balancer_backend_set.nlb-bes-symmetric]
+}
+
+resource "oci_network_load_balancer_backend" "nlb-be-symmetic" {
+  network_load_balancer_id = oci_network_load_balancer_network_load_balancer.nlb-symmetic.id
+  backend_set_name         = oci_network_load_balancer_backend_set.nlb-bes-symmetric.name
+  ip_address               = "10.1.20.2"
+  port                     = 80
+  is_backup                = false
+  is_drain                 = false
+  is_offline               = false
+  weight                   = 1
+  depends_on = [oci_network_load_balancer_listener.nlb-listener-symmetric]
+}
+
 resource "oci_network_load_balancer_network_load_balancer" "nlb1" {
   compartment_id = var.compartment_ocid
 
   subnet_id = oci_core_subnet.subnet1.id
 
   display_name = "nlb1"
+
+  is_symmetric_hash_enabled = false
+
+  assigned_private_ipv4 = "10.1.20.5"
 }
 
 resource "oci_network_load_balancer_backend_set" "nlb-bes1" {
@@ -255,6 +329,7 @@ resource "oci_network_load_balancer_backend_set" "nlb-bes1" {
     interval_in_millis  = 10000
     retries             = 3
   }
+  depends_on = [oci_network_load_balancer_network_load_balancer.nlb1]
 }
 
 resource "oci_network_load_balancer_backend_set" "nlb-bes2" {
@@ -272,6 +347,7 @@ resource "oci_network_load_balancer_backend_set" "nlb-bes2" {
     interval_in_millis  = 10000
     retries             = 3
   }
+  depends_on = [oci_network_load_balancer_backend_set.nlb-bes1]
 }
 
 resource "oci_network_load_balancer_backend_set" "nlb-bes3" {
@@ -289,6 +365,7 @@ resource "oci_network_load_balancer_backend_set" "nlb-bes3" {
     interval_in_millis  = 10000
     retries             = 3
   }
+  depends_on = [oci_network_load_balancer_backend_set.nlb-bes2]
 }
 
 resource "oci_network_load_balancer_listener" "nlb-listener1" {
@@ -297,44 +374,49 @@ resource "oci_network_load_balancer_listener" "nlb-listener1" {
   default_backend_set_name    = oci_network_load_balancer_backend_set.nlb-bes1.name
   port                        = 80
   protocol                    = "TCP"
+  depends_on = [oci_network_load_balancer_backend_set.nlb-bes3]
 }
 
 resource "oci_network_load_balancer_listener" "nlb-listener2" {
   network_load_balancer_id    = oci_network_load_balancer_network_load_balancer.nlb1.id
   name                        = "udp_listener"
   default_backend_set_name    = oci_network_load_balancer_backend_set.nlb-bes2.name
-  port                        = 80
+  port                        = 22
   protocol                    = "UDP"
+  depends_on = [oci_network_load_balancer_listener.nlb-listener1]
 }
 
 resource "oci_network_load_balancer_listener" "nlb-listener3" {
   network_load_balancer_id    = oci_network_load_balancer_network_load_balancer.nlb1.id
   name                        = "tcp_and_udp_listener"
   default_backend_set_name    = oci_network_load_balancer_backend_set.nlb-bes3.name
-  port                        = 80
+  port                        = 100
   protocol                    = "TCP_AND_UDP"
+  depends_on = [oci_network_load_balancer_listener.nlb-listener2]
 }
 
 resource "oci_network_load_balancer_backend" "nlb-be1" {
   network_load_balancer_id = oci_network_load_balancer_network_load_balancer.nlb1.id
   backend_set_name         = oci_network_load_balancer_backend_set.nlb-bes1.name
-  ip_address               = "10.0.0.3"
+  ip_address               = "10.1.20.1"
   port                     = 80
   is_backup                = false
   is_drain                 = false
   is_offline               = false
   weight                   = 1
+  depends_on = [oci_network_load_balancer_listener.nlb-listener3]
 }
 
 resource "oci_network_load_balancer_backend" "nlb-be2" {
   network_load_balancer_id = oci_network_load_balancer_network_load_balancer.nlb1.id
   backend_set_name         = oci_network_load_balancer_backend_set.nlb-bes2.name
   target_id                = oci_core_instance.instance1.id
-  port                     = 20
+  port                     = 22
   is_backup                = false
   is_drain                 = false
   is_offline               = false
   weight                   = 1
+  depends_on = [oci_network_load_balancer_backend.nlb-be1]
 }
 
 
@@ -356,8 +438,19 @@ resource "oci_network_load_balancer_network_load_balancer" "nlb-ipv6" {
   compartment_id = var.compartment_ocid
 
   subnet_id = oci_core_subnet.subnet-ipv6.id
+  assigned_ipv6 = "2000:1000:1200:0005:0001:0000:0001:0000"
   is_private = false
   display_name = "nlb-ipv6"
+  nlb_ip_version = "IPV4_AND_IPV6"
+}
+
+resource "oci_network_load_balancer_network_load_balancer" "nlb-ipv6-subnetIpv6Cidr" {
+  compartment_id = var.compartment_ocid
+
+  subnet_id = oci_core_subnet.subnet-ipv62.id
+  subnet_ipv6cidr = "fc00:1000:1200:0001::/64"
+  is_private = false
+  display_name = "nlb-ipv6-subnetIpv6Cidr"
   nlb_ip_version = "IPV4_AND_IPV6"
 }
 
@@ -376,6 +469,7 @@ resource "oci_network_load_balancer_backend_set" "nlb-bes-ipv6" {
     interval_in_millis  = 10000
     retries             = 3
   }
+  depends_on = [oci_network_load_balancer_network_load_balancer.nlb-ipv6]
 }
 
 resource "oci_network_load_balancer_listener" "nlb-listener-ipv6" {
@@ -385,15 +479,17 @@ resource "oci_network_load_balancer_listener" "nlb-listener-ipv6" {
   port                        = 80
   protocol                    = "TCP"
   ip_version                  = "IPV6"
+  depends_on = [oci_network_load_balancer_backend_set.nlb-bes-ipv6]
 }
 
 resource "oci_network_load_balancer_backend" "nlb-be-ipv6" {
   network_load_balancer_id = oci_network_load_balancer_network_load_balancer.nlb-ipv6.id
   backend_set_name         = oci_network_load_balancer_backend_set.nlb-bes-ipv6.name
-  ip_address               = "2607:9b80:9a0a:9a7e:abcd:ef01:2345:6789"
+  ip_address               = "2000:1000:1200:0001:0001:1000:0000:0000"
   port                     = 80
   is_backup                = false
   is_drain                 = false
   is_offline               = false
   weight                   = 1
-}
+  depends_on = [oci_network_load_balancer_listener.nlb-listener-ipv6]
+} 

@@ -21,23 +21,30 @@ resource "oci_network_load_balancer_network_load_balancer" "test_network_load_ba
 	compartment_id = var.compartment_id
 	display_name = var.network_load_balancer_display_name
 	subnet_id = oci_core_subnet.test_subnet.id
+	#Optional
+	assigned_ipv6 = var.network_load_balancer_assigned_ipv6
+	assigned_private_ipv4 = var.network_load_balancer_assigned_private_ipv4
 	defined_tags = {"Operations.CostCenter"= "42"}
 	freeform_tags = {"Department"= "Finance"}
 	is_preserve_source_destination = var.network_load_balancer_is_preserve_source_destination
 	is_private = var.network_load_balancer_is_private
+	is_symmetric_hash_enabled = var.network_load_balancer_is_symmetric_hash_enabled
 	network_security_group_ids = var.network_load_balancer_network_security_group_ids
 	nlb_ip_version = var.network_load_balancer_nlb_ip_version
 	reserved_ips {
-
 		#Optional
 		id = var.network_load_balancer_reserved_ips_id
 	}
+	subnet_ipv6cidr = var.network_load_balancer_subnet_ipv6cidr
 }
 ```
 
 ## Argument Reference
 
 The following arguments are supported:
+
+* `assigned_ipv6` - (Optional) IPv6 address to be assigned to the network load balancer being created. This IP address has to be part of one of the prefixes supported by the subnet. Example: "2607:9b80:9a0a:9a7e:abcd:ef01:2345:6789" 
+* `assigned_private_ipv4` - (Optional) Private IP address to be assigned to the network load balancer being created. This IP address has to be in the CIDR range of the subnet where network load balancer is being created Example: "10.0.0.1"
 * `compartment_id` - (Required) (Updatable) The [OCID](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the compartment containing the network load balancer.
 * `defined_tags` - (Optional) (Updatable) Defined tags for this resource. Each key is predefined and scoped to a namespace. Example: `{"foo-namespace.bar-key": "value"}` 
 * `display_name` - (Required) (Updatable) Network load balancer identifier, which can be renamed.
@@ -49,9 +56,12 @@ The following arguments are supported:
 
     If "false", then the service assigns a public IP address to the network load balancer.
 
-    A public network load balancer is accessible from the internet, depending on the [security list rules](https://docs.cloud.oracle.com/iaas/Content/network/Concepts/securitylists.htm) for your virtual cloud network. For more information about public and private network load balancers, see [How Network Load Balancing Works](https://docs.cloud.oracle.com/iaas/Content/Balance/Concepts/balanceoverview.htm#how-network-load-balancing-works). This value is true by default.
+	A public network load balancer is accessible from the internet, depending on the [security list rules](https://docs.cloud.oracle.com/iaas/Content/network/Concepts/securitylists.htm) for your virtual cloud network. For more information about public and private network load balancers, see [How Network Load Balancing Works](https://docs.cloud.oracle.com/iaas/Content/NetworkLoadBalancer/overview.htm). This value is true by default.
 
-    Example: `true` 
+	Example: `true` 
+* `is_symmetric_hash_enabled` - (Optional) (Updatable) This can only be enabled when NLB is working in transparent mode with source destination header preservation enabled.  This removes the additional dependency from NLB backends(like Firewalls) to perform SNAT. 
+
+	Example: `true`
 * `network_security_group_ids` - (Optional) (Updatable) An array of network security groups [OCIDs](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm) associated with the network load balancer.
 
     During the creation of the network load balancer, the service adds the new load balancer to the specified network security groups.
@@ -73,6 +83,7 @@ The following arguments are supported:
 
         Example: "ocid1.publicip.oc1.phx.unique_ID" 
 * `subnet_id` - (Required) The subnet in which the network load balancer is spawned [OCIDs](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm).
+* `subnet_ipv6cidr` - (Optional) IPv6 subnet prefix selection. If Ipv6 subnet prefix is passed, Nlb Ipv6 Address would be assign within the cidr block. NLB has to be dual or single stack ipv6 to support this.
 
 
 ** IMPORTANT **
@@ -112,10 +123,13 @@ The following attributes are exported:
 
     If "false", then the service assigns a public IP address to the network load balancer.
 
-    A public network load balancer is accessible from the internet, depending the [security list rules](https://docs.cloud.oracle.com/iaas/Content/network/Concepts/securitylists.htm) for your virtual cloudn network. For more information about public and private network load balancers, see [How Network Load Balancing Works](https://docs.cloud.oracle.com/iaas/Content/Balance/Concepts/balanceoverview.htm#how-network-load-balancing-works). This value is true by default.
+	A public network load balancer is accessible from the internet, depending the [security list rules](https://docs.cloud.oracle.com/iaas/Content/network/Concepts/securitylists.htm) for your virtual cloudn network. For more information about public and private network load balancers, see [How Network Load Balancing Works](https://docs.cloud.oracle.com/iaas/Content/NetworkLoadBalancer/overview.htm). This value is true by default.
+
+	Example: `true` 
+* `is_symmetric_hash_enabled` - This can only be enabled when NLB is working in transparent mode with source destination header preservation enabled.  This removes the additional dependency from NLB backends(like Firewalls) to perform SNAT.
 
     Example: `true` 
-* `lifecycle_details` - A message describing the current state in more detail. For example, can be used to provide actionable information for a resource in Failed state. 
+* `lifecycle_details` - A message describing the current state in more detail. For example, can be used to provide actionable information for a resource in Failed state.
 * `network_security_group_ids` - An array of network security groups [OCIDs](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm) associated with the network load balancer.
 
     During the creation of the network load balancer, the service adds the new load balancer to the specified network security groups.

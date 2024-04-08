@@ -46,6 +46,18 @@ func NetworkLoadBalancerNetworkLoadBalancerResource() *schema.Resource {
 			},
 
 			// Optional
+			"assigned_ipv6": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: false,
+				ForceNew: true,
+			},
+			"assigned_private_ipv4": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: false,
+				ForceNew: true,
+			},
 			"defined_tags": {
 				Type:             schema.TypeMap,
 				Optional:         true,
@@ -69,6 +81,11 @@ func NetworkLoadBalancerNetworkLoadBalancerResource() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+			},
+			"is_symmetric_hash_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
 			},
 			"network_security_group_ids": {
 				Type:     schema.TypeSet,
@@ -103,6 +120,12 @@ func NetworkLoadBalancerNetworkLoadBalancerResource() *schema.Resource {
 						// Computed
 					},
 				},
+			},
+			"subnet_ipv6cidr": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: false,
+				ForceNew: true,
 			},
 
 			// Computed
@@ -245,6 +268,16 @@ func (s *NetworkLoadBalancerNetworkLoadBalancerResourceCrud) DeletedTarget() []s
 func (s *NetworkLoadBalancerNetworkLoadBalancerResourceCrud) Create() error {
 	request := oci_network_load_balancer.CreateNetworkLoadBalancerRequest{}
 
+	if assignedIpv6, ok := s.D.GetOkExists("assigned_ipv6"); ok {
+		tmp := assignedIpv6.(string)
+		request.AssignedIpv6 = &tmp
+	}
+
+	if assignedPrivateIpv4, ok := s.D.GetOkExists("assigned_private_ipv4"); ok {
+		tmp := assignedPrivateIpv4.(string)
+		request.AssignedPrivateIpv4 = &tmp
+	}
+
 	if compartmentId, ok := s.D.GetOkExists("compartment_id"); ok {
 		tmp := compartmentId.(string)
 		request.CompartmentId = &tmp
@@ -275,6 +308,11 @@ func (s *NetworkLoadBalancerNetworkLoadBalancerResourceCrud) Create() error {
 	if isPrivate, ok := s.D.GetOkExists("is_private"); ok {
 		tmp := isPrivate.(bool)
 		request.IsPrivate = &tmp
+	}
+
+	if isSymmetricHashEnabled, ok := s.D.GetOkExists("is_symmetric_hash_enabled"); ok {
+		tmp := isSymmetricHashEnabled.(bool)
+		request.IsSymmetricHashEnabled = &tmp
 	}
 
 	if networkSecurityGroupIds, ok := s.D.GetOkExists("network_security_group_ids"); ok {
@@ -313,6 +351,11 @@ func (s *NetworkLoadBalancerNetworkLoadBalancerResourceCrud) Create() error {
 	if subnetId, ok := s.D.GetOkExists("subnet_id"); ok {
 		tmp := subnetId.(string)
 		request.SubnetId = &tmp
+	}
+
+	if subnetIpv6Cidr, ok := s.D.GetOkExists("subnet_ipv6cidr"); ok {
+		tmp := subnetIpv6Cidr.(string)
+		request.SubnetIpv6Cidr = &tmp
 	}
 
 	request.RequestMetadata.RetryPolicy = tfresource.GetRetryPolicy(s.DisableNotFoundRetries, "network_load_balancer")
@@ -485,6 +528,12 @@ func (s *NetworkLoadBalancerNetworkLoadBalancerResourceCrud) Update() error {
 
 	request := oci_network_load_balancer.UpdateNetworkLoadBalancerRequest{}
 
+	if assignedIpv6, ok := s.D.GetOkExists("assigned_ipv6"); ok &&
+		s.D.HasChange("assigned_ipv6") {
+		tmp := assignedIpv6.(string)
+		request.AssignedIpv6 = &tmp
+	}
+
 	if definedTags, ok := s.D.GetOkExists("defined_tags"); ok {
 		convertedDefinedTags, err := tfresource.MapToDefinedTags(definedTags.(map[string]interface{}))
 		if err != nil {
@@ -507,11 +556,23 @@ func (s *NetworkLoadBalancerNetworkLoadBalancerResourceCrud) Update() error {
 		request.IsPreserveSourceDestination = &tmp
 	}
 
+	if isSymmetricHashEnabled, ok := s.D.GetOkExists("is_symmetric_hash_enabled"); ok {
+		tmp := isSymmetricHashEnabled.(bool)
+		request.IsSymmetricHashEnabled = &tmp
+	}
+
 	tmp := s.D.Id()
 	request.NetworkLoadBalancerId = &tmp
 	if nlbIpVersion, ok := s.D.GetOkExists("nlb_ip_version"); ok {
 		request.NlbIpVersion = oci_network_load_balancer.NlbIpVersionEnum(nlbIpVersion.(string))
 	}
+
+	if subnetIpv6Cidr, ok := s.D.GetOkExists("subnet_ipv6cidr"); ok &&
+		s.D.HasChange("subnet_ipv6cidr") {
+		tmp := subnetIpv6Cidr.(string)
+		request.SubnetIpv6Cidr = &tmp
+	}
+
 	request.RequestMetadata.RetryPolicy = tfresource.GetRetryPolicy(s.DisableNotFoundRetries, "network_load_balancer")
 
 	response, err := s.Client.UpdateNetworkLoadBalancer(context.Background(), request)
@@ -570,6 +631,10 @@ func (s *NetworkLoadBalancerNetworkLoadBalancerResourceCrud) SetData() error {
 
 	if s.Res.IsPrivate != nil {
 		s.D.Set("is_private", *s.Res.IsPrivate)
+	}
+
+	if s.Res.IsSymmetricHashEnabled != nil {
+		s.D.Set("is_symmetric_hash_enabled", *s.Res.IsSymmetricHashEnabled)
 	}
 
 	if s.Res.LifecycleDetails != nil {
@@ -654,6 +719,10 @@ func NetworkLoadBalancerSummaryToMap(obj oci_network_load_balancer.NetworkLoadBa
 
 	if obj.IsPrivate != nil {
 		result["is_private"] = bool(*obj.IsPrivate)
+	}
+
+	if obj.IsSymmetricHashEnabled != nil {
+		result["is_symmetric_hash_enabled"] = bool(*obj.IsSymmetricHashEnabled)
 	}
 
 	if obj.LifecycleDetails != nil {
