@@ -1,3 +1,20 @@
+## 5.41.0 (May 07, 2024)
+
+### Added
+- Support for ExaDB-D@D Resize of Local Files Systems (non /u02)
+- Support for adding pause step in DR Plan
+- Support for Load Balancer LSE Prevention: Delete Protection, backend Max Connections, and Listener Max Connections
+
+## 5.40.0 (May 01, 2024)
+
+### Added
+- Support for Database Management : Support ExaCC databases Fixed merge conflicts
+- Support for New Features: Network Security Group support in ZRCV cloud service
+- Support for Data Safe - Pre masking health check
+- Support for Ability to set Unified Auditing option for Create DBHome | ExaDB-D
+- Fixed AWS_S3 migrations bug, update resource issue with the optional atributes and documentation added
+OKE Workload Identity Auth support
+
 ## 5.39.0 (April 24, 2024)
 
 ### Added
