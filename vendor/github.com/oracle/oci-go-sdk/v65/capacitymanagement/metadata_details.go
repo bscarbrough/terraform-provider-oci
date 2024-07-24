@@ -2,9 +2,9 @@
 // This software is dual-licensed to you under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose either license.
 // Code generated. DO NOT EDIT.
 
-// OciControlCenterCp API
+// OCI Control Center Capacity Management API
 //
-// A description of the OciControlCenterCp API
+// OCI Control Center (OCC) Capacity Management enables you to manage capacity requests in realms where OCI Control Center Capacity Management is available. For more information, see OCI Control Center (https://docs.cloud.oracle.com/iaas/Content/control-center/home.htm).
 //
 
 package capacitymanagement
@@ -47,14 +47,17 @@ type MetadataDetailsFormatVersionEnum string
 // Set of constants representing the allowable values for MetadataDetailsFormatVersionEnum
 const (
 	MetadataDetailsFormatVersionV1 MetadataDetailsFormatVersionEnum = "V1"
+	MetadataDetailsFormatVersionV2 MetadataDetailsFormatVersionEnum = "V2"
 )
 
 var mappingMetadataDetailsFormatVersionEnum = map[string]MetadataDetailsFormatVersionEnum{
 	"V1": MetadataDetailsFormatVersionV1,
+	"V2": MetadataDetailsFormatVersionV2,
 }
 
 var mappingMetadataDetailsFormatVersionEnumLowerCase = map[string]MetadataDetailsFormatVersionEnum{
 	"v1": MetadataDetailsFormatVersionV1,
+	"v2": MetadataDetailsFormatVersionV2,
 }
 
 // GetMetadataDetailsFormatVersionEnumValues Enumerates the set of values for MetadataDetailsFormatVersionEnum
@@ -70,6 +73,7 @@ func GetMetadataDetailsFormatVersionEnumValues() []MetadataDetailsFormatVersionE
 func GetMetadataDetailsFormatVersionEnumStringValues() []string {
 	return []string{
 		"V1",
+		"V2",
 	}
 }
 

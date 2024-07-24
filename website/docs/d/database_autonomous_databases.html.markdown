@@ -231,6 +231,16 @@ The following attributes are exported:
 * `private_endpoint_ip` - The private endpoint Ip address for the resource.
 * `private_endpoint_label` - The private endpoint label for the resource.
 * `provisionable_cpus` - An array of CPU values that an Autonomous Database can be scaled to.
+* `public_connection_urls` - The Public URLs of Private Endpoint database for accessing Oracle Application Express (APEX) and SQL Developer Web with a browser from a Compute instance within your VCN or that has a direct connection to your VCN.
+	* `apex_url` - Oracle Application Express (APEX) URL.
+	* `database_transforms_url` - The URL of the Database Transforms for the Autonomous Database.
+	* `graph_studio_url` - The URL of the Graph Studio for the Autonomous Database.
+	* `machine_learning_notebook_url` - The URL of the Oracle Machine Learning (OML) Notebook for the Autonomous Database.
+	* `machine_learning_user_management_url` - Oracle Machine Learning user management URL.
+	* `mongo_db_url` - The URL of the MongoDB API for the Autonomous Database.
+	* `ords_url` - The Oracle REST Data Services (ORDS) URL of the Web Access for the Autonomous Database.
+	* `sql_dev_web_url` - Oracle SQL Developer Web URL.
+* `public_endpoint` - The public endpoint for the private endpoint enabled resource.
 * `refreshable_mode` - The refresh mode of the clone. AUTOMATIC indicates that the clone is automatically being refreshed with data from the source Autonomous Database.
 * `refreshable_status` - The refresh status of the clone. REFRESHING indicates that the clone is currently being refreshed with data from the source Autonomous Database.
 * `remote_disaster_recovery_configuration` - Configurations of a Disaster Recovery.
@@ -272,6 +282,7 @@ The following attributes are exported:
 	* For Autonomous Database, setting this will disable public secure access to the database.
 
 	These subnets are used by the Oracle Clusterware private interconnect on the database instance. Specifying an overlapping subnet will cause the private interconnect to malfunction. This restriction applies to both the client subnet and the backup subnet. 
+* `subscription_id` - The [OCID](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the subscription with which resource needs to be associated with.
 * `supported_regions_to_clone_to` - The list of regions that support the creation of an Autonomous Database clone or an Autonomous Data Guard standby database. 
 * `system_tags` - System tags for this resource. Each key is predefined and scoped to a namespace. For more information, see [Resource Tags](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/resourcetags.htm). 
 * `time_created` - The date and time the Autonomous Database was created.

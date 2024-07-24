@@ -217,10 +217,22 @@ The following attributes are exported:
 
 	This setting cannot be updated in parallel with any of the following: licenseModel, dbEdition, cpuCoreCount, computeCount, computeModel, adminPassword, whitelistedIps, isMTLSConnectionRequired, dbWorkload, dbVersion, isRefreshable, dbName, scheduledOperations, dbToolsDetails, or isFreeTier. 
 * `provisionable_cpus` - An array of CPU values that an Autonomous Database can be scaled to.
+* `public_connection_urls` - The Public URLs of Private Endpoint database for accessing Oracle Application Express (APEX) and SQL Developer Web with a browser from a Compute instance within your VCN or that has a direct connection to your VCN.
+	* `apex_url` - Oracle Application Express (APEX) URL.
+	* `database_transforms_url` - The URL of the Database Transforms for the Autonomous Database.
+	* `graph_studio_url` - The URL of the Graph Studio for the Autonomous Database.
+	* `machine_learning_notebook_url` - The URL of the Oracle Machine Learning (OML) Notebook for the Autonomous Database.
+	* `machine_learning_user_management_url` - Oracle Machine Learning user management URL.
+	* `mongo_db_url` - The URL of the MongoDB API for the Autonomous Database.
+	* `ords_url` - The Oracle REST Data Services (ORDS) URL of the Web Access for the Autonomous Database.
+	* `sql_dev_web_url` - Oracle SQL Developer Web URL.
+* `public_endpoint` - The public endpoint for the private endpoint enabled resource.
 * `refreshable_mode` - The refresh mode of the clone. AUTOMATIC indicates that the clone is automatically being refreshed with data from the source Autonomous Database.
 * `refreshable_status` - The refresh status of the clone. REFRESHING indicates that the clone is currently being refreshed with data from the source Autonomous Database.
 * `remote_disaster_recovery_configuration` - Configurations of a Disaster Recovery.
-	* `disaster_recovery_type` - Indicates the disaster recovery (DR) type of the Shared Autonomous Database. Autonomous Data Guard (ADG) DR type provides business critical DR with a faster recovery time objective (RTO) during failover or switchover. Backup-based DR type provides lower cost DR with a slower RTO during failover or switchover.
+	* `disaster_recovery_type` - Indicates the disaster recovery (DR) type of the Autonomous Database Serverless instance. Autonomous Data Guard (ADG) DR type provides business critical DR with a faster recovery time objective (RTO) during failover or switchover. Backup-based DR type provides lower cost DR with a slower RTO during failover or switchover.
+	* `is_snapshot_standby` - Indicates if user wants to convert to a snapshot standby. For example, true would set a standby database to snapshot standby database. False would set a snapshot standby database back to regular standby database.
+	* `time_snapshot_standby_enabled_till` - Time and date stored as an RFC 3339 formatted timestamp string. For example, 2022-01-01T12:00:00.000Z would set a limit for the snapshot standby to be converted back to a cross-region standby database.
 * `resource_pool_leader_id` - The unique identifier for leader autonomous database OCID [OCID](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm).
 * `resource_pool_summary` - The configuration details for resource pool
     * `is_disabled` - Indicates if the resource pool should be deleted for the Autonomous Database.  
@@ -257,6 +269,7 @@ The following attributes are exported:
 	* For Autonomous Database, setting this will disable public secure access to the database.
 
 	These subnets are used by the Oracle Clusterware private interconnect on the database instance. Specifying an overlapping subnet will cause the private interconnect to malfunction. This restriction applies to both the client subnet and the backup subnet. 
+* `subscription_id` - The [OCID](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the subscription with which resource needs to be associated with.
 * `supported_regions_to_clone_to` - The list of regions that support the creation of an Autonomous Database clone or an Autonomous Data Guard standby database. 
 * `system_tags` - System tags for this resource. Each key is predefined and scoped to a namespace. For more information, see [Resource Tags](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/resourcetags.htm). 
 * `time_created` - The date and time the Autonomous Database was created.

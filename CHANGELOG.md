@@ -1,4 +1,122 @@
-## 5.42.0 (May 15, 2024)
+## 6.4.0 (July 24, 2024)
+
+### Added
+- Support for APM - Synthetics - SQL Monitor Type Support
+- Support for Oracle Sharded Database
+- Support for ADB-S: Licenses Input option for better BYOL flexibility
+- Support for Data Safe - Usability enhancements to data discovery feature
+- Support for Operations Insights : MYSQL Analytics
+- Support for [Add subscriptionId attribute support for AutonomousDatabase resource] Terraform Setup
+- Support for Add subscriptionId attribute support for Cloud Exa Infra/VM Cluster
+- Support for ExaDB-C@C OKV Integration Phase 2 with EXACC to Manage TDE Keys Dataguard / Create DB
+### Bug Fix
+- Terraform bug fixes - Data safe Audit (Provider-Only)
+
+## 6.3.0 (July 16, 2024)
+
+### Deprecation
+em_warehouse service
+### Bug Fix
+Autostart and autostop along with other updates.
+
+## 6.2.0 (July 10, 2024)
+
+### Added
+- Support for Support Dynamic list of ZDM parameters for Oracle<>Oracle migrations
+- Support for Shared Resources feature
+### Bug Fix
+- Update current_version_number on secret_content update
+
+## 6.1.0 (July 02, 2024)
+
+### Added
+- Support for MySQL Homogenous Migration support
+- Support for Generative AI Service - Lora Fine-Tuning Method
+- Support for Resource Scheduler
+- Support for File Storage: Clone detach feature
+- Support for Oracle Exadata Database Service on Exascale Infrastructure | ExaDB-XS
+### Bug Fix
+- formatted database migration code
+- tagging in management_agent
+
+## 6.0.0 (June 26, 2024)
+
+### Added
+- Support for JMS Implement management resource for advancedFeatureConfiguration
+- Support for Terraform integration for MHS: Manual Cross region backup copy
+### Removed
+- datasources
+  - oci_database_migration_connection, oci_database_migration_connections, oci_database_migration_migration, oci_database_migration_migrations
+- resources
+  - oci_database_migration_connection, oci_database_migration_migration
+### Bug Fix
+Fixed DB unique name parameter not getting honoured for new base DB system resource
+
+## 5.47.0 (June 18, 2024)
+
+### Added
+- Support for ADB-S: Allow Public Access to Databases on Private Endpoint
+- management resource for masking policy health report in Data Safe
+- Upgrade golang.org/x/net to v0.23.0
+- Support for Dynamic Notification for Alarms
+### Bug Fix
+- Terraform for fix autostart and autostop removal of scheduled operations
+- Need to Set db_node_id int Set db_node function
+- allow update native pod networking, only update placement config when there is a change
+- oci_log_analytics_namespace source doc fix
+
+## 5.46.0 (June 11, 2024)
+
+### Added
+- Support for Dynamic Notification for Alarms
+### Bug Fix
+- oci_log_analytics_namespace source doc fix
+
+## 5.45.0 (June 04, 2024)
+
+### Added
+- Support for ADB-S: Cross-Tenancy Autonomous Data Guard standby
+examples and tests
+- Support for GoldenGate - Resource Locking
+- Support for Add DB2 deployment and additional connection types (R5)
+### Bug Fix
+- Fix function batching terraform bug
+- Capacity Management Breaking change fix
+
+## 5.44.0 (May 29, 2024)
+
+### Added
+- Support for Fix missing TLSv1.3 protocol documentation from Load Balancer provider
+- Support for OS Patching in Batch API Design
+- Support for Java Management Service API enhancements to support SPLAT tagstore feature (API only)
+- Support for Database Management : Standby Database Monitoring.
+- Added golang and plug-in SDK version upgrade
+### Bug Fix
+- fix dbHome deletion and CEI polling workrequest.
+
+## 5.43.0 (May 29, 2024)
+
+### Added
+- Support for ODSC - Nested Resource Principal Support
+- Support for ODSC - Pipelines v2
+- Create_management resource for set baseline for Security Assessment and User Assessment in Data Safe
+- Support for CloudGuard - Container Workload Integrationn
+- Support for OS Management Hub - OCI Instance Support & ALX Support
+- VCNIP Provide IP Inventory view and IP Utilization alerts
+- Support for ExaDB-C@C Resize of Local Files Systems (non /u02)
+- Support for [DMS] Fixing AWS_S3 issue in the example file
+- Support for OCI NLB Proxy Protocol Support
+- Support for Email Delivery: Custom Return Path API
+session resumption support for LB
+- Support for OS Management Hub - OCI Instance Support & ALX Support
+- Create_management resource for Masking Report in Data Safe
+### Bug Fix
+- API_KEY_UPDATE
+- purge_trigger and purge_queue bugs in Queue provider
+- revert Devops Deploy Deployment Execution Progress
+- fix oci_log_analytics_namespace import issue
+
+## 5.42.0 (May 29, 2024)
 
 ### Added
 - VCNIP Provide IP Inventory view and IP Utilization alerts

@@ -66,6 +66,7 @@ resource "oci_database_db_system" "test_db_system" {
 			db_workload = var.db_system_db_home_database_db_workload
 			defined_tags = var.db_system_db_home_database_defined_tags
 			freeform_tags = var.db_system_db_home_database_freeform_tags
+			key_store_id = oci_database_key_store.test_key_store.id
 			kms_key_id = oci_kms_key.test_key.id
 			kms_key_version_id = oci_kms_key_version.test_key_version.id
 			ncharacter_set = var.db_system_db_home_database_ncharacter_set
@@ -79,6 +80,7 @@ resource "oci_database_db_system" "test_db_system" {
 
 		#Optional
 		database_software_image_id = oci_database_database_software_image.test_database_software_image.id
+		db_unique_name = var.db_unique_name
 		db_version = var.db_system_db_home_db_version
 		defined_tags = var.db_system_db_home_defined_tags
 		display_name = var.db_system_db_home_display_name
@@ -215,6 +217,7 @@ The following arguments are supported:
 			The database workload type. 
 		* `defined_tags` - (Applicable when source=DB_SYSTEM | NONE) (Updatable) Defined tags for this resource. Each key is predefined and scoped to a namespace. For more information, see [Resource Tags](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/resourcetags.htm). 
 		* `freeform_tags` - (Applicable when source=DB_SYSTEM | NONE) (Updatable) Free-form tags for this resource. Each tag is a simple key-value pair with no predefined name, type, or namespace. For more information, see [Resource Tags](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/resourcetags.htm).  Example: `{"Department": "Finance"}` 
+		* `key_store_id` - (Applicable when source=NONE) The [OCID](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the key store of Oracle Vault.
 		* `kms_key_id` - (Applicable when source=NONE) The OCID of the key container that is used as the master encryption key in database transparent data encryption (TDE) operations.
 		* `kms_key_version_id` - (Applicable when source=NONE) The OCID of the key container version that is used in database transparent data encryption (TDE) operations KMS Key can have multiple key versions. If none is specified, the current key version (latest) of the Key Id is used for the operation. 
 		* `ncharacter_set` - (Applicable when source=NONE) The national character set for the database.  The default is AL16UTF16. Allowed values are: AL16UTF16 or UTF8. 
@@ -225,6 +228,7 @@ The following arguments are supported:
 		* `time_stamp_for_point_in_time_recovery` - (Applicable when source=DATABASE) The point in time of the original database from which the new database is created. If not specifed, the latest backup is used to create the database.
 		* `vault_id` - (Applicable when source=NONE) The [OCID](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the Oracle Cloud Infrastructure [vault](https://docs.cloud.oracle.com/iaas/Content/KeyManagement/Concepts/keyoverview.htm#concepts).
 	* `database_software_image_id` - (Applicable when source=DB_BACKUP | NONE) The database software image [OCID](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the image to be used to restore a database.
+    * `db_unique_name` - (Optional) The `DB_UNIQUE_NAME` of the Oracle Database.
 	* `db_version` - (Required when source=NONE) A valid Oracle Database version. For a list of supported versions, use the ListDbVersions operation.
 
 		This cannot be updated in parallel with any of the following: licenseModel, dbEdition, cpuCoreCount, computeCount, computeModel, adminPassword, whitelistedIps, isMTLSConnectionRequired, openMode, permissionLevel, dbWorkload, privateEndpointLabel, nsgIds, isRefreshable, dbName, scheduledOperations, dbToolsDetails, isLocalDataGuardEnabled, or isFreeTier. 

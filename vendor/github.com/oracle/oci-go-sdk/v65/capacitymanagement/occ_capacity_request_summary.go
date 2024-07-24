@@ -2,9 +2,9 @@
 // This software is dual-licensed to you under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose either license.
 // Code generated. DO NOT EDIT.
 
-// OciControlCenterCp API
+// OCI Control Center Capacity Management API
 //
-// A description of the OciControlCenterCp API
+// OCI Control Center (OCC) Capacity Management enables you to manage capacity requests in realms where OCI Control Center Capacity Management is available. For more information, see OCI Control Center (https://docs.cloud.oracle.com/iaas/Content/control-center/home.htm).
 //
 
 package capacitymanagement
@@ -60,6 +60,9 @@ type OccCapacityRequestSummary struct {
 	// Meaningful text about the capacity request.
 	Description *string `mandatory:"false" json:"description"`
 
+	// Type of Capacity Request(New or Transfer)
+	RequestType OccCapacityRequestRequestTypeEnum `mandatory:"false" json:"requestType,omitempty"`
+
 	// A message describing the current state in more detail. For example, can be used to provide actionable information for a resource in a Failed State.
 	LifecycleDetails *string `mandatory:"false" json:"lifecycleDetails"`
 
@@ -95,6 +98,9 @@ func (m OccCapacityRequestSummary) ValidateEnumValue() (bool, error) {
 		errMessage = append(errMessage, fmt.Sprintf("unsupported enum value for LifecycleState: %s. Supported values are: %s.", m.LifecycleState, strings.Join(GetOccCapacityRequestLifecycleStateEnumStringValues(), ",")))
 	}
 
+	if _, ok := GetMappingOccCapacityRequestRequestTypeEnum(string(m.RequestType)); !ok && m.RequestType != "" {
+		errMessage = append(errMessage, fmt.Sprintf("unsupported enum value for RequestType: %s. Supported values are: %s.", m.RequestType, strings.Join(GetOccCapacityRequestRequestTypeEnumStringValues(), ",")))
+	}
 	if len(errMessage) > 0 {
 		return true, fmt.Errorf(strings.Join(errMessage, "\n"))
 	}

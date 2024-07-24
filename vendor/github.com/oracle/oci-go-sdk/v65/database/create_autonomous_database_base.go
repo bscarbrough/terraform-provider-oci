@@ -17,15 +17,20 @@ import (
 )
 
 // CreateAutonomousDatabaseBase Details to create an Oracle Autonomous Database.
+//
 // **Notes:**
 // - To specify OCPU core count, you must use either `ocpuCount` or `cpuCoreCount`. You cannot use both parameters at the same time. For Autonomous Database Serverless instances, `ocpuCount` is not used.
 // - To specify a storage allocation, you must use  either `dataStorageSizeInGBs` or `dataStorageSizeInTBs`.
 // - See the individual parameter discriptions for more information on the OCPU and storage value parameters.
+//
 // **Warning:** Oracle recommends that you avoid using any confidential information when you supply string values using the API.
 type CreateAutonomousDatabaseBase interface {
 
 	// The OCID (https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm) of the compartment of the Autonomous Database.
 	GetCompartmentId() *string
+
+	// The OCID (https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm) of the subscription with which resource needs to be associated with.
+	GetSubscriptionId() *string
 
 	// The character set for the autonomous database. The default is AL32UTF8. Allowed values for an Autonomous Database Serverless instance as as returned by List Autonomous Database Character Sets (https://docs.oracle.com/iaas/autonomous-database-serverless/doc/autonomous-character-set-selection.html)
 	// For an Autonomous Database on dedicated infrastructure, the allowed values are:
@@ -105,6 +110,9 @@ type CreateAutonomousDatabaseBase interface {
 	// Autonomous Exadata Infrastructure level. When provisioning an Autonomous Database Serverless  (https://docs.oracle.com/en/cloud/paas/autonomous-database/index.html) database, if a value is not specified, the system defaults the value to `BRING_YOUR_OWN_LICENSE`. Bring your own license (BYOL) also allows you to select the DB edition using the optional parameter.
 	// This cannot be updated in parallel with any of the following: cpuCoreCount, computeCount, dataStorageSizeInTBs, adminPassword, isMTLSConnectionRequired, dbWorkload, privateEndpointLabel, nsgIds, dbVersion, dbName, scheduledOperations, dbToolsDetails, or isFreeTier.
 	GetLicenseModel() CreateAutonomousDatabaseBaseLicenseModelEnum
+
+	// The maximum number of CPUs allowed with a Bring Your Own License (BYOL), including those used for auto-scaling, disaster recovery, tools, etc. Any CPU usage above this limit is considered as License Included and billed.
+	GetByolComputeCountLimit() *float32
 
 	// If set to `TRUE`, indicates that an Autonomous Database preview version is being provisioned, and that the preview version's terms of service have been accepted. Note that preview version software is only available for Autonomous Database Serverless instances (https://docs.oracle.com/en/cloud/paas/autonomous-database/serverless/).
 	GetIsPreviewVersionWithServiceTermsAccepted() *bool
@@ -251,6 +259,7 @@ type CreateAutonomousDatabaseBase interface {
 
 type createautonomousdatabasebase struct {
 	JsonData                                 []byte
+	SubscriptionId                           *string                                                           `mandatory:"false" json:"subscriptionId"`
 	CharacterSet                             *string                                                           `mandatory:"false" json:"characterSet"`
 	NcharacterSet                            *string                                                           `mandatory:"false" json:"ncharacterSet"`
 	DbName                                   *string                                                           `mandatory:"false" json:"dbName"`
@@ -268,6 +277,7 @@ type createautonomousdatabasebase struct {
 	AdminPassword                            *string                                                           `mandatory:"false" json:"adminPassword"`
 	DisplayName                              *string                                                           `mandatory:"false" json:"displayName"`
 	LicenseModel                             CreateAutonomousDatabaseBaseLicenseModelEnum                      `mandatory:"false" json:"licenseModel,omitempty"`
+	ByolComputeCountLimit                    *float32                                                          `mandatory:"false" json:"byolComputeCountLimit"`
 	IsPreviewVersionWithServiceTermsAccepted *bool                                                             `mandatory:"false" json:"isPreviewVersionWithServiceTermsAccepted"`
 	IsAutoScalingEnabled                     *bool                                                             `mandatory:"false" json:"isAutoScalingEnabled"`
 	IsDevTier                                *bool                                                             `mandatory:"false" json:"isDevTier"`
@@ -314,6 +324,7 @@ func (m *createautonomousdatabasebase) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	m.CompartmentId = s.Model.CompartmentId
+	m.SubscriptionId = s.Model.SubscriptionId
 	m.CharacterSet = s.Model.CharacterSet
 	m.NcharacterSet = s.Model.NcharacterSet
 	m.DbName = s.Model.DbName
@@ -331,6 +342,7 @@ func (m *createautonomousdatabasebase) UnmarshalJSON(data []byte) error {
 	m.AdminPassword = s.Model.AdminPassword
 	m.DisplayName = s.Model.DisplayName
 	m.LicenseModel = s.Model.LicenseModel
+	m.ByolComputeCountLimit = s.Model.ByolComputeCountLimit
 	m.IsPreviewVersionWithServiceTermsAccepted = s.Model.IsPreviewVersionWithServiceTermsAccepted
 	m.IsAutoScalingEnabled = s.Model.IsAutoScalingEnabled
 	m.IsDevTier = s.Model.IsDevTier
@@ -395,6 +407,10 @@ func (m *createautonomousdatabasebase) UnmarshalPolymorphicJSON(data []byte) (in
 		mm := CreateAutonomousDatabaseFromBackupTimestampDetails{}
 		err = json.Unmarshal(data, &mm)
 		return mm, err
+	case "CROSS_TENANCY_DISASTER_RECOVERY":
+		mm := CreateCrossTenancyDisasterRecoveryDetails{}
+		err = json.Unmarshal(data, &mm)
+		return mm, err
 	case "CROSS_REGION_DATAGUARD":
 		mm := CreateCrossRegionAutonomousDatabaseDataGuardDetails{}
 		err = json.Unmarshal(data, &mm)
@@ -407,6 +423,11 @@ func (m *createautonomousdatabasebase) UnmarshalPolymorphicJSON(data []byte) (in
 		common.Logf("Recieved unsupported enum value for CreateAutonomousDatabaseBase: %s.", m.Source)
 		return *m, nil
 	}
+}
+
+// GetSubscriptionId returns SubscriptionId
+func (m createautonomousdatabasebase) GetSubscriptionId() *string {
+	return m.SubscriptionId
 }
 
 // GetCharacterSet returns CharacterSet
@@ -492,6 +513,11 @@ func (m createautonomousdatabasebase) GetDisplayName() *string {
 // GetLicenseModel returns LicenseModel
 func (m createautonomousdatabasebase) GetLicenseModel() CreateAutonomousDatabaseBaseLicenseModelEnum {
 	return m.LicenseModel
+}
+
+// GetByolComputeCountLimit returns ByolComputeCountLimit
+func (m createautonomousdatabasebase) GetByolComputeCountLimit() *float32 {
+	return m.ByolComputeCountLimit
 }
 
 // GetIsPreviewVersionWithServiceTermsAccepted returns IsPreviewVersionWithServiceTermsAccepted

@@ -2,9 +2,9 @@
 // This software is dual-licensed to you under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose either license.
 // Code generated. DO NOT EDIT.
 
-// OciControlCenterCp API
+// OCI Control Center Capacity Management API
 //
-// A description of the OciControlCenterCp API
+// OCI Control Center (OCC) Capacity Management enables you to manage capacity requests in realms where OCI Control Center Capacity Management is available. For more information, see OCI Control Center (https://docs.cloud.oracle.com/iaas/Content/control-center/home.htm).
 //
 
 package capacitymanagement
@@ -65,7 +65,7 @@ type OccAvailabilityCatalog struct {
 	// Example: `{"orcl-cloud": {"free-tier-retained": "true"}}`
 	SystemTags map[string]map[string]interface{} `mandatory:"false" json:"systemTags"`
 
-	// Details about capacity available for  different resources in catalog.
+	// Details about capacity available for different resources in catalog.
 	Details []OccAvailabilitySummary `mandatory:"false" json:"details"`
 }
 

@@ -2,9 +2,9 @@
 // This software is dual-licensed to you under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose either license.
 // Code generated. DO NOT EDIT.
 
-// OciControlCenterCp API
+// OCI Control Center Capacity Management API
 //
-// A description of the OciControlCenterCp API
+// OCI Control Center (OCC) Capacity Management enables you to manage capacity requests in realms where OCI Control Center Capacity Management is available. For more information, see OCI Control Center (https://docs.cloud.oracle.com/iaas/Content/control-center/home.htm).
 //
 
 package capacitymanagement
@@ -27,7 +27,7 @@ type OccAvailabilityCatalogSummary struct {
 	// The OCID of the tenancy where the availability catalog resides.
 	CompartmentId *string `mandatory:"true" json:"compartmentId"`
 
-	// An user-friendly name for the availability catalog. Does not have to be unique, and it's changeable. Avoid entering confidential information.
+	// An user-friendly name for the availability catalog. Does not have to be unique, and is changeable. Avoid entering confidential information.
 	DisplayName *string `mandatory:"true" json:"displayName"`
 
 	// The Customer Group OCID to which the availability catalog belongs.

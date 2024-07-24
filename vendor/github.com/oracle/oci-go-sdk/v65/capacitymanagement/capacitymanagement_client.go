@@ -2,9 +2,9 @@
 // This software is dual-licensed to you under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose either license.
 // Code generated. DO NOT EDIT.
 
-// OciControlCenterCp API
+// OCI Control Center Capacity Management API
 //
-// A description of the OciControlCenterCp API
+// OCI Control Center (OCC) Capacity Management enables you to manage capacity requests in realms where OCI Control Center Capacity Management is available. For more information, see OCI Control Center (https://docs.cloud.oracle.com/iaas/Content/control-center/home.htm).
 //
 
 package capacitymanagement
@@ -145,7 +145,7 @@ func (client CapacityManagementClient) createOccAvailabilityCatalog(ctx context.
 	defer common.CloseBodyIfValid(httpResponse)
 	response.RawResponse = httpResponse
 	if err != nil {
-		apiReferenceLink := ""
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/occcm/20231107/OccAvailabilityCatalog/CreateOccAvailabilityCatalog"
 		err = common.PostProcessServiceError(err, "CapacityManagement", "CreateOccAvailabilityCatalog", apiReferenceLink)
 		return response, err
 	}
@@ -208,7 +208,7 @@ func (client CapacityManagementClient) createOccCapacityRequest(ctx context.Cont
 	defer common.CloseBodyIfValid(httpResponse)
 	response.RawResponse = httpResponse
 	if err != nil {
-		apiReferenceLink := ""
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/occcm/20231107/OccCapacityRequest/CreateOccCapacityRequest"
 		err = common.PostProcessServiceError(err, "CapacityManagement", "CreateOccCapacityRequest", apiReferenceLink)
 		return response, err
 	}
@@ -266,7 +266,7 @@ func (client CapacityManagementClient) deleteOccAvailabilityCatalog(ctx context.
 	defer common.CloseBodyIfValid(httpResponse)
 	response.RawResponse = httpResponse
 	if err != nil {
-		apiReferenceLink := ""
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/occcm/20231107/OccAvailabilityCatalog/DeleteOccAvailabilityCatalog"
 		err = common.PostProcessServiceError(err, "CapacityManagement", "DeleteOccAvailabilityCatalog", apiReferenceLink)
 		return response, err
 	}
@@ -324,7 +324,7 @@ func (client CapacityManagementClient) deleteOccCapacityRequest(ctx context.Cont
 	defer common.CloseBodyIfValid(httpResponse)
 	response.RawResponse = httpResponse
 	if err != nil {
-		apiReferenceLink := ""
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/occcm/20231107/OccCapacityRequest/DeleteOccCapacityRequest"
 		err = common.PostProcessServiceError(err, "CapacityManagement", "DeleteOccCapacityRequest", apiReferenceLink)
 		return response, err
 	}
@@ -382,7 +382,7 @@ func (client CapacityManagementClient) getOccAvailabilityCatalog(ctx context.Con
 	defer common.CloseBodyIfValid(httpResponse)
 	response.RawResponse = httpResponse
 	if err != nil {
-		apiReferenceLink := ""
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/occcm/20231107/OccAvailabilityCatalog/GetOccAvailabilityCatalog"
 		err = common.PostProcessServiceError(err, "CapacityManagement", "GetOccAvailabilityCatalog", apiReferenceLink)
 		return response, err
 	}
@@ -444,7 +444,7 @@ func (client CapacityManagementClient) getOccAvailabilityCatalogContent(ctx cont
 	httpResponse, err = client.Call(ctx, &httpRequest)
 	response.RawResponse = httpResponse
 	if err != nil {
-		apiReferenceLink := ""
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/occcm/20231107/OccAvailabilityCatalog/GetOccAvailabilityCatalogContent"
 		err = common.PostProcessServiceError(err, "CapacityManagement", "GetOccAvailabilityCatalogContent", apiReferenceLink)
 		return response, err
 	}
@@ -502,7 +502,7 @@ func (client CapacityManagementClient) getOccCapacityRequest(ctx context.Context
 	defer common.CloseBodyIfValid(httpResponse)
 	response.RawResponse = httpResponse
 	if err != nil {
-		apiReferenceLink := ""
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/occcm/20231107/OccCapacityRequest/GetOccCapacityRequest"
 		err = common.PostProcessServiceError(err, "CapacityManagement", "GetOccCapacityRequest", apiReferenceLink)
 		return response, err
 	}
@@ -560,8 +560,66 @@ func (client CapacityManagementClient) getOccCustomerGroup(ctx context.Context, 
 	defer common.CloseBodyIfValid(httpResponse)
 	response.RawResponse = httpResponse
 	if err != nil {
-		apiReferenceLink := ""
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/occcm/20231107/OccCustomerGroup/GetOccCustomerGroup"
 		err = common.PostProcessServiceError(err, "CapacityManagement", "GetOccCustomerGroup", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
+// ListInternalNamespaceOccOverviews Lists an overview of all resources in that namespace in a given time interval.
+//
+// # See also
+//
+// Click https://docs.cloud.oracle.com/en-us/iaas/tools/go-sdk-examples/latest/capacitymanagement/ListInternalNamespaceOccOverviews.go.html to see an example of how to use ListInternalNamespaceOccOverviews API.
+// A default retry strategy applies to this operation ListInternalNamespaceOccOverviews()
+func (client CapacityManagementClient) ListInternalNamespaceOccOverviews(ctx context.Context, request ListInternalNamespaceOccOverviewsRequest) (response ListInternalNamespaceOccOverviewsResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.DefaultRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+	ociResponse, err = common.Retry(ctx, request, client.listInternalNamespaceOccOverviews, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = ListInternalNamespaceOccOverviewsResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = ListInternalNamespaceOccOverviewsResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(ListInternalNamespaceOccOverviewsResponse); ok {
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into ListInternalNamespaceOccOverviewsResponse")
+	}
+	return
+}
+
+// listInternalNamespaceOccOverviews implements the OCIOperation interface (enables retrying operations)
+func (client CapacityManagementClient) listInternalNamespaceOccOverviews(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodGet, "/internal/namespace/{namespace}/occOverview", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	var response ListInternalNamespaceOccOverviewsResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	defer common.CloseBodyIfValid(httpResponse)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/occcm/20231107/OccOverviewCollection/ListInternalNamespaceOccOverviews"
+		err = common.PostProcessServiceError(err, "CapacityManagement", "ListInternalNamespaceOccOverviews", apiReferenceLink)
 		return response, err
 	}
 
@@ -618,7 +676,7 @@ func (client CapacityManagementClient) listOccAvailabilities(ctx context.Context
 	defer common.CloseBodyIfValid(httpResponse)
 	response.RawResponse = httpResponse
 	if err != nil {
-		apiReferenceLink := ""
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/occcm/20231107/OccAvailabilityCollection/ListOccAvailabilities"
 		err = common.PostProcessServiceError(err, "CapacityManagement", "ListOccAvailabilities", apiReferenceLink)
 		return response, err
 	}
@@ -676,7 +734,7 @@ func (client CapacityManagementClient) listOccAvailabilityCatalogs(ctx context.C
 	defer common.CloseBodyIfValid(httpResponse)
 	response.RawResponse = httpResponse
 	if err != nil {
-		apiReferenceLink := ""
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/occcm/20231107/OccAvailabilityCatalogCollection/ListOccAvailabilityCatalogs"
 		err = common.PostProcessServiceError(err, "CapacityManagement", "ListOccAvailabilityCatalogs", apiReferenceLink)
 		return response, err
 	}
@@ -734,7 +792,7 @@ func (client CapacityManagementClient) listOccAvailabilityCatalogsInternal(ctx c
 	defer common.CloseBodyIfValid(httpResponse)
 	response.RawResponse = httpResponse
 	if err != nil {
-		apiReferenceLink := ""
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/occcm/20231107/OccAvailabilityCatalogCollection/ListOccAvailabilityCatalogsInternal"
 		err = common.PostProcessServiceError(err, "CapacityManagement", "ListOccAvailabilityCatalogsInternal", apiReferenceLink)
 		return response, err
 	}
@@ -792,7 +850,7 @@ func (client CapacityManagementClient) listOccCapacityRequests(ctx context.Conte
 	defer common.CloseBodyIfValid(httpResponse)
 	response.RawResponse = httpResponse
 	if err != nil {
-		apiReferenceLink := ""
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/occcm/20231107/OccCapacityRequestCollection/ListOccCapacityRequests"
 		err = common.PostProcessServiceError(err, "CapacityManagement", "ListOccCapacityRequests", apiReferenceLink)
 		return response, err
 	}
@@ -850,7 +908,7 @@ func (client CapacityManagementClient) listOccCapacityRequestsInternal(ctx conte
 	defer common.CloseBodyIfValid(httpResponse)
 	response.RawResponse = httpResponse
 	if err != nil {
-		apiReferenceLink := ""
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/occcm/20231107/OccCapacityRequestCollection/ListOccCapacityRequestsInternal"
 		err = common.PostProcessServiceError(err, "CapacityManagement", "ListOccCapacityRequestsInternal", apiReferenceLink)
 		return response, err
 	}
@@ -908,8 +966,124 @@ func (client CapacityManagementClient) listOccCustomerGroups(ctx context.Context
 	defer common.CloseBodyIfValid(httpResponse)
 	response.RawResponse = httpResponse
 	if err != nil {
-		apiReferenceLink := ""
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/occcm/20231107/OccCustomerGroupCollection/ListOccCustomerGroups"
 		err = common.PostProcessServiceError(err, "CapacityManagement", "ListOccCustomerGroups", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
+// ListOccOverviews Lists an overview of all resources in that namespace in a given time interval.
+//
+// # See also
+//
+// Click https://docs.cloud.oracle.com/en-us/iaas/tools/go-sdk-examples/latest/capacitymanagement/ListOccOverviews.go.html to see an example of how to use ListOccOverviews API.
+// A default retry strategy applies to this operation ListOccOverviews()
+func (client CapacityManagementClient) ListOccOverviews(ctx context.Context, request ListOccOverviewsRequest) (response ListOccOverviewsResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.DefaultRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+	ociResponse, err = common.Retry(ctx, request, client.listOccOverviews, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = ListOccOverviewsResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = ListOccOverviewsResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(ListOccOverviewsResponse); ok {
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into ListOccOverviewsResponse")
+	}
+	return
+}
+
+// listOccOverviews implements the OCIOperation interface (enables retrying operations)
+func (client CapacityManagementClient) listOccOverviews(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodGet, "/namespace/{namespace}/occOverview", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	var response ListOccOverviewsResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	defer common.CloseBodyIfValid(httpResponse)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/occcm/20231107/OccOverviewCollection/ListOccOverviews"
+		err = common.PostProcessServiceError(err, "CapacityManagement", "ListOccOverviews", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
+// PatchInternalOccCapacityRequest Updates the OccCapacityRequest by evaluating a sequence of instructions.
+//
+// # See also
+//
+// Click https://docs.cloud.oracle.com/en-us/iaas/tools/go-sdk-examples/latest/capacitymanagement/PatchInternalOccCapacityRequest.go.html to see an example of how to use PatchInternalOccCapacityRequest API.
+// A default retry strategy applies to this operation PatchInternalOccCapacityRequest()
+func (client CapacityManagementClient) PatchInternalOccCapacityRequest(ctx context.Context, request PatchInternalOccCapacityRequestRequest) (response PatchInternalOccCapacityRequestResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.DefaultRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+	ociResponse, err = common.Retry(ctx, request, client.patchInternalOccCapacityRequest, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = PatchInternalOccCapacityRequestResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = PatchInternalOccCapacityRequestResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(PatchInternalOccCapacityRequestResponse); ok {
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into PatchInternalOccCapacityRequestResponse")
+	}
+	return
+}
+
+// patchInternalOccCapacityRequest implements the OCIOperation interface (enables retrying operations)
+func (client CapacityManagementClient) patchInternalOccCapacityRequest(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodPatch, "/internal/occCapacityRequests/{occCapacityRequestId}", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	var response PatchInternalOccCapacityRequestResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	defer common.CloseBodyIfValid(httpResponse)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/occcm/20231107/OccCapacityRequest/PatchInternalOccCapacityRequest"
+		err = common.PostProcessServiceError(err, "CapacityManagement", "PatchInternalOccCapacityRequest", apiReferenceLink)
 		return response, err
 	}
 
@@ -966,7 +1140,7 @@ func (client CapacityManagementClient) patchOccCapacityRequest(ctx context.Conte
 	defer common.CloseBodyIfValid(httpResponse)
 	response.RawResponse = httpResponse
 	if err != nil {
-		apiReferenceLink := ""
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/occcm/20231107/OccCapacityRequest/PatchOccCapacityRequest"
 		err = common.PostProcessServiceError(err, "CapacityManagement", "PatchOccCapacityRequest", apiReferenceLink)
 		return response, err
 	}
@@ -1029,7 +1203,7 @@ func (client CapacityManagementClient) publishOccAvailabilityCatalog(ctx context
 	defer common.CloseBodyIfValid(httpResponse)
 	response.RawResponse = httpResponse
 	if err != nil {
-		apiReferenceLink := ""
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/occcm/20231107/OccAvailabilityCatalog/PublishOccAvailabilityCatalog"
 		err = common.PostProcessServiceError(err, "CapacityManagement", "PublishOccAvailabilityCatalog", apiReferenceLink)
 		return response, err
 	}
@@ -1087,7 +1261,7 @@ func (client CapacityManagementClient) updateInternalOccCapacityRequest(ctx cont
 	defer common.CloseBodyIfValid(httpResponse)
 	response.RawResponse = httpResponse
 	if err != nil {
-		apiReferenceLink := ""
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/occcm/20231107/OccCapacityRequest/UpdateInternalOccCapacityRequest"
 		err = common.PostProcessServiceError(err, "CapacityManagement", "UpdateInternalOccCapacityRequest", apiReferenceLink)
 		return response, err
 	}
@@ -1145,7 +1319,7 @@ func (client CapacityManagementClient) updateOccAvailabilityCatalog(ctx context.
 	defer common.CloseBodyIfValid(httpResponse)
 	response.RawResponse = httpResponse
 	if err != nil {
-		apiReferenceLink := ""
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/occcm/20231107/OccAvailabilityCatalog/UpdateOccAvailabilityCatalog"
 		err = common.PostProcessServiceError(err, "CapacityManagement", "UpdateOccAvailabilityCatalog", apiReferenceLink)
 		return response, err
 	}
@@ -1203,7 +1377,7 @@ func (client CapacityManagementClient) updateOccCapacityRequest(ctx context.Cont
 	defer common.CloseBodyIfValid(httpResponse)
 	response.RawResponse = httpResponse
 	if err != nil {
-		apiReferenceLink := ""
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/occcm/20231107/OccCapacityRequest/UpdateOccCapacityRequest"
 		err = common.PostProcessServiceError(err, "CapacityManagement", "UpdateOccCapacityRequest", apiReferenceLink)
 		return response, err
 	}

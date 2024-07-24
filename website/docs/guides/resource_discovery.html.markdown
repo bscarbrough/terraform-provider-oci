@@ -158,16 +158,17 @@ Make sure the `output_path` is empty before running resource discovery
     * `dataflow` - Discovers dataflow resources within the specified compartment
     * `dataintegration` - Discovers dataintegration resources within the specified compartment
     * `datascience` - Discovers datascience resources within the specified compartment
+    * `demand_signal` - Discovers demand_signal resources within the specified compartment
     * `devops` - Discovers devops resources within the specified compartment
     * `disaster_recovery` - Discovers disaster_recovery resources within the specified compartment
     * `dns` - Discovers dns resources (except record) within the specified compartment
-    * `em_warehouse` - Discovers em_warehouse resources within the specified compartment
     * `email` - Discovers email_sender resources within the specified compartment
     * `events` - Discovers events resources within the specified compartment
     * `file_storage` - Discovers file_storage resources within the specified compartment
     * `functions` - Discovers functions resources within the specified compartment
     * `fusion_apps` - Discovers fusion_apps resources within the specified compartment
     * `generative_ai` - Discovers generative_ai resources within the specified compartment
+    * `globally_distributed_database` - Discovers globally_distributed_database resources within the specified compartment
     * `golden_gate` - Discovers golden_gate resources within the specified compartment
     * `health_checks` - Discovers health_checks resources within the specified compartment
     * `identity` - Discovers identity resources across the entire tenancy
@@ -207,6 +208,7 @@ Make sure the `output_path` is empty before running resource discovery
     * `queue` - Discovers queue resources within the specified compartment
     * `recovery` - Discovers recovery resources within the specified compartment
     * `redis` - Discovers redis resources within the specified compartment
+    * `resource_scheduler` - Discovers resource_scheduler resources within the specified compartment
     * `resourcemanager` - Discovers resourcemanager resources within the specified compartment
     * `sch` - Discovers sch resources within the specified compartment
     * `service_mesh` - Discovers service_mesh resources within the specified compartment
@@ -638,6 +640,8 @@ database
 * oci\_database\_application\_vip
 * oci\_database\_oneoff\_patch
 * oci\_database\_db\_node\_console\_history
+* oci\_database\_exascale\_db\_storage\_vault
+* oci\_database\_exadb\_vm\_cluster
 
 database_migration
 
@@ -692,6 +696,10 @@ datascience
 * oci\_datascience\_data\_science\_private\_endpoint
 * oci\_datascience\_model\_version\_set
 
+demand_signal
+    
+* oci\_demand\_signal\_occ\_demand\_signal
+
 devops
 
 * oci\_devops\_project
@@ -725,10 +733,6 @@ dns
 * oci\_dns\_resolver
 * oci\_dns\_resolver\_endpoint
 * oci\_dns\_view
-
-em_warehouse
-
-* oci\_em\_warehouse\_em\_warehouse
 
 email
 
@@ -771,6 +775,11 @@ generative_ai
 * oci\_generative\_ai\_dedicated\_ai\_cluster
 * oci\_generative\_ai\_endpoint
 * oci\_generative\_ai\_model
+
+globally_distributed_database
+    
+* oci\_globally\_distributed\_database\_private\_endpoint
+* oci\_globally\_distributed\_database\_sharded\_database
 
 golden_gate
 
@@ -867,6 +876,7 @@ integration
 jms
 
 * oci\_jms\_fleet
+* oci\_jms\_fleet\_advanced\_feature\_configuration
 
 kms
 
@@ -1114,6 +1124,10 @@ recovery
 redis
     
 * oci\_redis\_redis\_cluster
+
+resource_scheduler
+    
+* oci\_resource\_scheduler\_schedule
 
 resourcemanager
 

@@ -234,6 +234,10 @@ func (s *DatabaseAutonomousDatabasesDataSourceCrud) SetData() error {
 			autonomousDatabase["backup_retention_period_in_days"] = *r.BackupRetentionPeriodInDays
 		}
 
+		if r.ByolComputeCountLimit != nil {
+			autonomousDatabase["byol_compute_count_limit"] = *r.ByolComputeCountLimit
+		}
+
 		if r.CharacterSet != nil {
 			autonomousDatabase["character_set"] = *r.CharacterSet
 		}
@@ -472,6 +476,16 @@ func (s *DatabaseAutonomousDatabasesDataSourceCrud) SetData() error {
 
 		autonomousDatabase["provisionable_cpus"] = r.ProvisionableCpus
 
+		if r.PublicConnectionUrls != nil {
+			autonomousDatabase["public_connection_urls"] = []interface{}{AutonomousDatabaseConnectionUrlsToMap(r.PublicConnectionUrls)}
+		} else {
+			autonomousDatabase["public_connection_urls"] = nil
+		}
+
+		if r.PublicEndpoint != nil {
+			autonomousDatabase["public_endpoint"] = *r.PublicEndpoint
+		}
+
 		autonomousDatabase["refreshable_mode"] = r.RefreshableMode
 
 		autonomousDatabase["refreshable_status"] = r.RefreshableStatus
@@ -520,6 +534,10 @@ func (s *DatabaseAutonomousDatabasesDataSourceCrud) SetData() error {
 
 		if r.SubnetId != nil {
 			autonomousDatabase["subnet_id"] = *r.SubnetId
+		}
+
+		if r.SubscriptionId != nil {
+			autonomousDatabase["subscription_id"] = *r.SubscriptionId
 		}
 
 		autonomousDatabase["supported_regions_to_clone_to"] = r.SupportedRegionsToCloneTo

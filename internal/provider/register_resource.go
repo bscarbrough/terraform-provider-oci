@@ -46,6 +46,7 @@ import (
 	tf_dataflow "github.com/oracle/terraform-provider-oci/internal/service/dataflow"
 	tf_dataintegration "github.com/oracle/terraform-provider-oci/internal/service/dataintegration"
 	tf_datascience "github.com/oracle/terraform-provider-oci/internal/service/datascience"
+	tf_demand_signal "github.com/oracle/terraform-provider-oci/internal/service/demand_signal"
 	tf_devops "github.com/oracle/terraform-provider-oci/internal/service/devops"
 	tf_disaster_recovery "github.com/oracle/terraform-provider-oci/internal/service/disaster_recovery"
 	tf_dns "github.com/oracle/terraform-provider-oci/internal/service/dns"
@@ -57,6 +58,7 @@ import (
 	tf_fusion_apps "github.com/oracle/terraform-provider-oci/internal/service/fusion_apps"
 	tf_generative_ai "github.com/oracle/terraform-provider-oci/internal/service/generative_ai"
 	tf_generic_artifacts_content "github.com/oracle/terraform-provider-oci/internal/service/generic_artifacts_content"
+	tf_globally_distributed_database "github.com/oracle/terraform-provider-oci/internal/service/globally_distributed_database"
 	tf_golden_gate "github.com/oracle/terraform-provider-oci/internal/service/golden_gate"
 	tf_health_checks "github.com/oracle/terraform-provider-oci/internal/service/health_checks"
 	tf_identity "github.com/oracle/terraform-provider-oci/internal/service/identity"
@@ -103,6 +105,7 @@ import (
 	tf_queue "github.com/oracle/terraform-provider-oci/internal/service/queue"
 	tf_recovery "github.com/oracle/terraform-provider-oci/internal/service/recovery"
 	tf_redis "github.com/oracle/terraform-provider-oci/internal/service/redis"
+	tf_resource_scheduler "github.com/oracle/terraform-provider-oci/internal/service/resource_scheduler"
 	tf_resourcemanager "github.com/oracle/terraform-provider-oci/internal/service/resourcemanager"
 	tf_sch "github.com/oracle/terraform-provider-oci/internal/service/sch"
 	tf_secrets "github.com/oracle/terraform-provider-oci/internal/service/secrets"
@@ -247,6 +250,9 @@ func init() {
 	if common.CheckForEnabledServices("datascience") {
 		tf_datascience.RegisterResource()
 	}
+	if common.CheckForEnabledServices("demandsignal") {
+		tf_demand_signal.RegisterResource()
+	}
 	if common.CheckForEnabledServices("devops") {
 		tf_devops.RegisterResource()
 	}
@@ -279,6 +285,9 @@ func init() {
 	}
 	if common.CheckForEnabledServices("genericartifactscontent") {
 		tf_generic_artifacts_content.RegisterResource()
+	}
+	if common.CheckForEnabledServices("globallydistributeddatabase") {
+		tf_globally_distributed_database.RegisterResource()
 	}
 	if common.CheckForEnabledServices("goldengate") {
 		tf_golden_gate.RegisterResource()
@@ -417,6 +426,9 @@ func init() {
 	}
 	if common.CheckForEnabledServices("redis") {
 		tf_redis.RegisterResource()
+	}
+	if common.CheckForEnabledServices("resourcescheduler") {
+		tf_resource_scheduler.RegisterResource()
 	}
 	if common.CheckForEnabledServices("resourcemanager") {
 		tf_resourcemanager.RegisterResource()

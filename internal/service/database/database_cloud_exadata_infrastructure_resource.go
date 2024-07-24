@@ -212,6 +212,12 @@ func DatabaseCloudExadataInfrastructureResource() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"subscription_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 
 			// Computed
 			"activated_storage_count": {
@@ -340,6 +346,7 @@ func createDatabaseCloudExadataInfrastructure(d *schema.ResourceData, m interfac
 	sync := &DatabaseCloudExadataInfrastructureResourceCrud{}
 	sync.D = d
 	sync.Client = m.(*client.OracleClients).DatabaseClient()
+	sync.WorkRequestClient = m.(*client.OracleClients).WorkRequestClient
 
 	return tfresource.CreateResource(d, sync)
 }
@@ -497,11 +504,30 @@ func (s *DatabaseCloudExadataInfrastructureResourceCrud) Create() error {
 		request.StorageCount = &tmp
 	}
 
+	if subscriptionId, ok := s.D.GetOkExists("subscription_id"); ok {
+		tmp := subscriptionId.(string)
+		request.SubscriptionId = &tmp
+	}
+
 	request.RequestMetadata.RetryPolicy = tfresource.GetRetryPolicy(s.DisableNotFoundRetries, "database")
 
 	response, err := s.Client.CreateCloudExadataInfrastructure(context.Background(), request)
 	if err != nil {
 		return err
+	}
+
+	workId := response.OpcWorkRequestId
+	if workId != nil {
+		var identifier *string
+		var err error
+		identifier = response.Id
+		if identifier != nil {
+			s.D.SetId(*identifier)
+		}
+		_, err = tfresource.WaitForWorkRequestWithErrorHandling(s.WorkRequestClient, workId, "cloudExadataInfrastructure", oci_work_requests.WorkRequestResourceActionTypeCreated, s.D.Timeout(schema.TimeoutCreate), s.DisableNotFoundRetries)
+		if err != nil {
+			return err
+		}
 	}
 
 	s.Res = &response.CloudExadataInfrastructure
@@ -607,6 +633,7 @@ func (s *DatabaseCloudExadataInfrastructureResourceCrud) Update() error {
 	retentionPolicyFunc := func() bool {
 		return s.Res.LifecycleState == oci_database.CloudExadataInfrastructureLifecycleStateAvailable
 	}
+	// Cannot poll by workrequest because we do not set affected resources during update. We only set them during scale.
 	if err := tfresource.WaitForResourceCondition(s, retentionPolicyFunc, s.D.Timeout(schema.TimeoutUpdate)); err != nil {
 		return err
 	}
@@ -772,6 +799,10 @@ func (s *DatabaseCloudExadataInfrastructureResourceCrud) SetData() error {
 
 	if s.Res.StorageServerVersion != nil {
 		s.D.Set("storage_server_version", *s.Res.StorageServerVersion)
+	}
+
+	if s.Res.SubscriptionId != nil {
+		s.D.Set("subscription_id", *s.Res.SubscriptionId)
 	}
 
 	if s.Res.SystemTags != nil {
@@ -988,13 +1019,17 @@ func (s *DatabaseCloudExadataInfrastructureResourceCrud) addStorageMVM() error {
 
 	addStorageRequest.RequestMetadata.RetryPolicy = tfresource.GetRetryPolicy(s.DisableNotFoundRetries, "database")
 
-	_, err := s.Client.AddStorageCapacityCloudExadataInfrastructure(context.Background(), addStorageRequest)
+	response, err := s.Client.AddStorageCapacityCloudExadataInfrastructure(context.Background(), addStorageRequest)
 	if err != nil {
 		return err
 	}
 
-	if waitErr := tfresource.WaitForUpdatedState(s.D, s); waitErr != nil {
-		return waitErr
+	workId := response.OpcWorkRequestId
+	if workId != nil {
+		_, err = tfresource.WaitForWorkRequestWithErrorHandling(s.WorkRequestClient, workId, "cloudExadataInfrastructure", oci_work_requests.WorkRequestResourceActionTypeUpdated, s.D.Timeout(schema.TimeoutUpdate), s.DisableNotFoundRetries)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

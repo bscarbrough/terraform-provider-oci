@@ -16,6 +16,7 @@ import (
 )
 
 // AutonomousDatabaseSummary An Oracle Autonomous Database.
+//
 // **Warning:** Oracle recommends that you avoid using any confidential information when you supply string values using the API.
 type AutonomousDatabaseSummary struct {
 
@@ -32,7 +33,13 @@ type AutonomousDatabaseSummary struct {
 	DbName *string `mandatory:"true" json:"dbName"`
 
 	// The quantity of data in the database, in terabytes.
+	// The following points apply to Autonomous Databases on Serverless Infrastructure:
+	// - This is an integer field whose value remains null when the data size is in GBs and cannot be converted to TBs (by dividing the GB value by 1024) without rounding error.
+	// - To get the exact value of data storage size without rounding error, please see `dataStorageSizeInGBs` of Autonomous Database.
 	DataStorageSizeInTBs *int `mandatory:"true" json:"dataStorageSizeInTBs"`
+
+	// The OCID (https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm) of the subscription with which resource needs to be associated with.
+	SubscriptionId *string `mandatory:"false" json:"subscriptionId"`
 
 	// Information about the current lifecycle state.
 	LifecycleDetails *string `mandatory:"false" json:"lifecycleDetails"`
@@ -123,6 +130,7 @@ type AutonomousDatabaseSummary struct {
 	MemoryPerOracleComputeUnitInGBs *int `mandatory:"false" json:"memoryPerOracleComputeUnitInGBs"`
 
 	// The quantity of data in the database, in gigabytes.
+	// For Autonomous Transaction Processing databases using ECPUs on Serverless Infrastructure, this value is always populated. In all the other cases, this value will be null and `dataStorageSizeInTBs` will be populated instead.
 	DataStorageSizeInGBs *int `mandatory:"false" json:"dataStorageSizeInGBs"`
 
 	// The storage space consumed by Autonomous Database in GBs.
@@ -151,6 +159,9 @@ type AutonomousDatabaseSummary struct {
 
 	ConnectionUrls *AutonomousDatabaseConnectionUrls `mandatory:"false" json:"connectionUrls"`
 
+	// The Public URLs of Private Endpoint database for accessing Oracle Application Express (APEX) and SQL Developer Web with a browser from a Compute instance within your VCN or that has a direct connection to your VCN.
+	PublicConnectionUrls *AutonomousDatabaseConnectionUrls `mandatory:"false" json:"publicConnectionUrls"`
+
 	// The Oracle license model that applies to the Oracle Autonomous Database. Bring your own license (BYOL) allows you to apply your current on-premises Oracle software licenses to equivalent, highly automated Oracle services in the cloud.
 	// License Included allows you to subscribe to new Oracle Database software licenses and the Oracle Database service.
 	// Note that when provisioning an Autonomous Database on dedicated Exadata infrastructure (https://docs.oracle.com/en/cloud/paas/autonomous-database/index.html), this attribute must be null. It is already set at the
@@ -158,7 +169,10 @@ type AutonomousDatabaseSummary struct {
 	// This cannot be updated in parallel with any of the following: cpuCoreCount, computeCount, dataStorageSizeInTBs, adminPassword, isMTLSConnectionRequired, dbWorkload, privateEndpointLabel, nsgIds, dbVersion, dbName, scheduledOperations, dbToolsDetails, or isFreeTier.
 	LicenseModel AutonomousDatabaseSummaryLicenseModelEnum `mandatory:"false" json:"licenseModel,omitempty"`
 
-	// The amount of storage that has been used, in terabytes.
+	// The maximum number of CPUs allowed with a Bring Your Own License (BYOL), including those used for auto-scaling, disaster recovery, tools, etc. Any CPU usage above this limit is considered as License Included and billed.
+	ByolComputeCountLimit *float32 `mandatory:"false" json:"byolComputeCountLimit"`
+
+	// The amount of storage that has been used for Autonomous Databases in dedicated infrastructure, in terabytes.
 	UsedDataStorageSizeInTBs *int `mandatory:"false" json:"usedDataStorageSizeInTBs"`
 
 	// Free-form tags for this resource. Each tag is a simple key-value pair with no predefined name, type, or namespace.
@@ -187,6 +201,9 @@ type AutonomousDatabaseSummary struct {
 
 	// The private endpoint for the resource.
 	PrivateEndpoint *string `mandatory:"false" json:"privateEndpoint"`
+
+	// The public endpoint for the private endpoint enabled resource.
+	PublicEndpoint *string `mandatory:"false" json:"publicEndpoint"`
 
 	// The resource's private endpoint label.
 	// - Setting the endpoint label to a non-empty string creates a private endpoint database.

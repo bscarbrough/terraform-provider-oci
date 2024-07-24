@@ -2,11 +2,11 @@
 // This software is dual-licensed to you under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose either license.
 // Code generated. DO NOT EDIT.
 
-// Operations Insights API
+// Ops Insights API
 //
-// Use the Operations Insights API to perform data extraction operations to obtain database
+// Use the Ops Insights API to perform data extraction operations to obtain database
 // resource utilization, performance statistics, and reference information. For more information,
-// see About Oracle Cloud Infrastructure Operations Insights (https://docs.cloud.oracle.com/en-us/iaas/operations-insights/doc/operations-insights.html).
+// see About Oracle Cloud Infrastructure Ops Insights (https://docs.cloud.oracle.com/en-us/iaas/operations-insights/doc/operations-insights.html).
 //
 
 package opsi
@@ -43,6 +43,12 @@ type ResourceStatistics struct {
 
 	// The maximum host CPUs (cores x threads/core) on the underlying infrastructure. This only applies to CPU and does not not apply for Autonomous Databases.
 	TotalHostCapacity *float64 `mandatory:"false" json:"totalHostCapacity"`
+
+	// Specifies if MYSQL DB System has heatwave cluster attached.
+	IsHeatWaveClusterAttached *bool `mandatory:"false" json:"isHeatWaveClusterAttached"`
+
+	// Specifies if MYSQL DB System is highly available.
+	IsHighlyAvailable *bool `mandatory:"false" json:"isHighlyAvailable"`
 }
 
 func (m ResourceStatistics) String() string {

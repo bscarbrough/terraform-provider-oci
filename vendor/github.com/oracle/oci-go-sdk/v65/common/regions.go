@@ -80,6 +80,8 @@ const (
 	RegionSABogota1 Region = "sa-bogota-1"
 	//RegionSAValparaiso1 region Valparaiso
 	RegionSAValparaiso1 Region = "sa-valparaiso-1"
+	//RegionAPSingapore2 region Singapore
+	RegionAPSingapore2 Region = "ap-singapore-2"
 	//RegionUSLangley1 region Langley
 	RegionUSLangley1 Region = "us-langley-1"
 	//RegionUSLuke1 region Luke
@@ -128,6 +130,8 @@ const (
 	RegionEUDccZurich1 Region = "eu-dcc-zurich-1"
 	//RegionMEAbudhabi3 region Abudhabi
 	RegionMEAbudhabi3 Region = "me-abudhabi-3"
+	//RegionMEAbudhabi2 region Abudhabi
+	RegionMEAbudhabi2 Region = "me-abudhabi-2"
 )
 
 var shortNameRegion = map[string]Region{
@@ -169,6 +173,7 @@ var shortNameRegion = map[string]Region{
 	"aga": RegionUSSaltlake2,
 	"bog": RegionSABogota1,
 	"vap": RegionSAValparaiso1,
+	"xsp": RegionAPSingapore2,
 	"lfi": RegionUSLangley1,
 	"luf": RegionUSLuke1,
 	"ric": RegionUSGovAshburn1,
@@ -193,6 +198,7 @@ var shortNameRegion = map[string]Region{
 	"doh": RegionMEDccDoha1,
 	"avz": RegionEUDccZurich1,
 	"ahu": RegionMEAbudhabi3,
+	"rkt": RegionMEAbudhabi2,
 }
 
 var realm = map[string]string{
@@ -210,6 +216,7 @@ var realm = map[string]string{
 	"oc21": "oraclecloud21.com",
 	"oc24": "oraclecloud24.com",
 	"oc26": "oraclecloud26.com",
+	"oc29": "oraclecloud29.com",
 }
 
 var regionRealm = map[Region]string{
@@ -251,6 +258,7 @@ var regionRealm = map[Region]string{
 	RegionUSSaltlake2:     "oc1",
 	RegionSABogota1:       "oc1",
 	RegionSAValparaiso1:   "oc1",
+	RegionAPSingapore2:    "oc1",
 
 	RegionUSLangley1: "oc2",
 	RegionUSLuke1:    "oc2",
@@ -288,4 +296,6 @@ var regionRealm = map[Region]string{
 	RegionEUDccZurich1: "oc24",
 
 	RegionMEAbudhabi3: "oc26",
+
+	RegionMEAbudhabi2: "oc29",
 }

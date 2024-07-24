@@ -4,6 +4,7 @@
 package database
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -11,6 +12,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/oracle/terraform-provider-oci/internal/utils"
 
 	"github.com/oracle/terraform-provider-oci/internal/client"
 	"github.com/oracle/terraform-provider-oci/internal/tfresource"
@@ -98,6 +101,11 @@ func DatabaseAutonomousDatabaseResource() *schema.Resource {
 			},
 			"backup_retention_period_in_days": {
 				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"byol_compute_count_limit": {
+				Type:     schema.TypeFloat,
 				Optional: true,
 				Computed: true,
 			},
@@ -222,6 +230,12 @@ func DatabaseAutonomousDatabaseResource() *schema.Resource {
 				Computed:         true,
 				DiffSuppressFunc: tfresource.DefinedTagsDiffSuppressFunction,
 				Elem:             schema.TypeString,
+			},
+			"disaster_recovery_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
 			},
 			"display_name": {
 				Type:     schema.TypeString,
@@ -396,7 +410,8 @@ func DatabaseAutonomousDatabaseResource() *schema.Resource {
 				},
 			},
 			"scheduled_operations": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
+				Set:      scheduledOperationsForSets,
 				Optional: true,
 				Computed: true,
 				Elem: &schema.Resource{
@@ -460,6 +475,7 @@ func DatabaseAutonomousDatabaseResource() *schema.Resource {
 					"CLONE_TO_REFRESHABLE",
 					"CROSS_REGION_DATAGUARD",
 					"CROSS_REGION_DISASTER_RECOVERY",
+					"CROSS_TENANCY_DISASTER_RECOVERY",
 					"DATABASE",
 					"NONE",
 				}, true),
@@ -479,6 +495,11 @@ func DatabaseAutonomousDatabaseResource() *schema.Resource {
 				},
 			},
 			"subnet_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"subscription_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -942,6 +963,55 @@ func DatabaseAutonomousDatabaseResource() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeFloat,
 				},
+			},
+			"public_connection_urls": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						// Required
+
+						// Optional
+
+						// Computed
+						"apex_url": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"database_transforms_url": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"graph_studio_url": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"machine_learning_notebook_url": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"machine_learning_user_management_url": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"mongo_db_url": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"ords_url": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"sql_dev_web_url": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
+			"public_endpoint": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"refreshable_status": {
 				Type:     schema.TypeString,
@@ -1457,6 +1527,16 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) Update() error {
 		}
 	}
 
+	if subscriptionId, ok := s.D.GetOkExists("subscription_id"); ok && s.D.HasChange("subscription_id") {
+		oldRaw, newRaw := s.D.GetChange("subscription_id")
+		if newRaw != "" && oldRaw != "" {
+			err := s.updateSubscription(subscriptionId.(string))
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	if dataSafeStatus, ok := s.D.GetOkExists("data_safe_status"); ok && s.D.HasChange("data_safe_status") {
 		oldRaw, newRaw := s.D.GetChange("data_safe_status")
 		if newRaw != "" && oldRaw != "" {
@@ -1545,6 +1625,11 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) Update() error {
 
 	tmp := s.D.Id()
 	request.AutonomousDatabaseId = &tmp
+
+	if byolComputeCountLimit, ok := s.D.GetOkExists("byol_compute_count_limit"); ok && s.D.HasChange("byol_compute_count_limit") {
+		tmp := float32(byolComputeCountLimit.(float64))
+		request.ByolComputeCountLimit = &tmp
+	}
 
 	if computeCount, ok := s.D.GetOkExists("compute_count"); ok && s.D.HasChange("compute_count") {
 		tmp := float32(computeCount.(float64))
@@ -1755,10 +1840,11 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) Update() error {
 	}
 
 	if scheduledOperations, ok := s.D.GetOkExists("scheduled_operations"); ok && s.D.HasChange("scheduled_operations") {
-		interfaces := scheduledOperations.([]interface{})
+		set := scheduledOperations.(*schema.Set)
+		interfaces := set.List()
 		tmp := make([]oci_database.ScheduledOperationDetails, len(interfaces))
 		for i := range interfaces {
-			stateDataIndex := i
+			stateDataIndex := scheduledOperationsForSets(interfaces[i])
 			fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "scheduled_operations", stateDataIndex)
 			converted, err := s.mapToScheduledOperationDetails(fieldKeyFormat)
 			if err != nil {
@@ -2125,6 +2211,10 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) SetData() error {
 
 	s.D.Set("license_model", s.Res.LicenseModel)
 
+	if s.Res.ByolComputeCountLimit != nil {
+		s.D.Set("byol_compute_count_limit", s.Res.ByolComputeCountLimit)
+	}
+
 	if s.Res.LifecycleDetails != nil {
 		s.D.Set("lifecycle_details", *s.Res.LifecycleDetails)
 	}
@@ -2193,6 +2283,16 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) SetData() error {
 
 	s.D.Set("provisionable_cpus", s.Res.ProvisionableCpus)
 
+	if s.Res.PublicConnectionUrls != nil {
+		s.D.Set("public_connection_urls", []interface{}{AutonomousDatabaseConnectionUrlsToMap(s.Res.PublicConnectionUrls)})
+	} else {
+		s.D.Set("public_connection_urls", nil)
+	}
+
+	if s.Res.PublicEndpoint != nil {
+		s.D.Set("public_endpoint", *s.Res.PublicEndpoint)
+	}
+
 	if s.Res.RefreshableMode != "" {
 		s.D.Set("refreshable_mode", s.Res.RefreshableMode)
 	}
@@ -2221,7 +2321,7 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) SetData() error {
 	for _, item := range s.Res.ScheduledOperations {
 		scheduledOperations = append(scheduledOperations, ScheduledOperationDetailsToMap(item))
 	}
-	s.D.Set("scheduled_operations", scheduledOperations)
+	s.D.Set("scheduled_operations", schema.NewSet(scheduledOperationsForSets, scheduledOperations))
 
 	if s.Res.ServiceConsoleUrl != nil {
 		s.D.Set("service_console_url", *s.Res.ServiceConsoleUrl)
@@ -2243,6 +2343,10 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) SetData() error {
 
 	if s.Res.SubnetId != nil {
 		s.D.Set("subnet_id", *s.Res.SubnetId)
+	}
+
+	if s.Res.SubscriptionId != nil {
+		s.D.Set("subscription_id", *s.Res.SubscriptionId)
 	}
 
 	s.D.Set("supported_regions_to_clone_to", s.Res.SupportedRegionsToCloneTo)
@@ -2759,6 +2863,10 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 			tmp := backupRetentionPeriodInDays.(int)
 			details.BackupRetentionPeriodInDays = &tmp
 		}
+		if byolComputeCountLimit, ok := s.D.GetOkExists("byol_compute_count_limit"); ok {
+			tmp := float32(byolComputeCountLimit.(float64))
+			details.ByolComputeCountLimit = &tmp
+		}
 		if characterSet, ok := s.D.GetOkExists("character_set"); ok {
 			tmp := characterSet.(string)
 			details.CharacterSet = &tmp
@@ -2940,10 +3048,11 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 			}
 		}
 		if scheduledOperations, ok := s.D.GetOkExists("scheduled_operations"); ok {
-			interfaces := scheduledOperations.([]interface{})
+			set := scheduledOperations.(*schema.Set)
+			interfaces := set.List()
 			tmp := make([]oci_database.ScheduledOperationDetails, len(interfaces))
 			for i := range interfaces {
-				stateDataIndex := i
+				stateDataIndex := scheduledOperationsForSets(interfaces[i])
 				fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "scheduled_operations", stateDataIndex)
 				converted, err := s.mapToScheduledOperationDetails(fieldKeyFormat)
 				if err != nil {
@@ -2979,6 +3088,10 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 		if subnetId, ok := s.D.GetOkExists("subnet_id"); ok {
 			tmp := subnetId.(string)
 			details.SubnetId = &tmp
+		}
+		if subscriptionId, ok := s.D.GetOkExists("subscription_id"); ok {
+			tmp := subscriptionId.(string)
+			details.SubscriptionId = &tmp
 		}
 		if vaultId, ok := s.D.GetOkExists("vault_id"); ok {
 			tmp := vaultId.(string)
@@ -3036,6 +3149,10 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 		if backupRetentionPeriodInDays, ok := s.D.GetOkExists("backup_retention_period_in_days"); ok {
 			tmp := backupRetentionPeriodInDays.(int)
 			details.BackupRetentionPeriodInDays = &tmp
+		}
+		if byolComputeCountLimit, ok := s.D.GetOkExists("byol_compute_count_limit"); ok {
+			tmp := float32(byolComputeCountLimit.(float64))
+			details.ByolComputeCountLimit = &tmp
 		}
 		if characterSet, ok := s.D.GetOkExists("character_set"); ok {
 			tmp := characterSet.(string)
@@ -3216,10 +3333,11 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 			}
 		}
 		if scheduledOperations, ok := s.D.GetOkExists("scheduled_operations"); ok {
-			interfaces := scheduledOperations.([]interface{})
+			set := scheduledOperations.(*schema.Set)
+			interfaces := set.List()
 			tmp := make([]oci_database.ScheduledOperationDetails, len(interfaces))
 			for i := range interfaces {
-				stateDataIndex := i
+				stateDataIndex := scheduledOperationsForSets(interfaces[i])
 				fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "scheduled_operations", stateDataIndex)
 				converted, err := s.mapToScheduledOperationDetails(fieldKeyFormat)
 				if err != nil {
@@ -3255,6 +3373,10 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 		if subnetId, ok := s.D.GetOkExists("subnet_id"); ok {
 			tmp := subnetId.(string)
 			details.SubnetId = &tmp
+		}
+		if subscriptionId, ok := s.D.GetOkExists("subscription_id"); ok {
+			tmp := subscriptionId.(string)
+			details.SubscriptionId = &tmp
 		}
 		if vaultId, ok := s.D.GetOkExists("vault_id"); ok {
 			tmp := vaultId.(string)
@@ -3309,6 +3431,10 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 		if backupRetentionPeriodInDays, ok := s.D.GetOkExists("backup_retention_period_in_days"); ok {
 			tmp := backupRetentionPeriodInDays.(int)
 			details.BackupRetentionPeriodInDays = &tmp
+		}
+		if byolComputeCountLimit, ok := s.D.GetOkExists("byol_compute_count_limit"); ok {
+			tmp := float32(byolComputeCountLimit.(float64))
+			details.ByolComputeCountLimit = &tmp
 		}
 		if characterSet, ok := s.D.GetOkExists("character_set"); ok {
 			tmp := characterSet.(string)
@@ -3492,10 +3618,11 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 			}
 		}
 		if scheduledOperations, ok := s.D.GetOkExists("scheduled_operations"); ok {
-			interfaces := scheduledOperations.([]interface{})
+			set := scheduledOperations.(*schema.Set)
+			interfaces := set.List()
 			tmp := make([]oci_database.ScheduledOperationDetails, len(interfaces))
 			for i := range interfaces {
-				stateDataIndex := i
+				stateDataIndex := scheduledOperationsForSets(interfaces[i])
 				fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "scheduled_operations", stateDataIndex)
 				converted, err := s.mapToScheduledOperationDetails(fieldKeyFormat)
 				if err != nil {
@@ -3531,6 +3658,10 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 		if subnetId, ok := s.D.GetOkExists("subnet_id"); ok {
 			tmp := subnetId.(string)
 			details.SubnetId = &tmp
+		}
+		if subscriptionId, ok := s.D.GetOkExists("subscription_id"); ok {
+			tmp := subscriptionId.(string)
+			details.SubscriptionId = &tmp
 		}
 		if timeOfAutoRefreshStart, ok := s.D.GetOkExists("time_of_auto_refresh_start"); ok {
 			tmp, err := time.Parse(time.RFC3339, timeOfAutoRefreshStart.(string))
@@ -3581,6 +3712,10 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 		if backupRetentionPeriodInDays, ok := s.D.GetOkExists("backup_retention_period_in_days"); ok {
 			tmp := backupRetentionPeriodInDays.(int)
 			details.BackupRetentionPeriodInDays = &tmp
+		}
+		if byolComputeCountLimit, ok := s.D.GetOkExists("byol_compute_count_limit"); ok {
+			tmp := float32(byolComputeCountLimit.(float64))
+			details.ByolComputeCountLimit = &tmp
 		}
 		if compartmentId, ok := s.D.GetOkExists("compartment_id"); ok {
 			tmp := compartmentId.(string)
@@ -3750,10 +3885,11 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 			}
 		}
 		if scheduledOperations, ok := s.D.GetOkExists("scheduled_operations"); ok {
-			interfaces := scheduledOperations.([]interface{})
+			set := scheduledOperations.(*schema.Set)
+			interfaces := set.List()
 			tmp := make([]oci_database.ScheduledOperationDetails, len(interfaces))
 			for i := range interfaces {
-				stateDataIndex := i
+				stateDataIndex := scheduledOperationsForSets(interfaces[i])
 				fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "scheduled_operations", stateDataIndex)
 				converted, err := s.mapToScheduledOperationDetails(fieldKeyFormat)
 				if err != nil {
@@ -3788,6 +3924,10 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 		if subnetId, ok := s.D.GetOkExists("subnet_id"); ok {
 			tmp := subnetId.(string)
 			details.SubnetId = &tmp
+		}
+		if subscriptionId, ok := s.D.GetOkExists("subscription_id"); ok {
+			tmp := subscriptionId.(string)
+			details.SubscriptionId = &tmp
 		}
 		if vaultId, ok := s.D.GetOkExists("vault_id"); ok {
 			tmp := vaultId.(string)
@@ -3834,6 +3974,10 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 		}
 		if autonomousMaintenanceScheduleType, ok := s.D.GetOkExists("autonomous_maintenance_schedule_type"); ok {
 			details.AutonomousMaintenanceScheduleType = oci_database.CreateAutonomousDatabaseBaseAutonomousMaintenanceScheduleTypeEnum(autonomousMaintenanceScheduleType.(string))
+		}
+		if byolComputeCountLimit, ok := s.D.GetOkExists("byol_compute_count_limit"); ok {
+			tmp := float32(byolComputeCountLimit.(float64))
+			details.ByolComputeCountLimit = &tmp
 		}
 		if characterSet, ok := s.D.GetOkExists("character_set"); ok {
 			tmp := characterSet.(string)
@@ -3893,6 +4037,247 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 			if len(tmp) != 0 || s.D.HasChange("db_tools_details") {
 				details.DbToolsDetails = tmp
 			}
+		}
+		if dbVersion, ok := s.D.GetOkExists("db_version"); ok {
+			tmp := dbVersion.(string)
+			details.DbVersion = &tmp
+		}
+		if dbWorkload, ok := s.D.GetOkExists("db_workload"); ok {
+			details.DbWorkload = oci_database.CreateAutonomousDatabaseBaseDbWorkloadEnum(dbWorkload.(string))
+		}
+		if definedTags, ok := s.D.GetOkExists("defined_tags"); ok {
+			convertedDefinedTags, err := tfresource.MapToDefinedTags(definedTags.(map[string]interface{}))
+			if err != nil {
+				return err
+			}
+			details.DefinedTags = convertedDefinedTags
+		}
+		if displayName, ok := s.D.GetOkExists("display_name"); ok {
+			tmp := displayName.(string)
+			details.DisplayName = &tmp
+		}
+		if freeformTags, ok := s.D.GetOkExists("freeform_tags"); ok {
+			details.FreeformTags = tfresource.ObjectMapToStringMap(freeformTags.(map[string]interface{}))
+		}
+		if inMemoryPercentage, ok := s.D.GetOkExists("in_memory_percentage"); ok {
+			tmp := inMemoryPercentage.(int)
+			details.InMemoryPercentage = &tmp
+		}
+		if isAccessControlEnabled, ok := s.D.GetOkExists("is_access_control_enabled"); ok {
+			tmp := isAccessControlEnabled.(bool)
+			details.IsAccessControlEnabled = &tmp
+		}
+		if isAutoScalingEnabled, ok := s.D.GetOkExists("is_auto_scaling_enabled"); ok {
+			tmp := isAutoScalingEnabled.(bool)
+			details.IsAutoScalingEnabled = &tmp
+		}
+		if isAutoScalingForStorageEnabled, ok := s.D.GetOkExists("is_auto_scaling_for_storage_enabled"); ok {
+			tmp := isAutoScalingForStorageEnabled.(bool)
+			details.IsAutoScalingForStorageEnabled = &tmp
+		}
+		if isDataGuardEnabled, ok := s.D.GetOkExists("is_data_guard_enabled"); ok {
+			tmp := isDataGuardEnabled.(bool)
+			details.IsDataGuardEnabled = &tmp
+		}
+		if isDedicated, ok := s.D.GetOkExists("is_dedicated"); ok {
+			tmp := isDedicated.(bool)
+			details.IsDedicated = &tmp
+		}
+		if isFreeTier, ok := s.D.GetOkExists("is_free_tier"); ok {
+			tmp := isFreeTier.(bool)
+			details.IsFreeTier = &tmp
+		}
+		if isLocalDataGuardEnabled, ok := s.D.GetOkExists("is_local_data_guard_enabled"); ok {
+			tmp := isLocalDataGuardEnabled.(bool)
+			details.IsLocalDataGuardEnabled = &tmp
+		}
+		if isMtlsConnectionRequired, ok := s.D.GetOkExists("is_mtls_connection_required"); ok {
+			tmp := isMtlsConnectionRequired.(bool)
+			details.IsMtlsConnectionRequired = &tmp
+		}
+		if isPreviewVersionWithServiceTermsAccepted, ok := s.D.GetOkExists("is_preview_version_with_service_terms_accepted"); ok {
+			tmp := isPreviewVersionWithServiceTermsAccepted.(bool)
+			details.IsPreviewVersionWithServiceTermsAccepted = &tmp
+		}
+		if kmsKeyId, ok := s.D.GetOkExists("kms_key_id"); ok {
+			tmp := kmsKeyId.(string)
+			details.KmsKeyId = &tmp
+		}
+		if licenseModel, ok := s.D.GetOkExists("license_model"); ok {
+			details.LicenseModel = oci_database.CreateAutonomousDatabaseBaseLicenseModelEnum(licenseModel.(string))
+		}
+		if ncharacterSet, ok := s.D.GetOkExists("ncharacter_set"); ok {
+			tmp := ncharacterSet.(string)
+			details.NcharacterSet = &tmp
+		}
+		if nsgIds, ok := s.D.GetOkExists("nsg_ids"); ok {
+			set := nsgIds.(*schema.Set)
+			interfaces := set.List()
+			tmp := make([]string, len(interfaces))
+			for i := range interfaces {
+				if interfaces[i] != nil {
+					tmp[i] = interfaces[i].(string)
+				}
+			}
+			if len(tmp) != 0 || s.D.HasChange("nsg_ids") {
+				details.NsgIds = tmp
+			}
+		}
+		if ocpuCount, ok := s.D.GetOkExists("ocpu_count"); ok {
+			tmp := ocpuCount.(float32)
+			details.OcpuCount = &tmp
+		}
+		if privateEndpointIp, ok := s.D.GetOkExists("private_endpoint_ip"); ok {
+			tmp := privateEndpointIp.(string)
+			details.PrivateEndpointIp = &tmp
+		}
+		if privateEndpointLabel, ok := s.D.GetOkExists("private_endpoint_label"); ok {
+			tmp := privateEndpointLabel.(string)
+			details.PrivateEndpointLabel = &tmp
+		}
+		if scheduledOperations, ok := s.D.GetOkExists("scheduled_operations"); ok {
+			interfaces := scheduledOperations.([]interface{})
+			tmp := make([]oci_database.ScheduledOperationDetails, len(interfaces))
+			for i := range interfaces {
+				stateDataIndex := i
+				fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "scheduled_operations", stateDataIndex)
+				converted, err := s.mapToScheduledOperationDetails(fieldKeyFormat)
+				if err != nil {
+					return err
+				}
+				tmp[i] = converted
+			}
+			if len(tmp) != 0 || s.D.HasChange("scheduled_operations") {
+				details.ScheduledOperations = tmp
+			}
+		}
+		if secretId, ok := s.D.GetOkExists("secret_id"); ok {
+			tmp := secretId.(string)
+			details.SecretId = &tmp
+		}
+		if secretVersionNumber, ok := s.D.GetOkExists("secret_version_number"); ok {
+			tmp := secretVersionNumber.(int)
+			details.SecretVersionNumber = &tmp
+		}
+		if standbyWhitelistedIps, ok := s.D.GetOkExists("standby_whitelisted_ips"); ok {
+			interfaces := standbyWhitelistedIps.([]interface{})
+			tmp := make([]string, len(interfaces))
+			for i := range interfaces {
+				if interfaces[i] != nil {
+					tmp[i] = interfaces[i].(string)
+				}
+			}
+			if len(tmp) != 0 || s.D.HasChange("standby_whitelisted_ips") {
+				details.StandbyWhitelistedIps = tmp
+			}
+		}
+		if subnetId, ok := s.D.GetOkExists("subnet_id"); ok {
+			tmp := subnetId.(string)
+			details.SubnetId = &tmp
+		}
+		if subscriptionId, ok := s.D.GetOkExists("subscription_id"); ok {
+			tmp := subscriptionId.(string)
+			details.SubscriptionId = &tmp
+		}
+		if vaultId, ok := s.D.GetOkExists("vault_id"); ok {
+			tmp := vaultId.(string)
+			details.VaultId = &tmp
+		}
+		if whitelistedIps, ok := s.D.GetOkExists("whitelisted_ips"); ok {
+			set := whitelistedIps.(*schema.Set)
+			interfaces := set.List()
+			tmp := make([]string, len(interfaces))
+			for i := range interfaces {
+				if interfaces[i] != nil {
+					tmp[i] = interfaces[i].(string)
+				}
+			}
+			if len(tmp) != 0 || s.D.HasChange("whitelisted_ips") {
+				details.WhitelistedIps = tmp
+			}
+		}
+		request.CreateAutonomousDatabaseDetails = details
+	case strings.ToLower("CROSS_TENANCY_DISASTER_RECOVERY"):
+		details := oci_database.CreateCrossTenancyDisasterRecoveryDetails{}
+		if disasterRecoveryType, ok := s.D.GetOkExists("disaster_recovery_type"); ok {
+			details.DisasterRecoveryType = oci_database.DisasterRecoveryConfigurationDisasterRecoveryTypeEnum(disasterRecoveryType.(string))
+		}
+		if sourceId, ok := s.D.GetOkExists("source_id"); ok {
+			tmp := sourceId.(string)
+			details.SourceId = &tmp
+		}
+		if adminPassword, ok := s.D.GetOkExists("admin_password"); ok {
+			tmp := adminPassword.(string)
+			details.AdminPassword = &tmp
+		}
+		if arePrimaryWhitelistedIpsUsed, ok := s.D.GetOkExists("are_primary_whitelisted_ips_used"); ok {
+			tmp := arePrimaryWhitelistedIpsUsed.(bool)
+			details.ArePrimaryWhitelistedIpsUsed = &tmp
+		}
+		if autonomousContainerDatabaseId, ok := s.D.GetOkExists("autonomous_container_database_id"); ok {
+			tmp := autonomousContainerDatabaseId.(string)
+			details.AutonomousContainerDatabaseId = &tmp
+		}
+		if autonomousMaintenanceScheduleType, ok := s.D.GetOkExists("autonomous_maintenance_schedule_type"); ok {
+			details.AutonomousMaintenanceScheduleType = oci_database.CreateAutonomousDatabaseBaseAutonomousMaintenanceScheduleTypeEnum(autonomousMaintenanceScheduleType.(string))
+		}
+		if backupRetentionPeriodInDays, ok := s.D.GetOkExists("backup_retention_period_in_days"); ok {
+			tmp := backupRetentionPeriodInDays.(int)
+			details.BackupRetentionPeriodInDays = &tmp
+		}
+		if byolComputeCountLimit, ok := s.D.GetOkExists("byol_compute_count_limit"); ok {
+			tmp := float32(byolComputeCountLimit.(float64))
+			details.ByolComputeCountLimit = &tmp
+		}
+		if characterSet, ok := s.D.GetOkExists("character_set"); ok {
+			tmp := characterSet.(string)
+			details.CharacterSet = &tmp
+		}
+		if compartmentId, ok := s.D.GetOkExists("compartment_id"); ok {
+			tmp := compartmentId.(string)
+			details.CompartmentId = &tmp
+		}
+		if computeCount, ok := s.D.GetOkExists("compute_count"); ok {
+			tmp := computeCount.(float32)
+			details.ComputeCount = &tmp
+		}
+		if computeModel, ok := s.D.GetOkExists("compute_model"); ok {
+			details.ComputeModel = oci_database.CreateAutonomousDatabaseBaseComputeModelEnum(computeModel.(string))
+		}
+		if cpuCoreCount, ok := s.D.GetOkExists("cpu_core_count"); ok {
+			tmp := cpuCoreCount.(int)
+			details.CpuCoreCount = &tmp
+		}
+		if customerContacts, ok := s.D.GetOkExists("customer_contacts"); ok {
+			interfaces := customerContacts.([]interface{})
+			tmp := make([]oci_database.CustomerContact, len(interfaces))
+			for i := range interfaces {
+				stateDataIndex := i
+				fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "customer_contacts", stateDataIndex)
+				converted, err := s.mapToCustomerContact(fieldKeyFormat)
+				if err != nil {
+					return err
+				}
+				tmp[i] = converted
+			}
+			if len(tmp) != 0 || s.D.HasChange("customer_contacts") {
+				details.CustomerContacts = tmp
+			}
+		}
+		if dataStorageSizeInGB, ok := s.D.GetOkExists("data_storage_size_in_gb"); ok {
+			tmp := dataStorageSizeInGB.(int)
+			details.DataStorageSizeInGBs = &tmp
+		}
+		if dataStorageSizeInTBs, ok := s.D.GetOkExists("data_storage_size_in_tbs"); ok {
+			tmp := dataStorageSizeInTBs.(int)
+			details.DataStorageSizeInTBs = &tmp
+		}
+		if databaseEdition, ok := s.D.GetOkExists("database_edition"); ok {
+			details.DatabaseEdition = oci_database.AutonomousDatabaseSummaryDatabaseEditionEnum(databaseEdition.(string))
+		}
+		if dbName, ok := s.D.GetOkExists("db_name"); ok {
+			tmp := dbName.(string)
+			details.DbName = &tmp
 		}
 		if dbVersion, ok := s.D.GetOkExists("db_version"); ok {
 			tmp := dbVersion.(string)
@@ -4008,10 +4393,11 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 			}
 		}
 		if scheduledOperations, ok := s.D.GetOkExists("scheduled_operations"); ok {
-			interfaces := scheduledOperations.([]interface{})
+			set := scheduledOperations.(*schema.Set)
+			interfaces := set.List()
 			tmp := make([]oci_database.ScheduledOperationDetails, len(interfaces))
 			for i := range interfaces {
-				stateDataIndex := i
+				stateDataIndex := scheduledOperationsForSets(interfaces[i])
 				fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "scheduled_operations", stateDataIndex)
 				converted, err := s.mapToScheduledOperationDetails(fieldKeyFormat)
 				if err != nil {
@@ -4038,6 +4424,10 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 		if subnetId, ok := s.D.GetOkExists("subnet_id"); ok {
 			tmp := subnetId.(string)
 			details.SubnetId = &tmp
+		}
+		if subscriptionId, ok := s.D.GetOkExists("subscription_id"); ok {
+			tmp := subscriptionId.(string)
+			details.SubscriptionId = &tmp
 		}
 		if vaultId, ok := s.D.GetOkExists("vault_id"); ok {
 			tmp := vaultId.(string)
@@ -4084,6 +4474,10 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 		if backupRetentionPeriodInDays, ok := s.D.GetOkExists("backup_retention_period_in_days"); ok {
 			tmp := backupRetentionPeriodInDays.(int)
 			details.BackupRetentionPeriodInDays = &tmp
+		}
+		if byolComputeCountLimit, ok := s.D.GetOkExists("byol_compute_count_limit"); ok {
+			tmp := float32(byolComputeCountLimit.(float64))
+			details.ByolComputeCountLimit = &tmp
 		}
 		if characterSet, ok := s.D.GetOkExists("character_set"); ok {
 			tmp := characterSet.(string)
@@ -4268,10 +4662,11 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 			}
 		}
 		if scheduledOperations, ok := s.D.GetOkExists("scheduled_operations"); ok {
-			interfaces := scheduledOperations.([]interface{})
+			set := scheduledOperations.(*schema.Set)
+			interfaces := set.List()
 			tmp := make([]oci_database.ScheduledOperationDetails, len(interfaces))
 			for i := range interfaces {
-				stateDataIndex := i
+				stateDataIndex := scheduledOperationsForSets(interfaces[i])
 				fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "scheduled_operations", stateDataIndex)
 				converted, err := s.mapToScheduledOperationDetails(fieldKeyFormat)
 				if err != nil {
@@ -4307,6 +4702,10 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 		if subnetId, ok := s.D.GetOkExists("subnet_id"); ok {
 			tmp := subnetId.(string)
 			details.SubnetId = &tmp
+		}
+		if subscriptionId, ok := s.D.GetOkExists("subscription_id"); ok {
+			tmp := subscriptionId.(string)
+			details.SubscriptionId = &tmp
 		}
 		if vaultId, ok := s.D.GetOkExists("vault_id"); ok {
 			tmp := vaultId.(string)
@@ -4344,6 +4743,10 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 		if backupRetentionPeriodInDays, ok := s.D.GetOkExists("backup_retention_period_in_days"); ok {
 			tmp := backupRetentionPeriodInDays.(int)
 			details.BackupRetentionPeriodInDays = &tmp
+		}
+		if byolComputeCountLimit, ok := s.D.GetOkExists("byol_compute_count_limit"); ok {
+			tmp := float32(byolComputeCountLimit.(float64))
+			details.ByolComputeCountLimit = &tmp
 		}
 		if characterSet, ok := s.D.GetOkExists("character_set"); ok {
 			tmp := characterSet.(string)
@@ -4528,10 +4931,11 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 			}
 		}
 		if scheduledOperations, ok := s.D.GetOkExists("scheduled_operations"); ok {
-			interfaces := scheduledOperations.([]interface{})
+			set := scheduledOperations.(*schema.Set)
+			interfaces := set.List()
 			tmp := make([]oci_database.ScheduledOperationDetails, len(interfaces))
 			for i := range interfaces {
-				stateDataIndex := i
+				stateDataIndex := scheduledOperationsForSets(interfaces[i])
 				fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "scheduled_operations", stateDataIndex)
 				converted, err := s.mapToScheduledOperationDetails(fieldKeyFormat)
 				if err != nil {
@@ -4566,6 +4970,10 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 		if subnetId, ok := s.D.GetOkExists("subnet_id"); ok {
 			tmp := subnetId.(string)
 			details.SubnetId = &tmp
+		}
+		if subscriptionId, ok := s.D.GetOkExists("subscription_id"); ok {
+			tmp := subscriptionId.(string)
+			details.SubscriptionId = &tmp
 		}
 		if vaultId, ok := s.D.GetOkExists("vault_id"); ok {
 			tmp := vaultId.(string)
@@ -4613,7 +5021,24 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) updateCompartment(compartment i
 
 	return nil
 }
+func (s *DatabaseAutonomousDatabaseResourceCrud) updateSubscription(subscriptionId string) error {
+	changeSubscriptionRequest := oci_database.ChangeAutonomousDatabaseSubscriptionRequest{}
 
+	idTmp := s.D.Id()
+	changeSubscriptionRequest.AutonomousDatabaseId = &idTmp
+
+	subscriptionTmp := subscriptionId
+	changeSubscriptionRequest.SubscriptionId = &subscriptionTmp
+
+	changeSubscriptionRequest.RequestMetadata.RetryPolicy = tfresource.GetRetryPolicy(s.DisableNotFoundRetries, "database")
+
+	_, err := s.Client.ChangeAutonomousDatabaseSubscription(context.Background(), changeSubscriptionRequest)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 func (s *DatabaseAutonomousDatabaseResourceCrud) updateDataSafeStatus(autonomousDatabaseId string, dataSafeStatus oci_database.AutonomousDatabaseDataSafeStatusEnum) error {
 	switch dataSafeStatus {
 	case oci_database.AutonomousDatabaseDataSafeStatusRegistered:
@@ -5101,4 +5526,24 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) UpdateLocalAdg(adg bool, limit 
 	}
 
 	return nil
+}
+
+func scheduledOperationsForSets(v interface{}) int {
+	var buf bytes.Buffer
+	m := v.(map[string]interface{})
+	if dayOfWeek, ok := m["day_of_week"]; ok && dayOfWeek != "" {
+		if tmpList, ok := dayOfWeek.([]interface{}); ok && len(tmpList) > 0 && tmpList[0] != "" {
+			buf.WriteString("day_of_week-")
+			for _, dayOfWeekTemp := range tmpList {
+				buf.WriteString(fmt.Sprintf("%v-", dayOfWeekTemp))
+			}
+		}
+	}
+	if startTime, ok := m["scheduled_start_time"]; ok && startTime != "" {
+		buf.WriteString(fmt.Sprintf("%v-", startTime))
+	}
+	if stopTime, ok := m["scheduled_stop_time"]; ok && stopTime != "" {
+		buf.WriteString(fmt.Sprintf("%v-", strings.ToLower(stopTime.(string))))
+	}
+	return utils.GetStringHashcode(buf.String())
 }
