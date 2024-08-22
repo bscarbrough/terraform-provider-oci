@@ -20,7 +20,7 @@ variable "compartment_id" {
 }
 
 variable "integration_instance_idcs_access_token" {
-
+  default = ""
 }
 
 variable "integration_instance_consumption_model" {
@@ -59,9 +59,9 @@ provider "oci" {
 resource "oci_integration_integration_instance" "test_integration_instance" {
   #Required
   compartment_id            = var.compartment_id
-  integration_instance_type = "STANDARDX"
+  integration_instance_type = "HEALTHCARE"
   shape                     = "DEVELOPMENT"
-  display_name              = "displayName"
+  display_name              = "DataRetention"
   is_byol                   = "false"
   message_packs             = "10"
   domain_id                 = var.domain_id
@@ -96,17 +96,17 @@ data "oci_integration_integration_instance" "test_integration_instance" {
   integration_instance_id = oci_integration_integration_instance.test_integration_instance.id
 }
 
-resource "oci_integration_integration_instance" "test_integration_instance_idcs" {
-  #Required
-  compartment_id            = var.compartment_id
-  display_name              = "instance4643_idcs"
-  integration_instance_type = "STANDARDX"
-  shape                     = "DEVELOPMENT"
-  # shape                     = "PRODUCTION"
-  is_byol                   = "false"
-  message_packs             = "10"
-  idcs_at                   = var.integration_instance_idcs_access_token
-}
+# resource "oci_integration_integration_instance" "test_integration_instance_idcs" {
+#   #Required
+#   compartment_id            = var.compartment_id
+#   display_name              = "instance4643_idcs"
+#   integration_instance_type = "STANDARDX"
+#   shape                     = "DEVELOPMENT"
+#   # shape                     = "PRODUCTION"
+#   is_byol                   = "false"
+#   message_packs             = "10"
+#   idcs_at                   = var.integration_instance_idcs_access_token
+# }
 
 resource "oci_integration_private_endpoint_outbound_connection" "integration_private_endpoint" {
   integration_instance_id = oci_integration_integration_instance.test_integration_instance.id

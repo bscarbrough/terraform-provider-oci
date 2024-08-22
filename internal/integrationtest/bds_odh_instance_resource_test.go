@@ -53,6 +53,39 @@ var (
 		"values": acctest.Representation{RepType: acctest.Required, Create: []string{`${oci_bds_bds_instance.test_bds_instance.id}`}},
 	}
 
+	BdsBdsInstanceRepresentation = map[string]interface{}{
+		"cluster_admin_password":           acctest.Representation{RepType: acctest.Required, Create: `clusterAdminPassword`},
+		"cluster_public_key":               acctest.Representation{RepType: acctest.Required, Create: `clusterPublicKey`},
+		"cluster_version":                  acctest.Representation{RepType: acctest.Required, Create: `ODH2_0`},
+		"compartment_id":                   acctest.Representation{RepType: acctest.Required, Create: `${var.compartment_id}`},
+		"display_name":                     acctest.Representation{RepType: acctest.Required, Create: `displayName`, Update: `displayName2`},
+		"is_high_availability":             acctest.Representation{RepType: acctest.Required, Create: `false`},
+		"is_secure":                        acctest.Representation{RepType: acctest.Required, Create: `false`},
+		"nodes":                            acctest.RepresentationGroup{RepType: acctest.Required, Group: BdsBdsInstanceNodesRepresentation},
+		"bootstrap_script_url":             acctest.Representation{RepType: acctest.Optional, Create: `bootstrapScriptUrl`, Update: `bootstrapScriptUrl2`},
+		"cluster_profile":                  acctest.Representation{RepType: acctest.Optional, Create: `HADOOP_EXTENDED`},
+		"defined_tags":                     acctest.Representation{RepType: acctest.Optional, Create: `${map("${oci_identity_tag_namespace.tag-namespace1.name}.${oci_identity_tag.tag1.name}", "value")}`, Update: `${map("${oci_identity_tag_namespace.tag-namespace1.name}.${oci_identity_tag.tag1.name}", "updatedValue")}`},
+		"freeform_tags":                    acctest.Representation{RepType: acctest.Optional, Create: map[string]string{"freeformTags": "freeformTags"}, Update: map[string]string{"freeformTags2": "freeformTags2"}},
+		"kerberos_realm_name":              acctest.Representation{RepType: acctest.Optional, Create: `kerberosRealmName`},
+		"kms_key_id":                       acctest.Representation{RepType: acctest.Optional, Create: `${lookup(data.oci_kms_keys.test_keys_dependency.keys[0], "id")}`},
+		"network_config":                   acctest.RepresentationGroup{RepType: acctest.Optional, Group: BdsBdsInstanceNetworkConfigRepresentation},
+		"add_kafka_trigger":                acctest.Representation{RepType: acctest.Optional, Create: `0`, Update: `1`},
+		"execute_bootstrap_script_trigger": acctest.Representation{RepType: acctest.Optional, Create: `0`, Update: `1`},
+		"remove_kafka_trigger":             acctest.Representation{RepType: acctest.Optional, Create: `0`, Update: `1`},
+		"state":                            acctest.Representation{RepType: acctest.Optional, Create: `INACTIVE`, Update: `ACTIVE`},
+	}
+
+	BdsBdsInstanceNodesRepresentation = map[string]interface{}{
+		"shape":                    acctest.Representation{RepType: acctest.Required, Create: `VM.Standard2.1`, Update: `VM.Standard2.4`},
+		"subnet_id":                acctest.Representation{RepType: acctest.Required, Create: `${oci_core_subnet.test_subnet.id}`},
+		"block_volume_size_in_gbs": acctest.Representation{RepType: acctest.Required, Create: `150`},
+		"number_of_nodes":          acctest.Representation{RepType: acctest.Required, Create: `3`, Update: `4`},
+	}
+	BdsBdsInstanceNetworkConfigRepresentation = map[string]interface{}{
+		"cidr_block":              acctest.Representation{RepType: acctest.Optional, Create: `111.112.0.0/16`},
+		"is_nat_gateway_required": acctest.Representation{RepType: acctest.Optional, Create: `true`},
+	}
+
 	bdsInstanceOdhRepresentation = map[string]interface{}{
 		"cluster_admin_password":   acctest.Representation{RepType: acctest.Required, Create: `T3JhY2xlVGVhbVVTQSExMjM=`},
 		"cluster_public_key":       acctest.Representation{RepType: acctest.Required, Create: `ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDpUa4zUZKyU3AkW9yoJTBDO550wpWZOXdHswfRq75gbJ2ZYlMtifvwiO3qUL/RIZSC6e1wA5OL2LQ97UaHrLLPXgjvKGVIDRHqPkzTOayjJ4ZA7NPNhcu6f/OxhKkCYF3TAQObhMJmUSMrWSUeufaRIujDz1HHqazxOgFk09fj4i2dcGnfPcm32t8a9MzlsHSmgexYCUwxGisuuWTsnMgxbqsj6DaY51l+SEPi5tf10iFmUWqziF0eKDDQ/jHkwLJ8wgBJef9FSOmwJReHcBY+NviwFTatGj7Cwtnks6CVomsFD+rAMJ9uzM8SCv5agYunx07hnEXbR9r/TXqgXGfN bdsclusterkey@oracleoci.com`},
@@ -76,8 +109,9 @@ var (
 
 		//Uncomment this when running in home region (PHX)
 		//	"defined_tags":   acctest.Representation{RepType: acctest.Optional, Create: `${map("${oci_identity_tag_namespace.tag-namespace1.name}.${oci_identity_tag.tag1.name}", "value")}`, Update: `${map("${oci_identity_tag_namespace.tag-namespace1.name}.${oci_identity_tag.tag1.name}", "updatedValue")}`},
-		//"freeform_tags":  acctest.Representation{RepType: acctest.Optional, Create: map[string]string{"bar-key": "value"}, Update: map[string]string{"Department": "Accounting"}},
-		"network_config": acctest.RepresentationGroup{RepType: acctest.Optional, Group: bdsInstanceOdhNetworkConfigRepresentation},
+		"freeform_tags":               acctest.Representation{RepType: acctest.Optional, Create: map[string]string{"bar-key": "value"}, Update: map[string]string{"Department": "Accounting"}},
+		"network_config":              acctest.RepresentationGroup{RepType: acctest.Optional, Group: bdsInstanceOdhNetworkConfigRepresentation},
+		"ignore_existing_nodes_shape": acctest.Representation{RepType: acctest.Optional, Update: []string{`worker`}},
 		//"os_patch_version": acctest.Representation{RepType: acctest.Optional, Update: `ol7.9-x86_64-1.28.0.619-0.0`}, // Test when patch is available
 	}
 
@@ -114,11 +148,17 @@ var (
 		"number_of_nodes":          acctest.Representation{RepType: acctest.Required, Create: `2`},
 	}
 	bdsInstanceNodesOdhWorkerRepresentation = map[string]interface{}{
-		"shape":                    acctest.Representation{RepType: acctest.Required, Create: `VM.Standard2.4`},
+		"shape":                    acctest.Representation{RepType: acctest.Required, Create: `VM.Standard.E4.Flex`, Update: `VM.Standard.E5.Flex`},
 		"subnet_id":                acctest.Representation{RepType: acctest.Required, Create: `${var.subnet_id}`},
 		"block_volume_size_in_gbs": acctest.Representation{RepType: acctest.Required, Create: `150`},
 		"number_of_nodes":          acctest.Representation{RepType: acctest.Required, Create: `3`, Update: `4`},
+		"shape_config":             acctest.RepresentationGroup{RepType: acctest.Required, Group: bdsInstanceNodesWorkerShapeConfigRepresentation},
 	}
+	bdsInstanceNodesWorkerShapeConfigRepresentation = map[string]interface{}{
+		"memory_in_gbs": acctest.Representation{RepType: acctest.Required, Create: `120`, Update: `120`},
+		"ocpus":         acctest.Representation{RepType: acctest.Required, Create: `8`, Update: `8`},
+	}
+
 	bdsInstanceNodeFlexShapeRepresentation = map[string]interface{}{
 		"shape":                    acctest.Representation{RepType: acctest.Required, Create: `VM.Standard.E4.Flex`},
 		"subnet_id":                acctest.Representation{RepType: acctest.Required, Create: `${var.subnet_id}`},
@@ -559,6 +599,7 @@ func TestResourceBdsOdhInstance(t *testing.T) {
 				resource.TestCheckResourceAttr(resourceName, "master_node.0.shape", "VM.Standard.E4.Flex"),
 				resource.TestCheckResourceAttr(resourceName, "compute_only_worker_node.0.shape", "VM.Standard2.4"),
 				resource.TestCheckResourceAttr(resourceName, "edge_node.0.shape", "VM.Standard.E4.Flex"),
+				resource.TestCheckResourceAttr(resourceName, "worker_node.0.number_of_nodes", "4"),
 
 				func(s *terraform.State) (err error) {
 					resId2, err = acctest.FromInstanceState(s, resourceName, "id")
@@ -723,6 +764,8 @@ func TestResourceBdsOdhInstance(t *testing.T) {
 				"compute_only_worker_node.0.shape_config",
 				"edge_node.0.shape_config",
 				"kafka_broker_node.0.shape_config",
+				"ignore_existing_nodes_shape.#",
+				"ignore_existing_nodes_shape.0",
 			},
 			ResourceName: resourceName,
 		},

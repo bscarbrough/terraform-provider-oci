@@ -90,6 +90,8 @@ func (s *IntegrationIntegrationInstanceDataSourceCrud) SetData() error {
 		s.D.Set("custom_endpoint", nil)
 	}
 
+	s.D.Set("data_retention_period", s.Res.DataRetentionPeriod)
+
 	if s.Res.DefinedTags != nil {
 		s.D.Set("defined_tags", tfresource.DefinedTagsToMap(s.Res.DefinedTags))
 	}
@@ -154,6 +156,10 @@ func (s *IntegrationIntegrationInstanceDataSourceCrud) SetData() error {
 
 	if s.Res.StateMessage != nil {
 		s.D.Set("state_message", *s.Res.StateMessage)
+	}
+
+	if s.Res.SystemTags != nil {
+		s.D.Set("system_tags", tfresource.SystemTagsToMap(s.Res.SystemTags))
 	}
 
 	if s.Res.TimeCreated != nil {

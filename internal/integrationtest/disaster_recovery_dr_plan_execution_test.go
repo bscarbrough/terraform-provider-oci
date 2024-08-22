@@ -35,11 +35,11 @@ var (
 		"dr_plan_execution_id": acctest.Representation{RepType: acctest.Required, Create: `${oci_disaster_recovery_dr_plan_execution.test_dr_plan_execution.id}`},
 	}
 
+	//Dr Plan Data source
 	DisasterRecoveryDisasterRecoveryDrPlanExecutionDataSourceRepresentation = map[string]interface{}{
 		"dr_protection_group_id": acctest.Representation{RepType: acctest.Required, Create: `${oci_disaster_recovery_dr_protection_group.test_peer.id}`},
 		"display_name":           acctest.Representation{RepType: acctest.Optional, Create: `Precheck Switchover from PHX to IAD`, Update: `displayName2`},
 		"dr_plan_execution_id":   acctest.Representation{RepType: acctest.Optional, Create: `${oci_disaster_recovery_dr_plan_execution.test_dr_plan_execution.id}`},
-		"dr_plan_execution_type": acctest.Representation{RepType: acctest.Optional, Create: `SWITCHOVER_PRECHECK`},
 		"state":                  acctest.Representation{RepType: acctest.Optional, Create: `SUCCEEDED`},
 		"filter":                 acctest.RepresentationGroup{RepType: acctest.Required, Group: DisasterRecoveryDrPlanExecutionDataSourceFilterRepresentation}}
 	DisasterRecoveryDrPlanExecutionDataSourceFilterRepresentation = map[string]interface{}{
@@ -205,7 +205,6 @@ func TestDisasterRecoveryDrPlanExecutionResource_basic(t *testing.T) {
 			Check: acctest.ComposeAggregateTestCheckFuncWrapper(
 				resource.TestCheckResourceAttr(datasourceName, "display_name", "displayName2"),
 				resource.TestCheckResourceAttrSet(datasourceName, "dr_plan_execution_id"),
-				resource.TestCheckResourceAttr(datasourceName, "dr_plan_execution_type", "SWITCHOVER_PRECHECK"),
 				resource.TestCheckResourceAttrSet(datasourceName, "dr_protection_group_id"),
 				//resource.TestCheckResourceAttr(datasourceName, "state", "SUCCEEDED"),
 

@@ -2,9 +2,9 @@
 // This software is dual-licensed to you under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose either license.
 // Code generated. DO NOT EDIT.
 
-// Java Management Service API
+// Java Management Service Fleets API
 //
-// API for the Java Management Service. Use this API to view, create, and manage Fleets.
+// The APIs for the Fleet Management (https://docs.oracle.com/en-us/iaas/jms/doc/fleet-management.html) feature of Java Management Service to monitor and manage the usage of Java in your enterprise. Use these APIs to manage fleets, configure managed instances to report to fleets, and gain insights into the Java workloads running on these instances by carrying out basic and advanced features.
 //
 
 package jms
@@ -338,7 +338,7 @@ func (client JavaManagementServiceClient) createBlocklist(ctx context.Context, r
 	return response, err
 }
 
-// CreateDrsFile Request to perform validaition of the DRS file and create the file to the Object Storage.
+// CreateDrsFile Request to perform validation of the DRS file and create the file to the Object Storage.
 //
 // # See also
 //
@@ -462,6 +462,71 @@ func (client JavaManagementServiceClient) createFleet(ctx context.Context, reque
 	if err != nil {
 		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/jms/20210610/Fleet/CreateFleet"
 		err = common.PostProcessServiceError(err, "JavaManagementService", "CreateFleet", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
+// CreateJmsPlugin Registers an agent's JmsPlugin, optionally attaching to an existing fleet of the tenancy.
+// JmsPlugins registered fleet-less are created with lifecycle state INACTIVE.
+// For the operation to be authorized, the agent must exist, and the authorized user requires JMS_PLUGIN_CREATE permission for the agent's compartment.
+//
+// # See also
+//
+// Click https://docs.cloud.oracle.com/en-us/iaas/tools/go-sdk-examples/latest/jms/CreateJmsPlugin.go.html to see an example of how to use CreateJmsPlugin API.
+// A default retry strategy applies to this operation CreateJmsPlugin()
+func (client JavaManagementServiceClient) CreateJmsPlugin(ctx context.Context, request CreateJmsPluginRequest) (response CreateJmsPluginResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.DefaultRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+
+	if !(request.OpcRetryToken != nil && *request.OpcRetryToken != "") {
+		request.OpcRetryToken = common.String(common.RetryToken())
+	}
+
+	ociResponse, err = common.Retry(ctx, request, client.createJmsPlugin, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = CreateJmsPluginResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = CreateJmsPluginResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(CreateJmsPluginResponse); ok {
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into CreateJmsPluginResponse")
+	}
+	return
+}
+
+// createJmsPlugin implements the OCIOperation interface (enables retrying operations)
+func (client JavaManagementServiceClient) createJmsPlugin(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodPost, "/jmsPlugins", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	var response CreateJmsPluginResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	defer common.CloseBodyIfValid(httpResponse)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/jms/20210610/JmsPlugin/CreateJmsPlugin"
+		err = common.PostProcessServiceError(err, "JavaManagementService", "CreateJmsPlugin", apiReferenceLink)
 		return response, err
 	}
 
@@ -759,6 +824,65 @@ func (client JavaManagementServiceClient) deleteJavaMigrationAnalysisResult(ctx 
 	return response, err
 }
 
+// DeleteJmsPlugin Deletes a JmsPlugin. The JmsPlugin may be visible for some time with state DELETED.
+// Deleted plugins will not be able to communicate with the JMS service.
+//
+// # See also
+//
+// Click https://docs.cloud.oracle.com/en-us/iaas/tools/go-sdk-examples/latest/jms/DeleteJmsPlugin.go.html to see an example of how to use DeleteJmsPlugin API.
+// A default retry strategy applies to this operation DeleteJmsPlugin()
+func (client JavaManagementServiceClient) DeleteJmsPlugin(ctx context.Context, request DeleteJmsPluginRequest) (response DeleteJmsPluginResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.DefaultRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+	ociResponse, err = common.Retry(ctx, request, client.deleteJmsPlugin, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = DeleteJmsPluginResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = DeleteJmsPluginResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(DeleteJmsPluginResponse); ok {
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into DeleteJmsPluginResponse")
+	}
+	return
+}
+
+// deleteJmsPlugin implements the OCIOperation interface (enables retrying operations)
+func (client JavaManagementServiceClient) deleteJmsPlugin(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodDelete, "/jmsPlugins/{jmsPluginId}", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	var response DeleteJmsPluginResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	defer common.CloseBodyIfValid(httpResponse)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/jms/20210610/JmsPlugin/DeleteJmsPlugin"
+		err = common.PostProcessServiceError(err, "JavaManagementService", "DeleteJmsPlugin", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
 // DeletePerformanceTuningAnalysisResult Deletes only the metadata of the Performance Tuning Analysis result, but the file remains in the object storage.
 //
 // # See also
@@ -1000,6 +1124,120 @@ func (client JavaManagementServiceClient) generateAgentDeployScript(ctx context.
 	return response, err
 }
 
+// GenerateAgentInstallerConfiguration Generates the agent installer configuration using the information provided.
+//
+// # See also
+//
+// Click https://docs.cloud.oracle.com/en-us/iaas/tools/go-sdk-examples/latest/jms/GenerateAgentInstallerConfiguration.go.html to see an example of how to use GenerateAgentInstallerConfiguration API.
+// A default retry strategy applies to this operation GenerateAgentInstallerConfiguration()
+func (client JavaManagementServiceClient) GenerateAgentInstallerConfiguration(ctx context.Context, request GenerateAgentInstallerConfigurationRequest) (response GenerateAgentInstallerConfigurationResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.DefaultRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+	ociResponse, err = common.Retry(ctx, request, client.generateAgentInstallerConfiguration, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = GenerateAgentInstallerConfigurationResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = GenerateAgentInstallerConfigurationResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(GenerateAgentInstallerConfigurationResponse); ok {
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into GenerateAgentInstallerConfigurationResponse")
+	}
+	return
+}
+
+// generateAgentInstallerConfiguration implements the OCIOperation interface (enables retrying operations)
+func (client JavaManagementServiceClient) generateAgentInstallerConfiguration(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodPost, "/agentInstallers/actions/generateAgentInstallerConfiguration", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	var response GenerateAgentInstallerConfigurationResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/jms/20210610/AgentInstallerSummary/GenerateAgentInstallerConfiguration"
+		err = common.PostProcessServiceError(err, "JavaManagementService", "GenerateAgentInstallerConfiguration", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
+// GenerateLoadPipelineScript Generates Load Pipeline Script
+//
+// # See also
+//
+// Click https://docs.cloud.oracle.com/en-us/iaas/tools/go-sdk-examples/latest/jms/GenerateLoadPipelineScript.go.html to see an example of how to use GenerateLoadPipelineScript API.
+// A default retry strategy applies to this operation GenerateLoadPipelineScript()
+func (client JavaManagementServiceClient) GenerateLoadPipelineScript(ctx context.Context, request GenerateLoadPipelineScriptRequest) (response GenerateLoadPipelineScriptResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.DefaultRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+	ociResponse, err = common.Retry(ctx, request, client.generateLoadPipelineScript, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = GenerateLoadPipelineScriptResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = GenerateLoadPipelineScriptResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(GenerateLoadPipelineScriptResponse); ok {
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into GenerateLoadPipelineScriptResponse")
+	}
+	return
+}
+
+// generateLoadPipelineScript implements the OCIOperation interface (enables retrying operations)
+func (client JavaManagementServiceClient) generateLoadPipelineScript(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodPost, "/fleets/{fleetId}/actions/generateLoadPipelineScript", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	var response GenerateLoadPipelineScriptResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/jms/20210610/Fleet/GenerateLoadPipelineScript"
+		err = common.PostProcessServiceError(err, "JavaManagementService", "GenerateLoadPipelineScript", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
 // GetCryptoAnalysisResult Retrieve the metadata for the result of a Crypto event analysis.
 //
 // # See also
@@ -1116,7 +1354,7 @@ func (client JavaManagementServiceClient) getDrsFile(ctx context.Context, reques
 	return response, err
 }
 
-// GetExportSetting Returns export setting for the specified Fleet.
+// GetExportSetting Returns export setting for the specified fleet.
 //
 // # See also
 //
@@ -1174,7 +1412,7 @@ func (client JavaManagementServiceClient) getExportSetting(ctx context.Context, 
 	return response, err
 }
 
-// GetExportStatus Returns last export status for the specified Fleet.
+// GetExportStatus Returns last export status for the specified fleet.
 //
 // # See also
 //
@@ -1580,6 +1818,64 @@ func (client JavaManagementServiceClient) getJavaRelease(ctx context.Context, re
 	return response, err
 }
 
+// GetJmsPlugin Returns the JmsPlugin.
+//
+// # See also
+//
+// Click https://docs.cloud.oracle.com/en-us/iaas/tools/go-sdk-examples/latest/jms/GetJmsPlugin.go.html to see an example of how to use GetJmsPlugin API.
+// A default retry strategy applies to this operation GetJmsPlugin()
+func (client JavaManagementServiceClient) GetJmsPlugin(ctx context.Context, request GetJmsPluginRequest) (response GetJmsPluginResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.DefaultRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+	ociResponse, err = common.Retry(ctx, request, client.getJmsPlugin, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = GetJmsPluginResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = GetJmsPluginResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(GetJmsPluginResponse); ok {
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into GetJmsPluginResponse")
+	}
+	return
+}
+
+// getJmsPlugin implements the OCIOperation interface (enables retrying operations)
+func (client JavaManagementServiceClient) getJmsPlugin(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodGet, "/jmsPlugins/{jmsPluginId}", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	var response GetJmsPluginResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	defer common.CloseBodyIfValid(httpResponse)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/jms/20210610/JmsPlugin/GetJmsPlugin"
+		err = common.PostProcessServiceError(err, "JavaManagementService", "GetJmsPlugin", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
 // GetPerformanceTuningAnalysisResult Retrieve metadata of the Performance Tuning Analysis result.
 //
 // # See also
@@ -1689,6 +1985,64 @@ func (client JavaManagementServiceClient) getWorkRequest(ctx context.Context, re
 	if err != nil {
 		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/jms/20210610/WorkRequest/GetWorkRequest"
 		err = common.PostProcessServiceError(err, "JavaManagementService", "GetWorkRequest", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
+// ListAgentInstallers Returns a list of the agent installer information.
+//
+// # See also
+//
+// Click https://docs.cloud.oracle.com/en-us/iaas/tools/go-sdk-examples/latest/jms/ListAgentInstallers.go.html to see an example of how to use ListAgentInstallers API.
+// A default retry strategy applies to this operation ListAgentInstallers()
+func (client JavaManagementServiceClient) ListAgentInstallers(ctx context.Context, request ListAgentInstallersRequest) (response ListAgentInstallersResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.DefaultRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+	ociResponse, err = common.Retry(ctx, request, client.listAgentInstallers, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = ListAgentInstallersResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = ListAgentInstallersResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(ListAgentInstallersResponse); ok {
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into ListAgentInstallersResponse")
+	}
+	return
+}
+
+// listAgentInstallers implements the OCIOperation interface (enables retrying operations)
+func (client JavaManagementServiceClient) listAgentInstallers(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodGet, "/agentInstallers", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	var response ListAgentInstallersResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	defer common.CloseBodyIfValid(httpResponse)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/jms/20210610/AgentInstallerSummary/ListAgentInstallers"
+		err = common.PostProcessServiceError(err, "JavaManagementService", "ListAgentInstallers", apiReferenceLink)
 		return response, err
 	}
 
@@ -2278,6 +2632,64 @@ func (client JavaManagementServiceClient) listJavaReleases(ctx context.Context, 
 	return response, err
 }
 
+// ListJmsPlugins Lists the JmsPlugins.
+//
+// # See also
+//
+// Click https://docs.cloud.oracle.com/en-us/iaas/tools/go-sdk-examples/latest/jms/ListJmsPlugins.go.html to see an example of how to use ListJmsPlugins API.
+// A default retry strategy applies to this operation ListJmsPlugins()
+func (client JavaManagementServiceClient) ListJmsPlugins(ctx context.Context, request ListJmsPluginsRequest) (response ListJmsPluginsResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.DefaultRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+	ociResponse, err = common.Retry(ctx, request, client.listJmsPlugins, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = ListJmsPluginsResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = ListJmsPluginsResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(ListJmsPluginsResponse); ok {
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into ListJmsPluginsResponse")
+	}
+	return
+}
+
+// listJmsPlugins implements the OCIOperation interface (enables retrying operations)
+func (client JavaManagementServiceClient) listJmsPlugins(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodGet, "/jmsPlugins", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	var response ListJmsPluginsResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	defer common.CloseBodyIfValid(httpResponse)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/jms/20210610/JmsPlugin/ListJmsPlugins"
+		err = common.PostProcessServiceError(err, "JavaManagementService", "ListJmsPlugins", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
 // ListJreUsage List Java Runtime usage in a specified host filtered by query parameters.
 //
 // # See also
@@ -2740,6 +3152,65 @@ func (client JavaManagementServiceClient) requestCryptoAnalyses(ctx context.Cont
 	if err != nil {
 		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/jms/20210610/Fleet/RequestCryptoAnalyses"
 		err = common.PostProcessServiceError(err, "JavaManagementService", "RequestCryptoAnalyses", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
+// RequestDeployedApplicationMigrationAnalyses Request to perform a deployed Java migration analyses. The results of the deployed Java migration analyses will be uploaded to the
+// Object Storage bucket that you designate when you enable the Java Migration Analyses feature.
+//
+// # See also
+//
+// Click https://docs.cloud.oracle.com/en-us/iaas/tools/go-sdk-examples/latest/jms/RequestDeployedApplicationMigrationAnalyses.go.html to see an example of how to use RequestDeployedApplicationMigrationAnalyses API.
+// A default retry strategy applies to this operation RequestDeployedApplicationMigrationAnalyses()
+func (client JavaManagementServiceClient) RequestDeployedApplicationMigrationAnalyses(ctx context.Context, request RequestDeployedApplicationMigrationAnalysesRequest) (response RequestDeployedApplicationMigrationAnalysesResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.DefaultRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+	ociResponse, err = common.Retry(ctx, request, client.requestDeployedApplicationMigrationAnalyses, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = RequestDeployedApplicationMigrationAnalysesResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = RequestDeployedApplicationMigrationAnalysesResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(RequestDeployedApplicationMigrationAnalysesResponse); ok {
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into RequestDeployedApplicationMigrationAnalysesResponse")
+	}
+	return
+}
+
+// requestDeployedApplicationMigrationAnalyses implements the OCIOperation interface (enables retrying operations)
+func (client JavaManagementServiceClient) requestDeployedApplicationMigrationAnalyses(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodPost, "/fleets/{fleetId}/actions/requestDeployedApplicationMigrationAnalyses", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	var response RequestDeployedApplicationMigrationAnalysesResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	defer common.CloseBodyIfValid(httpResponse)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/jms/20210610/Fleet/RequestDeployedApplicationMigrationAnalyses"
+		err = common.PostProcessServiceError(err, "JavaManagementService", "RequestDeployedApplicationMigrationAnalyses", apiReferenceLink)
 		return response, err
 	}
 
@@ -3687,7 +4158,7 @@ func (client JavaManagementServiceClient) summarizeResourceInventory(ctx context
 	return response, err
 }
 
-// UpdateDrsFile Request to perform validaition of the DRS file and update the existing file in the Object Storage.
+// UpdateDrsFile Request to perform validation of the DRS file and update the existing file in the Object Storage.
 //
 // # See also
 //
@@ -3750,7 +4221,7 @@ func (client JavaManagementServiceClient) updateDrsFile(ctx context.Context, req
 	return response, err
 }
 
-// UpdateExportSetting Updates existing export setting for the specified Fleet.
+// UpdateExportSetting Updates existing export setting for the specified fleet.
 //
 // # See also
 //
@@ -3981,6 +4452,64 @@ func (client JavaManagementServiceClient) updateFleetAgentConfiguration(ctx cont
 	if err != nil {
 		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/jms/20210610/FleetAgentConfiguration/UpdateFleetAgentConfiguration"
 		err = common.PostProcessServiceError(err, "JavaManagementService", "UpdateFleetAgentConfiguration", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
+// UpdateJmsPlugin Updates the Fleet of a JmsPlugin.
+//
+// # See also
+//
+// Click https://docs.cloud.oracle.com/en-us/iaas/tools/go-sdk-examples/latest/jms/UpdateJmsPlugin.go.html to see an example of how to use UpdateJmsPlugin API.
+// A default retry strategy applies to this operation UpdateJmsPlugin()
+func (client JavaManagementServiceClient) UpdateJmsPlugin(ctx context.Context, request UpdateJmsPluginRequest) (response UpdateJmsPluginResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.DefaultRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+	ociResponse, err = common.Retry(ctx, request, client.updateJmsPlugin, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = UpdateJmsPluginResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = UpdateJmsPluginResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(UpdateJmsPluginResponse); ok {
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into UpdateJmsPluginResponse")
+	}
+	return
+}
+
+// updateJmsPlugin implements the OCIOperation interface (enables retrying operations)
+func (client JavaManagementServiceClient) updateJmsPlugin(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodPut, "/jmsPlugins/{jmsPluginId}", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	var response UpdateJmsPluginResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	defer common.CloseBodyIfValid(httpResponse)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/jms/20210610/JmsPlugin/UpdateJmsPlugin"
+		err = common.PostProcessServiceError(err, "JavaManagementService", "UpdateJmsPlugin", apiReferenceLink)
 		return response, err
 	}
 

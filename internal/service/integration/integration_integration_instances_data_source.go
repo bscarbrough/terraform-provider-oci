@@ -124,6 +124,8 @@ func (s *IntegrationIntegrationInstancesDataSourceCrud) SetData() error {
 			integrationInstance["custom_endpoint"] = nil
 		}
 
+		integrationInstance["data_retention_period"] = r.DataRetentionPeriod
+
 		if r.DefinedTags != nil {
 			integrationInstance["defined_tags"] = tfresource.DefinedTagsToMap(r.DefinedTags)
 		}
@@ -188,6 +190,10 @@ func (s *IntegrationIntegrationInstancesDataSourceCrud) SetData() error {
 
 		if r.StateMessage != nil {
 			integrationInstance["state_message"] = *r.StateMessage
+		}
+
+		if r.SystemTags != nil {
+			integrationInstance["system_tags"] = tfresource.SystemTagsToMap(r.SystemTags)
 		}
 
 		if r.TimeCreated != nil {

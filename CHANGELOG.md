@@ -1,3 +1,58 @@
+## 6.8.0 (August 21, 2024)
+
+### Added
+- Support for autonomous database-dedicated
+- Support for [DMS] RDS migrations
+- Support for Oracle Home Version Control - Phase 3 (Patch ACD using GoldImage) | ADB-D & ADB-C@C
+- Support for OAC Embedding options for internal services and Identity Domains first-class support in Analytics APIs
+- Support for MySQL HeatWave Service: Storage Auto Scaling
+- Support for OCI Cache with Redis
+- Support for Support for running OCI OSS operation
+- Support for Extend Data Retention Period for OIC Instance
+
+## 6.7.0 (August 13, 2024)
+
+### Added
+- Support for OIC Instance Creation for Healthcare Feature
+- support for New Developer Autonomous databases.
+support for subscription level limits
+- Support for NLB Idle Timeout Configuration
+- Support for Remove dr_plan_execution_type from DR Plan Execution data source
+- Support for CalculateAuditVolumeAvailable and CalculateAuditVolumeCollected resource in Data Safe
+### Bug Fix
+
+
+## 6.6.0 (August 07, 2024)
+
+### Added
+- Support for BDS - Implement ODH Patching in Staged manner
+- Support for Java Management Service 9.0
+- Support for Pull Request - settings and protected branches
+- Support for Functionality enhancements to support in-place DbSystem updates
+- Support for OS Management Hub: Limit CSS/VCSS content to the latest package versions only
+- remove useless code
+- Support for Java Management Service 9.0 - Java Downloads Component
+- Support for BDS - Autoscale with Memory Utilization
+- Support for [DMS] to fix the initial load settings issue
+
+## 6.5.0 (July 30, 2024)
+
+### Added
+- Support for Instance maintenance events api
+- Support for Fleet Patching Service for ExaCS and ExaCC
+- Support for Implicit JIT and Group Membership Support in OIDC Flow
+-Support for OCI Cache -Lua Support on Redis 7.0.15
+- Support for Stack Monitoring: Baseline / Anomalies Enhancements
+- Support for Tunnel inspection rules in network firewall policy
+- Support for Data Safe - Custom Alert Policy for Audit - Examples
+- Support for [Expose Logical CPG ID] Terraform Support in Prod Region ADB-S: Adding an attribute to the autonomous database summary object
+- Support for Goldengate Suspend Phase / Parameter File Update Support
+### Bug Fix
+- Fixing tvarious CC test cases
+- Db_Node id setting causing an issue with backward compatability
+- Take shape as input for add node
+- Excluding basemodels in the stack in resource discovery
+
 ## 6.4.0 (July 24, 2024)
 
 ### Added

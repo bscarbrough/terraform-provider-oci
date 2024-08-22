@@ -286,15 +286,21 @@ var (
 			"source_id":  acctest.Representation{RepType: acctest.Optional, Create: `${oci_database_autonomous_database.test_autonomous_database_source.id}`},
 		})
 
-	autonomousDatabaseRepresentationForScheduledOperations = acctest.RepresentationCopyWithNewProperties(DatabaseAutonomousDatabaseRepresentation, map[string]interface{}{
-		"scheduled_operations": []acctest.RepresentationGroup{
-			{RepType: acctest.Optional, Group: DatabaseAutonomousDatabaseScheduledOperationsRepresentationMonday},
-			{RepType: acctest.Optional, Group: DatabaseAutonomousDatabaseScheduledOperationsRepresentationTuesday},
-			{RepType: acctest.Optional, Group: DatabaseAutonomousDatabaseScheduledOperationsRepresentationWednesday},
-			{RepType: acctest.Optional, Group: DatabaseAutonomousDatabaseScheduledOperationsRepresentationThursday},
-			{RepType: acctest.Optional, Group: DatabaseAutonomousDatabaseScheduledOperationsRepresentationFriday},
-			{RepType: acctest.Optional, Group: DatabaseAutonomousDatabaseScheduledOperationsRepresentationSaturday},
-			{RepType: acctest.Optional, Group: DatabaseAutonomousDatabaseScheduledOperationsRepresentationSunday}},
+	autonomousDatabaseRepresentationForScheduledOperations = acctest.RepresentationCopyWithNewProperties(DatabaseAutonomousDatabaseRepresentation, map[string]interface{}{})
+
+	DatabaseAutonomousDatabaseRepresentationDeveloper = map[string]interface{}{
+		"compartment_id":          acctest.Representation{RepType: acctest.Required, Create: `${var.compartment_id}`},
+		"compute_count":           acctest.Representation{RepType: acctest.Required, Create: `4`},
+		"data_storage_size_in_gb": acctest.Representation{RepType: acctest.Required, Create: `20`},
+		"compute_model":           acctest.Representation{RepType: acctest.Required, Create: `ECPU`},
+		"db_name":                 acctest.Representation{RepType: acctest.Required, Create: adbName},
+		"admin_password":          acctest.Representation{RepType: acctest.Required, Create: `BEstrO0ng_#11`},
+		"db_version":              acctest.Representation{RepType: acctest.Optional, Create: `${data.oci_database_autonomous_db_versions.test_autonomous_db_versions.autonomous_db_versions.0.version}`},
+		"db_workload":             acctest.Representation{RepType: acctest.Optional, Create: `OLTP`},
+		"state":                   acctest.Representation{RepType: acctest.Optional, Create: `AVAILABLE`},
+	}
+	autonomousDatabaseRepresentationForDevTier = acctest.RepresentationCopyWithNewProperties(DatabaseAutonomousDatabaseRepresentationDeveloper, map[string]interface{}{
+		"is_dev_tier": acctest.Representation{RepType: acctest.Optional, Create: `true`, Update: `false`},
 	})
 
 	DatabaseAutonomousDatabaseResourceDependencies = DefinedTagsDependencies + KeyResourceDependencyConfigDbaas +
@@ -663,6 +669,7 @@ func TestDatabaseAutonomousDatabaseResource_basic(t *testing.T) {
 				resource.TestCheckResourceAttr(resourceName, "open_mode", "READ_ONLY"),
 				resource.TestCheckResourceAttr(resourceName, "operations_insights_status", "NOT_ENABLED"),
 				resource.TestCheckResourceAttr(resourceName, "permission_level", "RESTRICTED"),
+				resource.TestCheckResourceAttrSet(resourceName, "cluster_placement_group_id"),
 
 				func(s *terraform.State) (err error) {
 					resId, err = acctest.FromInstanceState(s, resourceName, "id")
@@ -981,6 +988,7 @@ func TestDatabaseAutonomousDatabaseResource_basic(t *testing.T) {
 				resource.TestCheckResourceAttr(resourceName, "is_local_data_guard_enabled", "false"),
 				resource.TestCheckResourceAttr(resourceName, "is_remote_data_guard_enabled", "false"),
 				resource.TestCheckResourceAttr(resourceName, "local_standby_db.#", "0"),
+				resource.TestCheckResourceAttrSet(resourceName, "cluster_placement_group_id"),
 
 				func(s *terraform.State) (err error) {
 					resId2, err = acctest.FromInstanceState(s, resourceName, "id")
@@ -1321,6 +1329,7 @@ func TestDatabaseAutonomousDatabaseResource_basic(t *testing.T) {
 				resource.TestCheckResourceAttrSet(datasourceName, "autonomous_databases.0.used_data_storage_size_in_gbs"),
 				//resource.TestCheckResourceAttrSet(datasourceName, "autonomous_databases.0.vault_id"),
 				resource.TestCheckResourceAttr(resourceName, "local_standby_db.#", "0"),
+				resource.TestCheckResourceAttrSet(resourceName, "cluster_placement_group_id"),
 			),
 		},
 		//28. Verify singular datasource

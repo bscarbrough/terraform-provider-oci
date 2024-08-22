@@ -123,6 +123,7 @@ resource "oci_bds_bds_instance" "test_bds_instance" {
 	freeform_tags = var.bds_instance_freeform_tags
 	kerberos_realm_name = var.bds_instance_kerberos_realm_name
 	kms_key_id = var.bds_instance_kms_key_id
+	ignore_existing_nodes_shape = var.ignore_existing_nodes_shape
 	network_config {
 
 		#Optional
@@ -168,12 +169,14 @@ The following arguments are supported:
 	* `subnet_id` - (Required) The OCID of the subnet in which the node will be created.
 * `state` - (Optional) (Updatable) The target state for the Bds Instance. Could be set to `ACTIVE` or `INACTIVE`. 
 * `execute_bootstrap_script_trigger` - (Optional) (Updatable) An optional property when incremented triggers Execute Bootstrap Script. Could be set to any integer value.
+* `remove_kafka_trigger` - (Optional) (Updatable) An optional property when incremented triggers Remove Kafka. Could be set to any integer value.
 * `install_os_patch_trigger` - (Optional) (Updatable) An optional property when incremented triggers Install Os Patch. Could be set to any integer value.
 * `is_force_stop_jobs` - (Optional) (Updatable) When setting state as `INACTIVE` for stopping a cluster, setting this flag to true forcefully stops the bds instance.
 * `is_kafka_configured` - (Optional) Boolean flag specifying whether or not Kafka should be configured.
 * `os_patch_version`  - (Optional) (Updatable) The version of the patch to be upated.
 * `state` - (Optional) (Updatable) The target state for the Bds Instance. Could be set to `ACTIVE` or `INACTIVE` to start/stop the bds instance.
 * `is_force_stop_jobs` - (Optional) (Updatable) When setting state as `INACTIVE` for stopping a cluster, setting this flag to true forcefully stops the bds instance.
+* `ignore_existing_nodes_shape` - Tag to ignore changing the shape of existing worker, master, utility, compute_only_worker, edge, kafka_broker nodes, in a list format, when new nodes are added with a different shape.
 * `master_node` - (Required) The master node in the BDS instance
 	* `block_volume_size_in_gbs` - (Optional) The size of block volume in GB that needs to be attached to a given node. All the necessary details needed for attachment are managed by service itself.
 	* `number_of_nodes` - (Required) The amount of master nodes should be created.
@@ -221,6 +224,7 @@ The following arguments are supported:
     * `shape_config` - (Optional) The shape configuration requested for the node.
         * `memory_in_gbs` - (Optional) The total amount of memory available to the node, in gigabytes
         * `ocpus` - (Optional) The total number of OCPUs available to the node.
+
 ** IMPORTANT **
 Any change to a property that does not support update will force the destruction and recreation of the resource with the new property values
 
@@ -287,6 +291,7 @@ The following attributes are exported:
 	* `node_type` - Cluster node type.
 	* `nvmes` - The number of NVMe drives to be used for storage. A single drive has 6.8 TB available.
 	* `ocpus` - The total number of OCPUs available to the node.
+	* `odh_version` - Version of the ODH (Oracle Distribution including Apache Hadoop) for the node.
 	* `os_version` - BDS-assigned Operating System version for the node.
 	* `shape` - Shape of the node.
 	* `ssh_fingerprint` - The fingerprint of the SSH key used for node access.

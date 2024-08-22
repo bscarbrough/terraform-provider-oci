@@ -2713,11 +2713,17 @@ func HostDumpTransferDetailsToMap(obj *oci_database_migration.HostDumpTransferDe
 	switch v := (*obj).(type) {
 	case oci_database_migration.CurlTransferDetails:
 		result["kind"] = "CURL"
+		if v.WalletLocation != nil {
+			result["wallet_location"] = string(*v.WalletLocation)
+		}
 	case oci_database_migration.OciCliDumpTransferDetails:
 		result["kind"] = "OCI_CLI"
 
 		if v.OciHome != nil {
 			result["oci_home"] = string(*v.OciHome)
+		}
+		if v.WalletLocation != nil {
+			result["wallet_location"] = string(*v.WalletLocation)
 		}
 	default:
 		log.Printf("[WARN] Received 'kind' of unknown type %v", *obj)
@@ -3740,12 +3746,14 @@ func (s *DatabaseMigrationMigrationResourceCrud) mapToUpdateDataPumpParameters(f
 		}
 	}
 
-	if exportParallelismDegree, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "export_parallelism_degree")); ok {
+	exportParallelismDegree, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "export_parallelism_degree"))
+	if ok && exportParallelismDegree.(int) != 0 {
 		tmp := exportParallelismDegree.(int)
 		result.ExportParallelismDegree = &tmp
 	}
 
-	if importParallelismDegree, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "import_parallelism_degree")); ok {
+	importParallelismDegree, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "import_parallelism_degree"))
+	if ok && importParallelismDegree.(int) != 0 {
 		tmp := importParallelismDegree.(int)
 		result.ImportParallelismDegree = &tmp
 	}
@@ -3794,7 +3802,8 @@ func (s *DatabaseMigrationMigrationResourceCrud) mapToUpdateDirectoryObject(fiel
 		result.Name = &tmp
 	}
 
-	if path, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "path")); ok {
+	path, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "path"))
+	if ok && path.(string) != "" {
 		tmp := path.(string)
 		result.Path = &tmp
 	}
@@ -4259,10 +4268,13 @@ func (s *DatabaseMigrationMigrationResourceCrud) mapToUpdateOracleDataTransferMe
 				details.ObjectStorageBucket = &tmp
 			}
 		}
-		if sharedStorageMountTargetId, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "shared_storage_mount_target_id")); ok {
+
+		sharedStorageMountTargetId, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "shared_storage_mount_target_id"))
+		if ok && sharedStorageMountTargetId.(string) != "" {
 			tmp := sharedStorageMountTargetId.(string)
 			details.SharedStorageMountTargetId = &tmp
 		}
+
 		if source, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "source")); ok {
 			if tmpList := source.([]interface{}); len(tmpList) > 0 {
 				fieldKeyFormatNextLevel := fmt.Sprintf("%s.%d.%%s", fmt.Sprintf(fieldKeyFormat, "source"), 0)
@@ -4619,7 +4631,8 @@ func (s *DatabaseMigrationMigrationResourceCrud) mapToUpdateTargetTypeTablespace
 		baseObject = details
 	case strings.ToLower("ADB_D_REMAP"):
 		details := oci_database_migration.UpdateAdbDedicatedRemapTargetTablespaceDetails{}
-		if remapTarget, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "remap_target")); ok {
+		remapTarget, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "remap_target"))
+		if ok && remapTarget.(string) != "" {
 			tmp := remapTarget.(string)
 			details.RemapTarget = &tmp
 		}
@@ -4647,7 +4660,8 @@ func (s *DatabaseMigrationMigrationResourceCrud) mapToUpdateTargetTypeTablespace
 		baseObject = details
 	case strings.ToLower("NON_ADB_REMAP"):
 		details := oci_database_migration.UpdateNonAdbRemapTablespaceDetails{}
-		if remapTarget, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "remap_target")); ok {
+		remapTarget, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "remap_target"))
+		if ok && remapTarget.(string) != "" {
 			tmp := remapTarget.(string)
 			details.RemapTarget = &tmp
 		}

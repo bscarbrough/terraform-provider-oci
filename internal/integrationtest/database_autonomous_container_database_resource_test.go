@@ -40,7 +40,7 @@ var (
 	}
 
 	ACDatabaseRepresentation = map[string]interface{}{
-		"db_split_threshold":           acctest.Representation{RepType: acctest.Optional, Create: `12`},
+		"db_split_threshold":           acctest.Representation{RepType: acctest.Optional, Create: `8`},
 		"distribution_affinity":        acctest.Representation{RepType: acctest.Optional, Create: `MINIMUM_DISTRIBUTION`},
 		"net_services_architecture":    acctest.Representation{RepType: acctest.Optional, Create: `DEDICATED`},
 		"vm_failover_reservation":      acctest.Representation{RepType: acctest.Optional, Create: `25`},
@@ -57,7 +57,7 @@ var (
 		"maintenance_window_details":   acctest.RepresentationGroup{RepType: acctest.Optional, Group: DatabaseAutonomousContainerDatabaseMaintenanceWindowDetailsRepresentation},
 		"service_level_agreement_type": acctest.Representation{RepType: acctest.Optional, Create: `STANDARD`},
 		"db_name":                      acctest.Representation{RepType: acctest.Optional, Create: `DBNAME`},
-		"db_version":                   acctest.Representation{RepType: acctest.Required, Create: `19.22.0.1.0`},
+		"db_version":                   acctest.Representation{RepType: acctest.Required, Create: `19.23.0.1.0`},
 		"is_dst_file_update_enabled":   acctest.Representation{RepType: acctest.Optional, Create: `false`, Update: `true`},
 	}
 
@@ -433,7 +433,7 @@ func TestDatabaseExaccAutonomousContainerDatabase_basic(t *testing.T) {
 				resource.TestCheckResourceAttr(resourceName, "backup_config.0.backup_destination_details.0.vpc_user", "bkupUser1"),
 				resource.TestCheckResourceAttr(resourceName, "backup_config.0.backup_destination_details.0.vpc_password", "vpcPassword"),
 				resource.TestCheckResourceAttr(resourceName, "compartment_id", compartmentId),
-				resource.TestCheckResourceAttr(resourceName, "db_split_threshold", "12"),
+				resource.TestCheckResourceAttr(resourceName, "db_split_threshold", "8"),
 				resource.TestCheckResourceAttr(resourceName, "db_unique_name", acbDBName),
 				resource.TestCheckResourceAttr(resourceName, "distribution_affinity", "MINIMUM_DISTRIBUTION"),
 				resource.TestCheckResourceAttr(resourceName, "display_name", "containerdatabases2"),
@@ -485,7 +485,7 @@ func TestDatabaseExaccAutonomousContainerDatabase_basic(t *testing.T) {
 				resource.TestCheckResourceAttr(resourceName, "backup_config.0.backup_destination_details.0.type", "NFS"),
 				resource.TestCheckResourceAttr(resourceName, "backup_config.0.backup_destination_details.0.vpc_user", "bkupUser1"),
 				resource.TestCheckResourceAttr(resourceName, "compartment_id", compartmentId),
-				resource.TestCheckResourceAttr(resourceName, "db_split_threshold", "12"),
+				resource.TestCheckResourceAttr(resourceName, "db_split_threshold", "8"),
 				resource.TestCheckResourceAttr(resourceName, "db_unique_name", acbDBName),
 				resource.TestCheckResourceAttr(resourceName, "distribution_affinity", "MINIMUM_DISTRIBUTION"),
 				resource.TestCheckResourceAttr(resourceName, "display_name", "containerdatabases2"),
@@ -541,7 +541,7 @@ func TestDatabaseExaccAutonomousContainerDatabase_basic(t *testing.T) {
 				resource.TestCheckResourceAttr(datasourceName, "autonomous_container_databases.0.backup_config.0.backup_destination_details.0.type", "NFS"),
 				resource.TestCheckResourceAttr(datasourceName, "autonomous_container_databases.0.backup_config.0.backup_destination_details.0.vpc_user", "bkupUser1"),
 				resource.TestCheckResourceAttr(datasourceName, "autonomous_container_databases.0.compartment_id", compartmentId),
-				resource.TestCheckResourceAttr(datasourceName, "autonomous_container_databases.0.db_split_threshold", "12"),
+				resource.TestCheckResourceAttr(datasourceName, "autonomous_container_databases.0.db_split_threshold", "8"),
 				resource.TestCheckResourceAttr(datasourceName, "autonomous_container_databases.0.display_name", "containerdatabases2"),
 				resource.TestCheckResourceAttr(datasourceName, "autonomous_container_databases.0.distribution_affinity", "MINIMUM_DISTRIBUTION"),
 				resource.TestCheckResourceAttr(datasourceName, "autonomous_container_databases.0.freeform_tags.%", "1"),
@@ -583,7 +583,7 @@ func TestDatabaseExaccAutonomousContainerDatabase_basic(t *testing.T) {
 				resource.TestCheckResourceAttr(singularDatasourceName, "backup_config.0.backup_destination_details.0.type", "NFS"),
 				resource.TestCheckResourceAttr(singularDatasourceName, "backup_config.0.backup_destination_details.0.vpc_user", "bkupUser1"),
 				resource.TestCheckResourceAttr(singularDatasourceName, "compartment_id", compartmentId),
-				resource.TestCheckResourceAttr(singularDatasourceName, "db_split_threshold", "12"),
+				resource.TestCheckResourceAttr(singularDatasourceName, "db_split_threshold", "8"),
 				resource.TestCheckResourceAttr(singularDatasourceName, "display_name", "containerdatabases2"),
 				resource.TestCheckResourceAttr(singularDatasourceName, "distribution_affinity", "MINIMUM_DISTRIBUTION"),
 				resource.TestCheckResourceAttr(singularDatasourceName, "freeform_tags.%", "1"),
