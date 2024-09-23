@@ -1,4 +1,4 @@
-module github.com/oracle/terraform-provider-oci
+module github.com/bscarbrough/terraform-provider-oci
 
 require (
 	github.com/fatih/color v1.16.0
