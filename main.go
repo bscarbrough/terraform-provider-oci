@@ -12,10 +12,10 @@ import (
 	"github.com/fatih/color"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
-	tf_export "github.com/bscarbrough/terraform-provider-oci/internal/commonexport"
-	"github.com/bscarbrough/terraform-provider-oci/internal/globalvar"
-	"github.com/bscarbrough/terraform-provider-oci/internal/provider"
-	"github.com/bscarbrough/terraform-provider-oci/internal/resourcediscovery"
+	tf_export "github.com/oracle/terraform-provider-oci/internal/commonexport"
+	"github.com/oracle/terraform-provider-oci/internal/globalvar"
+	"github.com/oracle/terraform-provider-oci/internal/provider"
+	"github.com/oracle/terraform-provider-oci/internal/resourcediscovery"
 )
 
 var filterFlag tf_export.Filter
