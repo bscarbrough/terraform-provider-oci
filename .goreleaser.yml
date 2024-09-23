@@ -49,7 +49,7 @@ signs:
       - "${artifact}"
 release:
   github:
-    owner: oracle
+    owner: bscarbrough
     name: terraform-provider-oci
   extra_files:
     - glob: 'terraform-registry-manifest.json'
