@@ -140,6 +140,10 @@ func (s *IntegrationIntegrationInstancesDataSourceCrud) SetData() error {
 			integrationInstance["id"] = *r.Id
 		}
 
+		if r.InstanceDesignTimeUrl != nil {
+			integrationInstance["instance_design_time_url"] = *r.InstanceDesignTimeUrl
+		}
+
 		if r.InstanceUrl != nil {
 			integrationInstance["instance_url"] = *r.InstanceUrl
 		}
@@ -150,12 +154,20 @@ func (s *IntegrationIntegrationInstancesDataSourceCrud) SetData() error {
 			integrationInstance["is_byol"] = *r.IsByol
 		}
 
+		if r.IsDisasterRecoveryEnabled != nil {
+			integrationInstance["is_disaster_recovery_enabled"] = *r.IsDisasterRecoveryEnabled
+		}
+
 		if r.IsFileServerEnabled != nil {
 			integrationInstance["is_file_server_enabled"] = *r.IsFileServerEnabled
 		}
 
 		if r.IsVisualBuilderEnabled != nil {
 			integrationInstance["is_visual_builder_enabled"] = *r.IsVisualBuilderEnabled
+		}
+
+		if r.LifecycleDetails != nil {
+			integrationInstance["lifecycle_details"] = *r.LifecycleDetails
 		}
 
 		if r.MessagePacks != nil {

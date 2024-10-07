@@ -91,6 +91,18 @@ func IntegrationIntegrationInstanceResource() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
+						"dns_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"dns_zone_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"managed_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -130,6 +142,18 @@ func IntegrationIntegrationInstanceResource() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
+						"dns_type": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"dns_zone_name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"managed_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -156,6 +180,12 @@ func IntegrationIntegrationInstanceResource() *schema.Resource {
 				Optional:  true,
 				StateFunc: tfresource.GetMd5Hash,
 				Sensitive: true,
+			},
+			"is_disaster_recovery_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
 			},
 			"is_file_server_enabled": {
 				Type:     schema.TypeBool,
@@ -246,11 +276,24 @@ func IntegrationIntegrationInstanceResource() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+			// "add_oracle_managed_custom_endpoint_trigger": {
+			// 	Type:     schema.TypeInt,
+			// 	Optional: true,
+			// },
 			"enable_process_automation_trigger": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
 			"extend_data_retention_trigger": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			// "remove_oracle_managed_custom_endpoint_trigger": {
+			// 	Type:     schema.TypeInt,
+			// 	Optional: true,
+			// },
+
+			"failover_trigger": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
@@ -283,6 +326,56 @@ func IntegrationIntegrationInstanceResource() *schema.Resource {
 							Computed: true,
 						},
 						"target_service_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
+			"disaster_recovery_details": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						// Required
+
+						// Optional
+
+						// Computed
+						"cross_region_integration_instance_details": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									// Required
+
+									// Optional
+
+									// Computed
+									"id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"region": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"role": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"time_role_changed": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
+						"regional_instance_url": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"role": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -326,7 +419,15 @@ func IntegrationIntegrationInstanceResource() *schema.Resource {
 					},
 				},
 			},
+			"instance_design_time_url": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"instance_url": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"lifecycle_details": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -408,6 +509,14 @@ func createIntegrationIntegrationInstance(d *schema.ResourceData, m interface{})
 			return err
 		}
 	}
+
+	if _, ok := sync.D.GetOkExists("failover_trigger"); ok {
+		err := sync.DisasterRecoveryFailover()
+		if err != nil {
+			return err
+		}
+	}
+
 	var powerOff = false
 	if configState, ok := sync.D.GetOkExists("state"); ok {
 		wantedState := oci_integration.IntegrationInstanceLifecycleStateEnum(strings.ToUpper(configState.(string)))
@@ -497,6 +606,22 @@ func updateIntegrationIntegrationInstance(d *schema.ResourceData, m interface{})
 			}
 		} else {
 			sync.D.Set("extend_data_retention_trigger", oldRaw)
+			return fmt.Errorf("new value of trigger should be greater than the old value")
+		}
+	}
+
+	if _, ok := sync.D.GetOkExists("failover_trigger"); ok && sync.D.HasChange("failover_trigger") {
+		oldRaw, newRaw := sync.D.GetChange("failover_trigger")
+		oldValue := oldRaw.(int)
+		newValue := newRaw.(int)
+		if oldValue < newValue {
+			err := sync.DisasterRecoveryFailover()
+
+			if err != nil {
+				return err
+			}
+		} else {
+			sync.D.Set("failover_trigger", oldRaw)
 			return fmt.Errorf("new value of trigger should be greater than the old value")
 		}
 	}
@@ -636,6 +761,11 @@ func (s *IntegrationIntegrationInstanceResourceCrud) Create() error {
 	if isByol, ok := s.D.GetOkExists("is_byol"); ok {
 		tmp := isByol.(bool)
 		request.IsByol = &tmp
+	}
+
+	if isDisasterRecoveryEnabled, ok := s.D.GetOkExists("is_disaster_recovery_enabled"); ok {
+		tmp := isDisasterRecoveryEnabled.(bool)
+		request.IsDisasterRecoveryEnabled = &tmp
 	}
 
 	if isFileServerEnabled, ok := s.D.GetOkExists("is_file_server_enabled"); ok {
@@ -782,7 +912,7 @@ func integrationInstanceWaitForWorkRequest(wId *string, entityType string, actio
 
 	// The workrequest may have failed, check for errors if identifier is not found or work failed or got cancelled
 	if identifier == nil || response.Status == oci_integration.WorkRequestStatusFailed || response.Status == oci_integration.WorkRequestStatusCanceled {
-		return nil, getErrorFromIntegrationIntegrationInstanceWorkRequest(client, wId, response.CompartmentId, retryPolicy, entityType, action)
+		return nil, getErrorFromIntegrationIntegrationInstanceWorkRequest(client, response.CompartmentId, wId, retryPolicy, entityType, action)
 	}
 
 	return identifier, nil
@@ -862,11 +992,17 @@ func (s *IntegrationIntegrationInstanceResourceCrud) Update() error {
 	if customEndpoint, ok := s.D.GetOkExists("custom_endpoint"); ok {
 		if tmpList := customEndpoint.([]interface{}); len(tmpList) > 0 {
 			fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "custom_endpoint", 0)
-			tmp, err := s.mapToUpdateCustomEndpointDetails(fieldKeyFormat)
+			tmp, err := s.mapToCustomEndpointDetails(fieldKeyFormat)
+
 			if err != nil {
 				return err
 			}
-			request.CustomEndpoint = &tmp
+
+			if tmp.ManagedType == oci_integration.CustomEndpointDetailsManagedTypeCustomerManaged {
+				request.CustomEndpoint = &oci_integration.UpdateCustomEndpointDetails{}
+				request.CustomEndpoint.Hostname = tmp.Hostname
+				request.CustomEndpoint.CertificateSecretId = tmp.CertificateSecretId
+			}
 		}
 	}
 
@@ -982,6 +1118,12 @@ func (s *IntegrationIntegrationInstanceResourceCrud) SetData() error {
 		s.D.Set("defined_tags", tfresource.DefinedTagsToMap(s.Res.DefinedTags))
 	}
 
+	if s.Res.DisasterRecoveryDetails != nil {
+		s.D.Set("disaster_recovery_details", []interface{}{DisasterRecoveryDetailsToMap(s.Res.DisasterRecoveryDetails)})
+	} else {
+		s.D.Set("disaster_recovery_details", nil)
+	}
+
 	if s.Res.DisplayName != nil {
 		s.D.Set("display_name", *s.Res.DisplayName)
 	}
@@ -994,6 +1136,10 @@ func (s *IntegrationIntegrationInstanceResourceCrud) SetData() error {
 		s.D.Set("idcs_info", nil)
 	}
 
+	if s.Res.InstanceDesignTimeUrl != nil {
+		s.D.Set("instance_design_time_url", *s.Res.InstanceDesignTimeUrl)
+	}
+
 	if s.Res.InstanceUrl != nil {
 		s.D.Set("instance_url", *s.Res.InstanceUrl)
 	}
@@ -1004,12 +1150,20 @@ func (s *IntegrationIntegrationInstanceResourceCrud) SetData() error {
 		s.D.Set("is_byol", *s.Res.IsByol)
 	}
 
+	if s.Res.IsDisasterRecoveryEnabled != nil {
+		s.D.Set("is_disaster_recovery_enabled", *s.Res.IsDisasterRecoveryEnabled)
+	}
+
 	if s.Res.IsFileServerEnabled != nil {
 		s.D.Set("is_file_server_enabled", *s.Res.IsFileServerEnabled)
 	}
 
 	if s.Res.IsVisualBuilderEnabled != nil {
 		s.D.Set("is_visual_builder_enabled", *s.Res.IsVisualBuilderEnabled)
+	}
+
+	if s.Res.LifecycleDetails != nil {
+		s.D.Set("lifecycle_details", *s.Res.LifecycleDetails)
 	}
 
 	if s.Res.MessagePacks != nil {
@@ -1059,6 +1213,47 @@ func (s *IntegrationIntegrationInstanceResourceCrud) SetData() error {
 	return nil
 }
 
+/*
+func (s *IntegrationIntegrationInstanceResourceCrud) AddOracleManagedCustomEndpoint() error {
+	request := oci_integration.AddOracleManagedCustomEndpointRequest{}
+
+	if customEndpoint, ok := s.D.GetOkExists("custom_endpoint"); ok {
+
+		if tmpList := customEndpoint.([]interface{}); len(tmpList) > 0 {
+			fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "custom_endpoint", 0)
+			tmp, err := s.mapToAddOracleManagedCustomEndpointDetails(fieldKeyFormat)
+			if err != nil {
+				return err
+			}
+			request.DnsType = tmp.DnsType
+			request.DnsZoneName = tmp.DnsZoneName
+			request.Hostname = tmp.Hostname
+		}
+	}
+
+	idTmp := s.D.Id()
+	request.IntegrationInstanceId = &idTmp
+
+	request.RequestMetadata.RetryPolicy = tfresource.GetRetryPolicy(s.DisableNotFoundRetries, "integration")
+
+	response, err := s.Client.AddOracleManagedCustomEndpoint(context.Background(), request)
+	if err != nil {
+		return err
+	}
+
+	workId := response.OpcWorkRequestId
+
+	if waitErr := s.getIntegrationInstanceFromWorkRequest(workId, tfresource.GetRetryPolicy(s.DisableNotFoundRetries, "integration"), oci_integration.WorkRequestResourceActionTypeUpdated, s.D.Timeout(schema.TimeoutUpdate)); waitErr != nil {
+		return waitErr
+	}
+
+	val := s.D.Get("add_oracle_managed_custom_endpoint_trigger")
+	s.D.Set("add_oracle_managed_custom_endpoint_trigger", val)
+
+	return nil
+}
+*/
+
 func (s *IntegrationIntegrationInstanceResourceCrud) EnableProcessAutomation() error {
 	request := oci_integration.EnableProcessAutomationRequest{}
 
@@ -1105,6 +1300,54 @@ func (s *IntegrationIntegrationInstanceResourceCrud) ExtendDataRetention() error
 
 	val := s.D.Get("extend_data_retention_trigger")
 	s.D.Set("extend_data_retention_trigger", val)
+
+	return nil
+}
+
+func (s *IntegrationIntegrationInstanceResourceCrud) RemoveOracleManagedCustomEndpoint() error {
+	request := oci_integration.RemoveOracleManagedCustomEndpointRequest{}
+
+	idTmp := s.D.Id()
+	request.IntegrationInstanceId = &idTmp
+
+	request.RequestMetadata.RetryPolicy = tfresource.GetRetryPolicy(s.DisableNotFoundRetries, "integration")
+
+	response, err := s.Client.RemoveOracleManagedCustomEndpoint(context.Background(), request)
+	if err != nil {
+		return err
+	}
+
+	workId := response.OpcWorkRequestId
+
+	if waitErr := s.getIntegrationInstanceFromWorkRequest(workId, tfresource.GetRetryPolicy(s.DisableNotFoundRetries, "integration"), oci_integration.WorkRequestResourceActionTypeUpdated, s.D.Timeout(schema.TimeoutUpdate)); waitErr != nil {
+		return waitErr
+	}
+
+	val := s.D.Get("remove_oracle_managed_custom_endpoint_trigger")
+	s.D.Set("remove_oracle_managed_custom_endpoint_trigger", val)
+
+	return nil
+}
+
+func (s *IntegrationIntegrationInstanceResourceCrud) DisasterRecoveryFailover() error {
+	request := oci_integration.DisasterRecoveryFailoverRequest{}
+
+	idTmp := s.D.Id()
+	request.IntegrationInstanceId = &idTmp
+
+	request.RequestMetadata.RetryPolicy = tfresource.GetRetryPolicy(s.DisableNotFoundRetries, "integration")
+
+	_, err := s.Client.DisasterRecoveryFailover(context.Background(), request)
+	if err != nil {
+		return err
+	}
+
+	if waitErr := tfresource.WaitForUpdatedState(s.D, s); waitErr != nil {
+		return waitErr
+	}
+
+	val := s.D.Get("failover_trigger")
+	s.D.Set("failover_trigger", val)
 
 	return nil
 }
@@ -1165,6 +1408,30 @@ func (s *IntegrationIntegrationInstanceResourceCrud) mapToUpdateCustomEndpointDe
 	return result, nil
 }
 
+func (s *IntegrationIntegrationInstanceResourceCrud) mapToCustomEndpointDetails(fieldKeyFormat string) (oci_integration.CustomEndpointDetails, error) {
+	result := oci_integration.CustomEndpointDetails{}
+
+	if hostname, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "hostname")); ok {
+		tmp := hostname.(string)
+		result.Hostname = &tmp
+	}
+
+	if dnsType, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "dns_type")); ok {
+		result.DnsType = oci_integration.CustomEndpointDetailsDnsTypeEnum(dnsType.(string))
+	}
+
+	if dnsZoneName, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "dns_zone_name")); ok {
+		tmp := dnsZoneName.(string)
+		result.DnsZoneName = &tmp
+	}
+
+	if managed_type, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "managed_type")); ok {
+		result.ManagedType = oci_integration.CustomEndpointDetailsManagedTypeEnum(managed_type.(string))
+	}
+
+	return result, nil
+}
+
 func CustomEndpointDetailsToMap(obj *oci_integration.CustomEndpointDetails) map[string]interface{} {
 	result := map[string]interface{}{}
 
@@ -1180,9 +1447,51 @@ func CustomEndpointDetailsToMap(obj *oci_integration.CustomEndpointDetails) map[
 		result["certificate_secret_version"] = int(*obj.CertificateSecretVersion)
 	}
 
+	result["dns_type"] = string(obj.DnsType)
+
+	if obj.DnsZoneName != nil {
+		result["dns_zone_name"] = string(*obj.DnsZoneName)
+	}
+
 	if obj.Hostname != nil {
 		result["hostname"] = string(*obj.Hostname)
 	}
+
+	return result
+}
+
+func CrossRegionIntegrationInstanceDetailsToMap(obj *oci_integration.CrossRegionIntegrationInstanceDetails) map[string]interface{} {
+	result := map[string]interface{}{}
+
+	if obj.Id != nil {
+		result["id"] = string(*obj.Id)
+	}
+
+	if obj.Region != nil {
+		result["region"] = string(*obj.Region)
+	}
+
+	result["role"] = string(obj.Role)
+
+	if obj.TimeRoleChanged != nil {
+		result["time_role_changed"] = obj.TimeRoleChanged.String()
+	}
+
+	return result
+}
+
+func DisasterRecoveryDetailsToMap(obj *oci_integration.DisasterRecoveryDetails) map[string]interface{} {
+	result := map[string]interface{}{}
+
+	if obj.CrossRegionIntegrationInstanceDetails != nil {
+		result["cross_region_integration_instance_details"] = []interface{}{CrossRegionIntegrationInstanceDetailsToMap(obj.CrossRegionIntegrationInstanceDetails)}
+	}
+
+	if obj.RegionalInstanceUrl != nil {
+		result["regional_instance_url"] = string(*obj.RegionalInstanceUrl)
+	}
+
+	result["role"] = string(obj.Role)
 
 	return result
 }

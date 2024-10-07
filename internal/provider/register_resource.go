@@ -56,6 +56,7 @@ import (
 	tf_email "github.com/oracle/terraform-provider-oci/internal/service/email"
 	tf_events "github.com/oracle/terraform-provider-oci/internal/service/events"
 	tf_file_storage "github.com/oracle/terraform-provider-oci/internal/service/file_storage"
+	tf_fleet_apps_management "github.com/oracle/terraform-provider-oci/internal/service/fleet_apps_management"
 	tf_fleet_software_update "github.com/oracle/terraform-provider-oci/internal/service/fleet_software_update"
 	tf_functions "github.com/oracle/terraform-provider-oci/internal/service/functions"
 	tf_fusion_apps "github.com/oracle/terraform-provider-oci/internal/service/fusion_apps"
@@ -112,6 +113,7 @@ import (
 	tf_resourcemanager "github.com/oracle/terraform-provider-oci/internal/service/resourcemanager"
 	tf_sch "github.com/oracle/terraform-provider-oci/internal/service/sch"
 	tf_secrets "github.com/oracle/terraform-provider-oci/internal/service/secrets"
+	tf_security_attribute "github.com/oracle/terraform-provider-oci/internal/service/security_attribute"
 	tf_service_catalog "github.com/oracle/terraform-provider-oci/internal/service/service_catalog"
 	tf_service_manager_proxy "github.com/oracle/terraform-provider-oci/internal/service/service_manager_proxy"
 	tf_service_mesh "github.com/oracle/terraform-provider-oci/internal/service/service_mesh"
@@ -126,10 +128,10 @@ import (
 	tf_waa "github.com/oracle/terraform-provider-oci/internal/service/waa"
 	tf_waas "github.com/oracle/terraform-provider-oci/internal/service/waas"
 	tf_waf "github.com/oracle/terraform-provider-oci/internal/service/waf"
+	tf_zpr "github.com/oracle/terraform-provider-oci/internal/service/zpr"
 )
 
 func init() {
-
 	if common.CheckForEnabledServices("adm") {
 		tf_adm.RegisterResource()
 	}
@@ -285,6 +287,9 @@ func init() {
 	}
 	if common.CheckForEnabledServices("fleetsoftwareupdate") {
 		tf_fleet_software_update.RegisterResource()
+	}
+	if common.CheckForEnabledServices("fleetappsmanagement") {
+		tf_fleet_apps_management.RegisterResource()
 	}
 	if common.CheckForEnabledServices("functions") {
 		tf_functions.RegisterResource()
@@ -451,6 +456,9 @@ func init() {
 	if common.CheckForEnabledServices("secrets") {
 		tf_secrets.RegisterResource()
 	}
+	if common.CheckForEnabledServices("securityattribute") {
+		tf_security_attribute.RegisterResource()
+	}
 	if common.CheckForEnabledServices("servicecatalog") {
 		tf_service_catalog.RegisterResource()
 	}
@@ -492,6 +500,9 @@ func init() {
 	}
 	if common.CheckForEnabledServices("waf") {
 		tf_waf.RegisterResource()
+	}
+	if common.CheckForEnabledServices("zpr") {
+		tf_zpr.RegisterResource()
 	}
 
 }

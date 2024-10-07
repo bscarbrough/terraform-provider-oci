@@ -206,6 +206,11 @@ type CreateAutonomousDatabaseBase interface {
 	// For more information, see Resource Tags (https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
 	GetDefinedTags() map[string]map[string]interface{}
 
+	// Security Attributes for this resource. Each key is predefined and scoped to a namespace.
+	// For more information, see Resource Tags (https://docs.cloud.oracle.com/iaas/Content/General/Concepts/resourcetags.htm).
+	// Example: `{"Oracle-ZPR": {"MaxEgressCount": {"value": "42", "mode": "audit"}}}`
+	GetSecurityAttributes() map[string]map[string]interface{}
+
 	// The private endpoint Ip address for the resource.
 	GetPrivateEndpointIp() *string
 
@@ -295,6 +300,7 @@ type createautonomousdatabasebase struct {
 	PrivateEndpointLabel                     *string                                                           `mandatory:"false" json:"privateEndpointLabel"`
 	FreeformTags                             map[string]string                                                 `mandatory:"false" json:"freeformTags"`
 	DefinedTags                              map[string]map[string]interface{}                                 `mandatory:"false" json:"definedTags"`
+	SecurityAttributes                       map[string]map[string]interface{}                                 `mandatory:"false" json:"securityAttributes"`
 	PrivateEndpointIp                        *string                                                           `mandatory:"false" json:"privateEndpointIp"`
 	DbVersion                                *string                                                           `mandatory:"false" json:"dbVersion"`
 	CustomerContacts                         []CustomerContact                                                 `mandatory:"false" json:"customerContacts"`
@@ -360,6 +366,7 @@ func (m *createautonomousdatabasebase) UnmarshalJSON(data []byte) error {
 	m.PrivateEndpointLabel = s.Model.PrivateEndpointLabel
 	m.FreeformTags = s.Model.FreeformTags
 	m.DefinedTags = s.Model.DefinedTags
+	m.SecurityAttributes = s.Model.SecurityAttributes
 	m.PrivateEndpointIp = s.Model.PrivateEndpointIp
 	m.DbVersion = s.Model.DbVersion
 	m.CustomerContacts = s.Model.CustomerContacts
@@ -387,6 +394,10 @@ func (m *createautonomousdatabasebase) UnmarshalPolymorphicJSON(data []byte) (in
 
 	var err error
 	switch m.Source {
+	case "UNDELETE_ADB":
+		mm := UndeleteAutonomousDatabaseDetails{}
+		err = json.Unmarshal(data, &mm)
+		return mm, err
 	case "DATABASE":
 		mm := CreateAutonomousDatabaseCloneDetails{}
 		err = json.Unmarshal(data, &mm)
@@ -603,6 +614,11 @@ func (m createautonomousdatabasebase) GetFreeformTags() map[string]string {
 // GetDefinedTags returns DefinedTags
 func (m createautonomousdatabasebase) GetDefinedTags() map[string]map[string]interface{} {
 	return m.DefinedTags
+}
+
+// GetSecurityAttributes returns SecurityAttributes
+func (m createautonomousdatabasebase) GetSecurityAttributes() map[string]map[string]interface{} {
+	return m.SecurityAttributes
 }
 
 // GetPrivateEndpointIp returns PrivateEndpointIp
@@ -891,6 +907,7 @@ const (
 	CreateAutonomousDatabaseBaseSourceDatabase                    CreateAutonomousDatabaseBaseSourceEnum = "DATABASE"
 	CreateAutonomousDatabaseBaseSourceBackupFromId                CreateAutonomousDatabaseBaseSourceEnum = "BACKUP_FROM_ID"
 	CreateAutonomousDatabaseBaseSourceBackupFromTimestamp         CreateAutonomousDatabaseBaseSourceEnum = "BACKUP_FROM_TIMESTAMP"
+	CreateAutonomousDatabaseBaseSourceUndeleteAdb                 CreateAutonomousDatabaseBaseSourceEnum = "UNDELETE_ADB"
 	CreateAutonomousDatabaseBaseSourceCloneToRefreshable          CreateAutonomousDatabaseBaseSourceEnum = "CLONE_TO_REFRESHABLE"
 	CreateAutonomousDatabaseBaseSourceCrossRegionDataguard        CreateAutonomousDatabaseBaseSourceEnum = "CROSS_REGION_DATAGUARD"
 	CreateAutonomousDatabaseBaseSourceCrossRegionDisasterRecovery CreateAutonomousDatabaseBaseSourceEnum = "CROSS_REGION_DISASTER_RECOVERY"
@@ -901,6 +918,7 @@ var mappingCreateAutonomousDatabaseBaseSourceEnum = map[string]CreateAutonomousD
 	"DATABASE":                       CreateAutonomousDatabaseBaseSourceDatabase,
 	"BACKUP_FROM_ID":                 CreateAutonomousDatabaseBaseSourceBackupFromId,
 	"BACKUP_FROM_TIMESTAMP":          CreateAutonomousDatabaseBaseSourceBackupFromTimestamp,
+	"UNDELETE_ADB":                   CreateAutonomousDatabaseBaseSourceUndeleteAdb,
 	"CLONE_TO_REFRESHABLE":           CreateAutonomousDatabaseBaseSourceCloneToRefreshable,
 	"CROSS_REGION_DATAGUARD":         CreateAutonomousDatabaseBaseSourceCrossRegionDataguard,
 	"CROSS_REGION_DISASTER_RECOVERY": CreateAutonomousDatabaseBaseSourceCrossRegionDisasterRecovery,
@@ -911,6 +929,7 @@ var mappingCreateAutonomousDatabaseBaseSourceEnumLowerCase = map[string]CreateAu
 	"database":                       CreateAutonomousDatabaseBaseSourceDatabase,
 	"backup_from_id":                 CreateAutonomousDatabaseBaseSourceBackupFromId,
 	"backup_from_timestamp":          CreateAutonomousDatabaseBaseSourceBackupFromTimestamp,
+	"undelete_adb":                   CreateAutonomousDatabaseBaseSourceUndeleteAdb,
 	"clone_to_refreshable":           CreateAutonomousDatabaseBaseSourceCloneToRefreshable,
 	"cross_region_dataguard":         CreateAutonomousDatabaseBaseSourceCrossRegionDataguard,
 	"cross_region_disaster_recovery": CreateAutonomousDatabaseBaseSourceCrossRegionDisasterRecovery,
@@ -932,6 +951,7 @@ func GetCreateAutonomousDatabaseBaseSourceEnumStringValues() []string {
 		"DATABASE",
 		"BACKUP_FROM_ID",
 		"BACKUP_FROM_TIMESTAMP",
+		"UNDELETE_ADB",
 		"CLONE_TO_REFRESHABLE",
 		"CROSS_REGION_DATAGUARD",
 		"CROSS_REGION_DISASTER_RECOVERY",

@@ -51,6 +51,9 @@ type IntegrationInstance struct {
 	// The current state of the integration instance.
 	LifecycleState IntegrationInstanceLifecycleStateEnum `mandatory:"false" json:"lifecycleState,omitempty"`
 
+	// Additional details of lifecycleState or substates
+	LifecycleDetails *string `mandatory:"false" json:"lifecycleDetails"`
+
 	// An message describing the current state in more detail. For example, can be used to provide actionable information for a resource in Failed state.
 	StateMessage *string `mandatory:"false" json:"stateMessage"`
 
@@ -67,6 +70,9 @@ type IntegrationInstance struct {
 	// Usage of system tag keys. These predefined keys are scoped to namespaces.
 	// Example: `{"orcl-cloud": {"free-tier-retained": "true"}}`
 	SystemTags map[string]map[string]interface{} `mandatory:"false" json:"systemTags"`
+
+	// The Integration Instance Design Time URL
+	InstanceDesignTimeUrl *string `mandatory:"false" json:"instanceDesignTimeUrl"`
 
 	// The file server is enabled or not.
 	IsFileServerEnabled *bool `mandatory:"false" json:"isFileServerEnabled"`
@@ -93,6 +99,11 @@ type IntegrationInstance struct {
 	Shape IntegrationInstanceShapeEnum `mandatory:"false" json:"shape,omitempty"`
 
 	PrivateEndpointOutboundConnection OutboundConnection `mandatory:"false" json:"privateEndpointOutboundConnection"`
+
+	// Is Disaster Recovery enabled for the integrationInstance
+	IsDisasterRecoveryEnabled *bool `mandatory:"false" json:"isDisasterRecoveryEnabled"`
+
+	DisasterRecoveryDetails *DisasterRecoveryDetails `mandatory:"false" json:"disasterRecoveryDetails"`
 
 	// Data retention period set for given integration instance
 	DataRetentionPeriod IntegrationInstanceDataRetentionPeriodEnum `mandatory:"false" json:"dataRetentionPeriod,omitempty"`
@@ -135,10 +146,12 @@ func (m *IntegrationInstance) UnmarshalJSON(data []byte) (e error) {
 		TimeCreated                       *common.SDKTime                                `json:"timeCreated"`
 		TimeUpdated                       *common.SDKTime                                `json:"timeUpdated"`
 		LifecycleState                    IntegrationInstanceLifecycleStateEnum          `json:"lifecycleState"`
+		LifecycleDetails                  *string                                        `json:"lifecycleDetails"`
 		StateMessage                      *string                                        `json:"stateMessage"`
 		FreeformTags                      map[string]string                              `json:"freeformTags"`
 		DefinedTags                       map[string]map[string]interface{}              `json:"definedTags"`
 		SystemTags                        map[string]map[string]interface{}              `json:"systemTags"`
+		InstanceDesignTimeUrl             *string                                        `json:"instanceDesignTimeUrl"`
 		IsFileServerEnabled               *bool                                          `json:"isFileServerEnabled"`
 		IsVisualBuilderEnabled            *bool                                          `json:"isVisualBuilderEnabled"`
 		CustomEndpoint                    *CustomEndpointDetails                         `json:"customEndpoint"`
@@ -149,6 +162,8 @@ func (m *IntegrationInstance) UnmarshalJSON(data []byte) (e error) {
 		Attachments                       []AttachmentDetails                            `json:"attachments"`
 		Shape                             IntegrationInstanceShapeEnum                   `json:"shape"`
 		PrivateEndpointOutboundConnection outboundconnection                             `json:"privateEndpointOutboundConnection"`
+		IsDisasterRecoveryEnabled         *bool                                          `json:"isDisasterRecoveryEnabled"`
+		DisasterRecoveryDetails           *DisasterRecoveryDetails                       `json:"disasterRecoveryDetails"`
 		DataRetentionPeriod               IntegrationInstanceDataRetentionPeriodEnum     `json:"dataRetentionPeriod"`
 		Id                                *string                                        `json:"id"`
 		DisplayName                       *string                                        `json:"displayName"`
@@ -170,6 +185,8 @@ func (m *IntegrationInstance) UnmarshalJSON(data []byte) (e error) {
 
 	m.LifecycleState = model.LifecycleState
 
+	m.LifecycleDetails = model.LifecycleDetails
+
 	m.StateMessage = model.StateMessage
 
 	m.FreeformTags = model.FreeformTags
@@ -177,6 +194,8 @@ func (m *IntegrationInstance) UnmarshalJSON(data []byte) (e error) {
 	m.DefinedTags = model.DefinedTags
 
 	m.SystemTags = model.SystemTags
+
+	m.InstanceDesignTimeUrl = model.InstanceDesignTimeUrl
 
 	m.IsFileServerEnabled = model.IsFileServerEnabled
 
@@ -213,6 +232,10 @@ func (m *IntegrationInstance) UnmarshalJSON(data []byte) (e error) {
 	} else {
 		m.PrivateEndpointOutboundConnection = nil
 	}
+
+	m.IsDisasterRecoveryEnabled = model.IsDisasterRecoveryEnabled
+
+	m.DisasterRecoveryDetails = model.DisasterRecoveryDetails
 
 	m.DataRetentionPeriod = model.DataRetentionPeriod
 
@@ -299,7 +322,6 @@ const (
 	IntegrationInstanceLifecycleStateDeleting IntegrationInstanceLifecycleStateEnum = "DELETING"
 	IntegrationInstanceLifecycleStateDeleted  IntegrationInstanceLifecycleStateEnum = "DELETED"
 	IntegrationInstanceLifecycleStateFailed   IntegrationInstanceLifecycleStateEnum = "FAILED"
-	IntegrationInstanceLifecycleStateStandby  IntegrationInstanceLifecycleStateEnum = "STANDBY"
 )
 
 var mappingIntegrationInstanceLifecycleStateEnum = map[string]IntegrationInstanceLifecycleStateEnum{
@@ -310,7 +332,6 @@ var mappingIntegrationInstanceLifecycleStateEnum = map[string]IntegrationInstanc
 	"DELETING": IntegrationInstanceLifecycleStateDeleting,
 	"DELETED":  IntegrationInstanceLifecycleStateDeleted,
 	"FAILED":   IntegrationInstanceLifecycleStateFailed,
-	"STANDBY":  IntegrationInstanceLifecycleStateStandby,
 }
 
 var mappingIntegrationInstanceLifecycleStateEnumLowerCase = map[string]IntegrationInstanceLifecycleStateEnum{
@@ -321,7 +342,6 @@ var mappingIntegrationInstanceLifecycleStateEnumLowerCase = map[string]Integrati
 	"deleting": IntegrationInstanceLifecycleStateDeleting,
 	"deleted":  IntegrationInstanceLifecycleStateDeleted,
 	"failed":   IntegrationInstanceLifecycleStateFailed,
-	"standby":  IntegrationInstanceLifecycleStateStandby,
 }
 
 // GetIntegrationInstanceLifecycleStateEnumValues Enumerates the set of values for IntegrationInstanceLifecycleStateEnum
@@ -343,7 +363,6 @@ func GetIntegrationInstanceLifecycleStateEnumStringValues() []string {
 		"DELETING",
 		"DELETED",
 		"FAILED",
-		"STANDBY",
 	}
 }
 
