@@ -385,6 +385,161 @@ func DatabaseAutonomousDatabasesClonesDataSource() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"encryption_key": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									// Required
+
+									// Optional
+
+									// Computed
+									"arn_role": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"autonomous_databases_clone_provider": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"certificate_directory_name": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"certificate_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"directory_name": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"external_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"key_arn": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"key_name": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"kms_key_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"okv_kms_key": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"okv_uri": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"service_endpoint_uri": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"vault_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"vault_uri": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
+						"encryption_key_history_entry": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									// Required
+
+									// Optional
+
+									// Computed
+									"encryption_key": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												// Required
+
+												// Optional
+
+												// Computed
+												"arn_role": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"autonomous_databases_clone_provider": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"certificate_directory_name": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"certificate_id": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"directory_name": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"external_id": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"key_arn": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"key_name": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"kms_key_id": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"okv_kms_key": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"okv_uri": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"service_endpoint_uri": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"vault_id": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"vault_uri": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+											},
+										},
+									},
+									"time_activated": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
 						"failed_data_recovery_in_seconds": {
 							Type:     schema.TypeInt,
 							Computed: true,
@@ -807,6 +962,11 @@ func DatabaseAutonomousDatabasesClonesDataSource() *schema.Resource {
 								},
 							},
 						},
+						"security_attributes": {
+							Type:     schema.TypeMap,
+							Computed: true,
+							Elem:     schema.TypeString,
+						},
 						"service_console_url": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -1191,6 +1351,22 @@ func (s *DatabaseAutonomousDatabasesClonesDataSourceCrud) SetData() error {
 			autonomousDatabasesClone["display_name"] = *r.DisplayName
 		}
 
+		if r.EncryptionKey != nil {
+			encryptionKeyArray := []interface{}{}
+			if encryptionKeyMap := AutonomousDatabaseEncryptionKeyDetailsToMap(&r.EncryptionKey); encryptionKeyMap != nil {
+				encryptionKeyArray = append(encryptionKeyArray, encryptionKeyMap)
+			}
+			autonomousDatabasesClone["encryption_key"] = encryptionKeyArray
+		} else {
+			autonomousDatabasesClone["encryption_key"] = nil
+		}
+
+		encryptionKeyHistoryEntry := []interface{}{}
+		for _, item := range r.EncryptionKeyHistoryEntry {
+			encryptionKeyHistoryEntry = append(encryptionKeyHistoryEntry, AutonomousDatabaseEncryptionKeyHistoryEntryToMap(item))
+		}
+		autonomousDatabasesClone["encryption_key_history_entry"] = encryptionKeyHistoryEntry
+
 		if r.FailedDataRecoveryInSeconds != nil {
 			autonomousDatabasesClone["failed_data_recovery_in_seconds"] = *r.FailedDataRecoveryInSeconds
 		}
@@ -1388,6 +1564,8 @@ func (s *DatabaseAutonomousDatabasesClonesDataSourceCrud) SetData() error {
 			scheduledOperations = append(scheduledOperations, ScheduledOperationDetailsToMap(item))
 		}
 		autonomousDatabasesClone["scheduled_operations"] = scheduledOperations
+
+		autonomousDatabasesClone["security_attributes"] = tfresource.SecurityAttributesToMap(r.SecurityAttributes)
 
 		if r.ServiceConsoleUrl != nil {
 			autonomousDatabasesClone["service_console_url"] = *r.ServiceConsoleUrl

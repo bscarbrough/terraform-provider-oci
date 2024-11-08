@@ -98,6 +98,84 @@ func DatabaseCloudVmClusterResource() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"cloud_automation_update_details": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				MinItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						// Required
+
+						// Optional
+						"apply_update_time_preference": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							MaxItems: 1,
+							MinItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									// Required
+
+									// Optional
+									"apply_update_preferred_end_time": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"apply_update_preferred_start_time": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+
+									// Computed
+								},
+							},
+						},
+						"freeze_period": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							MaxItems: 1,
+							MinItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									// Required
+
+									// Optional
+									"freeze_period_end_time": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"freeze_period_start_time": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+
+									// Computed
+								},
+							},
+						},
+						"is_early_adoption_enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+						"is_freeze_period_enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+
+						// Computed
+					},
+				},
+			},
 			"cluster_name": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -256,6 +334,12 @@ func DatabaseCloudVmClusterResource() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+			},
+			"security_attributes": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Computed: true,
+				Elem:     schema.TypeString,
 			},
 			"subscription_id": {
 				Type:     schema.TypeString,
@@ -520,6 +604,17 @@ func (s *DatabaseCloudVmClusterResourceCrud) Create() error {
 		request.BackupSubnetId = &tmp
 	}
 
+	if cloudAutomationUpdateDetails, ok := s.D.GetOkExists("cloud_automation_update_details"); ok {
+		if tmpList := cloudAutomationUpdateDetails.([]interface{}); len(tmpList) > 0 {
+			fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "cloud_automation_update_details", 0)
+			tmp, err := s.mapToCloudAutomationUpdateDetails(fieldKeyFormat)
+			if err != nil {
+				return err
+			}
+			request.CloudAutomationUpdateDetails = &tmp
+		}
+	}
+
 	if cloudExadataInfrastructureId, ok := s.D.GetOkExists("cloud_exadata_infrastructure_id"); ok {
 		tmp := cloudExadataInfrastructureId.(string)
 		request.CloudExadataInfrastructureId = &tmp
@@ -681,6 +776,10 @@ func (s *DatabaseCloudVmClusterResourceCrud) Create() error {
 		request.ScanListenerPortTcpSsl = &tmp
 	}
 
+	if securityAttributes, ok := s.D.GetOkExists("security_attributes"); ok {
+		request.SecurityAttributes = tfresource.MapToSecurityAttributes(securityAttributes.(map[string]interface{}))
+	}
+
 	if sshPublicKeys, ok := s.D.GetOkExists("ssh_public_keys"); ok {
 		interfaces := sshPublicKeys.([]interface{})
 		tmp := make([]string, len(interfaces))
@@ -782,6 +881,17 @@ func (s *DatabaseCloudVmClusterResourceCrud) Update() error {
 		}
 	}
 
+	if cloudAutomationUpdateDetails, ok := s.D.GetOkExists("cloud_automation_update_details"); ok {
+		if tmpList := cloudAutomationUpdateDetails.([]interface{}); len(tmpList) > 0 {
+			fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "cloud_automation_update_details", 0)
+			tmp, err := s.mapToCloudAutomationUpdateDetails(fieldKeyFormat)
+			if err != nil {
+				return err
+			}
+			request.CloudAutomationUpdateDetails = &tmp
+		}
+	}
+
 	tmp := s.D.Id()
 	request.CloudVmClusterId = &tmp
 
@@ -807,7 +917,7 @@ func (s *DatabaseCloudVmClusterResourceCrud) Update() error {
 							flex, err := s.flexAvailableDbStorageInGBs(compartmentId.(string), flexShape)
 
 							if err == nil {
-								if storageSizeInGBs, ok := s.D.GetOkExists("storage_size_in_gbs"); ok {
+								if storageSizeInGBs, ok := s.D.GetOkExists("storage_size_in_gbs"); ok && s.D.HasChange("storage_size_in_gbs") {
 									tmp := flex**s.Infra.StorageCount - storageSizeInGBs.(int)
 									request.StorageSizeInGBs = &tmp
 								}
@@ -835,12 +945,12 @@ func (s *DatabaseCloudVmClusterResourceCrud) Update() error {
 		}
 	}
 
-	if dataStorageSizeInTBs, ok := s.D.GetOkExists("data_storage_size_in_tbs"); ok {
+	if dataStorageSizeInTBs, ok := s.D.GetOkExists("data_storage_size_in_tbs"); ok && s.D.HasChange("data_storage_size_in_tbs") {
 		tmp := dataStorageSizeInTBs.(float64)
 		request.DataStorageSizeInTBs = &tmp
 	}
 
-	if dbNodeStorageSizeInGBs, ok := s.D.GetOkExists("db_node_storage_size_in_gbs"); ok {
+	if dbNodeStorageSizeInGBs, ok := s.D.GetOkExists("db_node_storage_size_in_gbs"); ok && s.D.HasChange("db_node_storage_size_in_gbs") {
 		tmp := dbNodeStorageSizeInGBs.(int)
 		request.DbNodeStorageSizeInGBs = &tmp
 	}
@@ -853,7 +963,7 @@ func (s *DatabaseCloudVmClusterResourceCrud) Update() error {
 		request.DefinedTags = convertedDefinedTags
 	}
 
-	if displayName, ok := s.D.GetOkExists("display_name"); ok {
+	if displayName, ok := s.D.GetOkExists("display_name"); ok && s.D.HasChange("display_name") {
 		tmp := displayName.(string)
 		request.DisplayName = &tmp
 	}
@@ -883,7 +993,7 @@ func (s *DatabaseCloudVmClusterResourceCrud) Update() error {
 		request.LicenseModel = oci_database.UpdateCloudVmClusterDetailsLicenseModelEnum(licenseModel.(string))
 	}
 
-	if memorySizeInGBs, ok := s.D.GetOkExists("memory_size_in_gbs"); ok {
+	if memorySizeInGBs, ok := s.D.GetOkExists("memory_size_in_gbs"); ok && s.D.HasChange("memory_size_in_gbs") {
 		tmp := memorySizeInGBs.(int)
 		request.MemorySizeInGBs = &tmp
 	}
@@ -905,6 +1015,10 @@ func (s *DatabaseCloudVmClusterResourceCrud) Update() error {
 	if ocpuCount, ok := s.D.GetOkExists("ocpu_count"); ok && s.D.HasChange("ocpu_count") {
 		tmp := float32(ocpuCount.(float64))
 		request.OcpuCount = &tmp
+	}
+
+	if securityAttributes, ok := s.D.GetOkExists("security_attributes"); ok {
+		request.SecurityAttributes = tfresource.MapToSecurityAttributes(securityAttributes.(map[string]interface{}))
 	}
 
 	if sshPublicKeys, ok := s.D.GetOkExists("ssh_public_keys"); ok {
@@ -964,6 +1078,12 @@ func (s *DatabaseCloudVmClusterResourceCrud) SetData() error {
 
 	if s.Res.BackupSubnetId != nil {
 		s.D.Set("backup_subnet_id", *s.Res.BackupSubnetId)
+	}
+
+	if s.Res.CloudAutomationUpdateDetails != nil {
+		s.D.Set("cloud_automation_update_details", []interface{}{CloudAutomationUpdateDetailsToMap(s.Res.CloudAutomationUpdateDetails)})
+	} else {
+		s.D.Set("cloud_automation_update_details", nil)
 	}
 
 	if s.Res.CloudExadataInfrastructureId != nil {
@@ -1095,6 +1215,8 @@ func (s *DatabaseCloudVmClusterResourceCrud) SetData() error {
 		s.D.Set("scan_listener_port_tcp_ssl", *s.Res.ScanListenerPortTcpSsl)
 	}
 
+	s.D.Set("security_attributes", tfresource.SecurityAttributesToMap(s.Res.SecurityAttributes))
+
 	if s.Res.Shape != nil {
 		s.D.Set("shape", *s.Res.Shape)
 	}
@@ -1138,6 +1260,126 @@ func (s *DatabaseCloudVmClusterResourceCrud) SetData() error {
 	}
 
 	return nil
+}
+
+func (s *DatabaseCloudVmClusterResourceCrud) mapToCloudAutomationApplyUpdateTimePreference(fieldKeyFormat string) (oci_database.CloudAutomationApplyUpdateTimePreference, error) {
+	result := oci_database.CloudAutomationApplyUpdateTimePreference{}
+
+	if applyUpdatePreferredEndTime, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "apply_update_preferred_end_time")); ok {
+		tmp := applyUpdatePreferredEndTime.(string)
+		result.ApplyUpdatePreferredEndTime = &tmp
+	}
+
+	if applyUpdatePreferredStartTime, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "apply_update_preferred_start_time")); ok {
+		tmp := applyUpdatePreferredStartTime.(string)
+		result.ApplyUpdatePreferredStartTime = &tmp
+	}
+
+	return result, nil
+}
+
+func CloudAutomationApplyUpdateTimePreferenceToMap(obj *oci_database.CloudAutomationApplyUpdateTimePreference) map[string]interface{} {
+	result := map[string]interface{}{}
+
+	if obj.ApplyUpdatePreferredEndTime != nil {
+		result["apply_update_preferred_end_time"] = string(*obj.ApplyUpdatePreferredEndTime)
+	}
+
+	if obj.ApplyUpdatePreferredStartTime != nil {
+		result["apply_update_preferred_start_time"] = string(*obj.ApplyUpdatePreferredStartTime)
+	}
+
+	return result
+}
+
+func (s *DatabaseCloudVmClusterResourceCrud) mapToCloudAutomationFreezePeriod(fieldKeyFormat string) (oci_database.CloudAutomationFreezePeriod, error) {
+	result := oci_database.CloudAutomationFreezePeriod{}
+
+	if freezePeriodEndTime, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "freeze_period_end_time")); ok {
+		tmp := freezePeriodEndTime.(string)
+		result.FreezePeriodEndTime = &tmp
+	}
+
+	if freezePeriodStartTime, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "freeze_period_start_time")); ok {
+		tmp := freezePeriodStartTime.(string)
+		result.FreezePeriodStartTime = &tmp
+	}
+
+	return result, nil
+}
+
+func CloudAutomationFreezePeriodToMap(obj *oci_database.CloudAutomationFreezePeriod) map[string]interface{} {
+	result := map[string]interface{}{}
+
+	if obj.FreezePeriodEndTime != nil {
+		result["freeze_period_end_time"] = string(*obj.FreezePeriodEndTime)
+	}
+
+	if obj.FreezePeriodStartTime != nil {
+		result["freeze_period_start_time"] = string(*obj.FreezePeriodStartTime)
+	}
+
+	return result
+}
+
+func (s *DatabaseCloudVmClusterResourceCrud) mapToCloudAutomationUpdateDetails(fieldKeyFormat string) (oci_database.CloudAutomationUpdateDetails, error) {
+	result := oci_database.CloudAutomationUpdateDetails{}
+
+	if applyUpdateTimePreference, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "apply_update_time_preference")); ok {
+		if tmpList := applyUpdateTimePreference.([]interface{}); len(tmpList) > 0 {
+			fieldKeyFormatNextLevel := fmt.Sprintf("%s.%d.%%s", fmt.Sprintf(fieldKeyFormat, "apply_update_time_preference"), 0)
+			tmp, err := s.mapToCloudAutomationApplyUpdateTimePreference(fieldKeyFormatNextLevel)
+			if err != nil {
+				return result, fmt.Errorf("unable to convert apply_update_time_preference, encountered error: %v", err)
+			}
+			result.ApplyUpdateTimePreference = &tmp
+		}
+	}
+
+	if freezePeriod, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "freeze_period")); ok {
+		if tmpList := freezePeriod.([]interface{}); len(tmpList) > 0 {
+			fieldKeyFormatNextLevel := fmt.Sprintf("%s.%d.%%s", fmt.Sprintf(fieldKeyFormat, "freeze_period"), 0)
+			tmp, err := s.mapToCloudAutomationFreezePeriod(fieldKeyFormatNextLevel)
+			if err != nil {
+				return result, fmt.Errorf("unable to convert freeze_period, encountered error: %v", err)
+			}
+			result.FreezePeriod = &tmp
+		}
+	}
+
+	if isEarlyAdoptionEnabled, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "is_early_adoption_enabled")); ok {
+		tmp := isEarlyAdoptionEnabled.(bool)
+		result.IsEarlyAdoptionEnabled = &tmp
+	}
+
+	if isFreezePeriodEnabled, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "is_freeze_period_enabled")); ok {
+		tmp := isFreezePeriodEnabled.(bool)
+		result.IsFreezePeriodEnabled = &tmp
+	}
+
+	return result, nil
+}
+
+func CloudAutomationUpdateDetailsToMap(obj *oci_database.CloudAutomationUpdateDetails) map[string]interface{} {
+	result := map[string]interface{}{}
+
+	if obj.ApplyUpdateTimePreference != nil {
+		result["apply_update_time_preference"] = []interface{}{CloudAutomationApplyUpdateTimePreferenceToMap(obj.ApplyUpdateTimePreference)}
+	}
+
+	if obj.FreezePeriod != nil {
+		result["freeze_period"] = []interface{}{CloudAutomationFreezePeriodToMap(obj.FreezePeriod)}
+	}
+
+	if obj.IsEarlyAdoptionEnabled != nil {
+		result["is_early_adoption_enabled"] = bool(*obj.IsEarlyAdoptionEnabled)
+	}
+
+	if obj.IsFreezePeriodEnabled != nil {
+		result["is_freeze_period_enabled"] = bool(*obj.IsFreezePeriodEnabled)
+	}
+
+	return result
 }
 
 func (s *DatabaseCloudVmClusterResourceCrud) mapToDataCollectionOptions(fieldKeyFormat string) (oci_database.DataCollectionOptions, error) {

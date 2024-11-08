@@ -130,6 +130,12 @@ func (s *DatabaseCloudVmClustersDataSourceCrud) SetData() error {
 			cloudVmCluster["backup_subnet_id"] = *r.BackupSubnetId
 		}
 
+		if r.CloudAutomationUpdateDetails != nil {
+			cloudVmCluster["cloud_automation_update_details"] = []interface{}{CloudAutomationUpdateDetailsToMap(r.CloudAutomationUpdateDetails)}
+		} else {
+			cloudVmCluster["cloud_automation_update_details"] = nil
+		}
+
 		if r.CloudExadataInfrastructureId != nil {
 			cloudVmCluster["cloud_exadata_infrastructure_id"] = *r.CloudExadataInfrastructureId
 		}
@@ -249,6 +255,8 @@ func (s *DatabaseCloudVmClustersDataSourceCrud) SetData() error {
 		if r.ScanListenerPortTcpSsl != nil {
 			cloudVmCluster["scan_listener_port_tcp_ssl"] = *r.ScanListenerPortTcpSsl
 		}
+
+		cloudVmCluster["security_attributes"] = tfresource.SecurityAttributesToMap(r.SecurityAttributes)
 
 		if r.Shape != nil {
 			cloudVmCluster["shape"] = *r.Shape

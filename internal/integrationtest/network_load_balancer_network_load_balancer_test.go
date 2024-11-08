@@ -63,6 +63,7 @@ var (
 		"reserved_ips":                   acctest.RepresentationGroup{RepType: acctest.Optional, Group: networkLoadBalancerReservedIpsRepresentation},
 		"network_security_group_ids":     acctest.Representation{RepType: acctest.Optional, Create: []string{`${oci_core_network_security_group.test_network_security_group.id}`}},
 		"lifecycle":                      acctest.RepresentationGroup{RepType: acctest.Required, Group: NetworkLoadBalancerIgnoreChangesRepresentation},
+		"security_attributes":            acctest.Representation{RepType: acctest.Optional, Create: map[string]string{"secAttriZprNlbIAD.secAttriIAD.mode": "enforce", "secAttriZprNlbIAD.secAttriIAD.value": "someVal"}},
 	}
 
 	NetworkLoadBalancerSubnetIpv6CidrRepresentation = map[string]interface{}{
@@ -155,8 +156,18 @@ func TestNetworkLoadBalancerNetworkLoadBalancerResource_basic(t *testing.T) {
 	var resId, resId2 string
 
 	acctest.ResourceTest(t, testAccCheckNetworkLoadBalancerNetworkLoadBalancerDestroy, []resource.TestStep{
+		// Initialize Tag dependencies: After a tag is created, if it is defined in the resource immediately, a 400-InvalidParameter error due to invalid tags may be returned.
+		// However, this error is not observed if we wait for some time. To prevent the issue, a preconfigured 30-second wait is added.
+		{
+			Config: config + compartmentIdVariableStr + DefinedTagsDependencies,
+		},
+
 		// verify Create with optionals
 		{
+			//wait for 30 sec
+			PreConfig: func() {
+				time.Sleep(30 * time.Second)
+			},
 			Config: config + compartmentIdVariableStr + NetworkLoadBalancerNetworkLoadBalancerResourceDependencies + NetworkLoadBalancerReservedIpDependencies +
 				acctest.GenerateResourceFromRepresentationMap("oci_network_load_balancer_network_load_balancer", "test_network_load_balancer", acctest.Optional, acctest.Create, networkLoadBalancerRepresentationIpv6),
 			Check: acctest.ComposeAggregateTestCheckFuncWrapper(
@@ -231,6 +242,7 @@ func TestNetworkLoadBalancerNetworkLoadBalancerResource_basic(t *testing.T) {
 				resource.TestCheckResourceAttr(resourceName, "ip_addresses.0.is_public", "true"),
 				resource.TestCheckResourceAttrSet(resourceName, "ip_addresses.0.ip_address"),
 				resource.TestCheckResourceAttrSet(resourceName, "ip_addresses.0.reserved_ip.0.id"),
+				resource.TestCheckResourceAttr(resourceName, "security_attributes.%", "2"),
 				resource.TestCheckResourceAttrSet(resourceName, "state"),
 				resource.TestCheckResourceAttrSet(resourceName, "subnet_id"),
 				resource.TestCheckResourceAttrSet(resourceName, "time_created"),
@@ -266,6 +278,7 @@ func TestNetworkLoadBalancerNetworkLoadBalancerResource_basic(t *testing.T) {
 				resource.TestCheckResourceAttr(resourceName, "nlb_ip_version", "IPV4"),
 				resource.TestCheckResourceAttrSet(resourceName, "ip_addresses.0.ip_address"),
 				resource.TestCheckResourceAttrSet(resourceName, "ip_addresses.0.reserved_ip.0.id"),
+				resource.TestCheckResourceAttr(resourceName, "security_attributes.%", "2"),
 				resource.TestCheckResourceAttrSet(resourceName, "state"),
 				resource.TestCheckResourceAttrSet(resourceName, "subnet_id"),
 				resource.TestCheckResourceAttrSet(resourceName, "time_created"),
@@ -295,6 +308,7 @@ func TestNetworkLoadBalancerNetworkLoadBalancerResource_basic(t *testing.T) {
 				resource.TestCheckResourceAttr(resourceName, "is_preserve_source_destination", "false"),
 				resource.TestCheckResourceAttr(resourceName, "is_private", "false"),
 				resource.TestCheckResourceAttr(resourceName, "nlb_ip_version", "IPV4"),
+				resource.TestCheckResourceAttr(resourceName, "security_attributes.%", "2"),
 				resource.TestCheckResourceAttrSet(resourceName, "state"),
 				resource.TestCheckResourceAttrSet(resourceName, "subnet_id"),
 				resource.TestCheckResourceAttrSet(resourceName, "time_created"),
@@ -374,6 +388,7 @@ func TestNetworkLoadBalancerNetworkLoadBalancerResource_basic(t *testing.T) {
 				resource.TestCheckResourceAttr(singularDatasourceName, "is_private", "false"),
 				resource.TestCheckResourceAttr(singularDatasourceName, "is_symmetric_hash_enabled", "false"),
 				resource.TestCheckResourceAttr(singularDatasourceName, "nlb_ip_version", "IPV4"),
+				resource.TestCheckResourceAttr(singularDatasourceName, "security_attributes.%", "2"),
 				resource.TestCheckResourceAttrSet(singularDatasourceName, "state"),
 				resource.TestCheckResourceAttrSet(singularDatasourceName, "time_created"),
 				resource.TestCheckResourceAttrSet(singularDatasourceName, "time_updated"),

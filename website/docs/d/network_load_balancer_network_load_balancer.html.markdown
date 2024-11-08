@@ -139,6 +139,8 @@ The following attributes are exported:
 * `listeners` - Listeners associated with the network load balancer.
 	* `default_backend_set_name` - The name of the associated backend set.  Example: `example_backend_set` 
 	* `ip_version` - IP version associated with the listener.
+	* `is_ppv2enabled` - Property to enable/disable PPv2 feature for this listener.
+	* `l3ip_idle_timeout` - The duration for L3IP idle timeout in seconds. Example: `200`
 	* `name` - A friendly name for the listener. It must be unique and it cannot be changed.  Example: `example_listener` 
 	* `port` - The communication port for the listener.  Example: `80` 
 	* `protocol` - The protocol on which the listener accepts connection requests. For public network load balancers, ANY protocol refers to TCP/UDP with the wildcard port. For private network load balancers, ANY protocol refers to TCP/UDP/ICMP (note that ICMP requires isPreserveSourceDestination to be set to true). "ListNetworkLoadBalancersProtocols" API is deprecated and it will not return the updated values. Use the allowed values for the protocol instead.  Example: `TCP` 
@@ -155,6 +157,7 @@ The following attributes are exported:
 
     Example: ["ocid1.nsg.oc1.phx.unique_ID"] 
 * `nlb_ip_version` - IP version associated with the NLB.
+* `security_attributes` - ZPR tags for this resource. Each tag is a simple key-value pair with no predefined name, type, or namespace. For more information, see [Resource Tags](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/resourcetags.htm).  Example: `{ "oracle-zpr": { "td": { "value": "42", "mode": "audit" } } }` 
 * `state` - The current state of the network load balancer.
 * `subnet_id` - The subnet in which the network load balancer is spawned [OCIDs](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm)."
 * `system_tags` - Key-value pair representing system tags' keys and values scoped to a namespace. Example: `{"bar-key": "value"}` 

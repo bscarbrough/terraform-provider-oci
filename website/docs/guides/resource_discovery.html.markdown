@@ -587,6 +587,13 @@ data_safe
 * oci\_data\_safe\_sdm\_masking\_policy\_difference
 * oci\_data\_safe\_calculate\_audit\_volume\_available
 * oci\_data\_safe\_calculate\_audit\_volume\_collected
+* oci\_data\_safe\_generate\_on\_prem\_connector\_configuration
+* oci\_data\_safe\_security\_policy\_deployment
+* oci\_data\_safe\_security\_policy
+* oci\_data\_safe\_database\_security\_config
+* oci\_data\_safe\_sql\_firewall\_policy
+* oci\_data\_safe\_sql\_collection
+* oci\_data\_safe\_target\_database\_peer\_target\_database
 
 database
     
@@ -620,6 +627,7 @@ database
 * oci\_database\_application\_vip
 * oci\_database\_oneoff\_patch
 * oci\_database\_db\_node\_console\_history
+* oci\_database\_autonomous\_database\_software\_image
 * oci\_database\_exascale\_db\_storage\_vault
 * oci\_database\_exadb\_vm\_cluster
 
@@ -1166,6 +1174,9 @@ stack_monitoring
 * oci\_stack\_monitoring\_metric\_extension
 * oci\_stack\_monitoring\_baselineable\_metric
 * oci\_stack\_monitoring\_process\_set
+* oci\_stack\_monitoring\_maintenance\_window
+* oci\_stack\_monitoring\_maintenance\_windows\_retry\_failed\_operation
+* oci\_stack\_monitoring\_maintenance\_windows\_stop
 
 streaming
     

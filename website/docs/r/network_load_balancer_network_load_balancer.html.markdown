@@ -131,6 +131,7 @@ resource "oci_network_load_balancer_network_load_balancer" "test_network_load_ba
 		#Optional
 		ip_version = var.network_load_balancer_listeners_ip_version
 		is_ppv2enabled = var.network_load_balancer_listeners_is_ppv2enabled
+		l3ip_idle_timeout = var.network_load_balancer_listeners_l3ip_idle_timeout
 		tcp_idle_timeout = var.network_load_balancer_listeners_tcp_idle_timeout
 		udp_idle_timeout = var.network_load_balancer_listeners_udp_idle_timeout
 	}
@@ -140,6 +141,7 @@ resource "oci_network_load_balancer_network_load_balancer" "test_network_load_ba
 		#Optional
 		id = var.network_load_balancer_reserved_ips_id
 	}
+	security_attributes = var.network_load_balancer_security_attributes
 	subnet_ipv6cidr = var.network_load_balancer_subnet_ipv6cidr
 }
 ```
@@ -206,6 +208,8 @@ The following arguments are supported:
 * `listeners` - (Optional) Listeners associated with the network load balancer.
 	* `default_backend_set_name` - (Required) The name of the associated backend set.  Example: `example_backend_set` 
 	* `ip_version` - (Optional) IP version associated with the listener.
+	* `is_ppv2enabled` - (Optional) Property to enable/disable PPv2 feature for this listener.
+	* `l3ip_idle_timeout` - (Optional) The duration for L3IP idle timeout in seconds. Example: `200`
 	* `name` - (Required) A friendly name for the listener. It must be unique and it cannot be changed.  Example: `example_listener` 
 	* `port` - (Required) The communication port for the listener.  Example: `80` 
 	* `protocol` - (Required) The protocol on which the listener accepts connection requests. For public network load balancers, ANY protocol refers to TCP/UDP with the wildcard port. For private network load balancers, ANY protocol refers to TCP/UDP/ICMP (note that ICMP requires isPreserveSourceDestination to be set to true). "ListNetworkLoadBalancersProtocols" API is deprecated and it will not return the updated values. Use the allowed values for the protocol instead.  Example: `TCP` 
@@ -230,7 +234,8 @@ The following arguments are supported:
 
         Reserved public IP addresses are not deleted when the network load balancer is deleted. The IP addresses become unattached from the network load balancer.
 
-        Example: "ocid1.publicip.oc1.phx.unique_ID" 
+		Example: "ocid1.publicip.oc1.phx.unique_ID" 
+* `security_attributes` - (Optional) (Updatable) ZPR tags for this resource. Each tag is a simple key-value pair with no predefined name, type, or namespace. For more information, see [Resource Tags](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/resourcetags.htm).  Example: `{"oracle-zpr": {"td": {"value": "42", "mode": "audit"}}}` 
 * `subnet_id` - (Required) The subnet in which the network load balancer is spawned [OCIDs](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm).
 * `subnet_ipv6cidr` - (Optional) IPv6 subnet prefix selection. If Ipv6 subnet prefix is passed, Nlb Ipv6 Address would be assign within the cidr block. NLB has to be dual or single stack ipv6 to support this.
 
@@ -319,6 +324,8 @@ The following attributes are exported:
 * `listeners` - Listeners associated with the network load balancer.
 	* `default_backend_set_name` - The name of the associated backend set.  Example: `example_backend_set` 
 	* `ip_version` - IP version associated with the listener.
+	* `is_ppv2enabled` - Property to enable/disable PPv2 feature for this listener.
+	* `l3ip_idle_timeout` - The duration for L3IP idle timeout in seconds. Example: `200`
 	* `name` - A friendly name for the listener. It must be unique and it cannot be changed.  Example: `example_listener` 
 	* `port` - The communication port for the listener.  Example: `80` 
 	* `protocol` - The protocol on which the listener accepts connection requests. For public network load balancers, ANY protocol refers to TCP/UDP with the wildcard port. For private network load balancers, ANY protocol refers to TCP/UDP/ICMP (note that ICMP requires isPreserveSourceDestination to be set to true). "ListNetworkLoadBalancersProtocols" API is deprecated and it will not return the updated values. Use the allowed values for the protocol instead.  Example: `TCP` 
@@ -334,6 +341,7 @@ The following attributes are exported:
 
     Example: ["ocid1.nsg.oc1.phx.unique_ID"] 
 * `nlb_ip_version` - IP version associated with the NLB.
+* `security_attributes` - ZPR tags for this resource. Each tag is a simple key-value pair with no predefined name, type, or namespace. For more information, see [Resource Tags](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/resourcetags.htm).  Example: `{ "oracle-zpr": { "td": { "value": "42", "mode": "audit" } } }` 
 * `state` - The current state of the network load balancer.
 * `subnet_id` - The subnet in which the network load balancer is spawned [OCIDs](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm)."
 * `system_tags` - Key-value pair representing system tags' keys and values scoped to a namespace. Example: `{"bar-key": "value"}` 

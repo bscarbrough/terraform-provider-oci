@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 
@@ -51,9 +52,11 @@ func DesktopsDesktopPoolResource() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						// Required
+
+						// Optional
 						"start_schedule": {
 							Type:     schema.TypeList,
-							Required: true,
+							Optional: true,
 							MaxItems: 1,
 							MinItems: 1,
 							Elem: &schema.Resource{
@@ -76,7 +79,7 @@ func DesktopsDesktopPoolResource() *schema.Resource {
 						},
 						"stop_schedule": {
 							Type:     schema.TypeList,
-							Required: true,
+							Optional: true,
 							MaxItems: 1,
 							MinItems: 1,
 							Elem: &schema.Resource{
@@ -97,8 +100,6 @@ func DesktopsDesktopPoolResource() *schema.Resource {
 								},
 							},
 						},
-
-						// Optional
 
 						// Computed
 					},
@@ -180,6 +181,12 @@ func DesktopsDesktopPoolResource() *schema.Resource {
 						},
 
 						// Optional
+						"operating_system": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
+						},
 
 						// Computed
 					},
@@ -268,6 +275,155 @@ func DesktopsDesktopPoolResource() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"shape_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				MaxItems: 1,
+				MinItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						// Required
+
+						// Optional
+						"baseline_ocpu_utilization": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
+						},
+						"memory_in_gbs": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							Computed:         true,
+							ForceNew:         true,
+							ValidateFunc:     tfresource.ValidateInt64TypeString,
+							DiffSuppressFunc: tfresource.Int64StringDiffSuppressFunction,
+						},
+						"ocpus": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							Computed:         true,
+							ForceNew:         true,
+							ValidateFunc:     tfresource.ValidateInt64TypeString,
+							DiffSuppressFunc: tfresource.Int64StringDiffSuppressFunction,
+						},
+
+						// Computed
+					},
+				},
+			},
+			"private_access_details": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				MaxItems: 1,
+				MinItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						// Required
+						"subnet_id": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+
+						// Optional
+						"nsg_ids": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							ForceNew: true,
+							Set:      tfresource.LiteralTypeHashCodeForSets,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"private_ip": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+
+						// Computed
+						"endpoint_fqdn": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"vcn_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
+			"session_lifecycle_actions": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				MaxItems: 1,
+				MinItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						// Required
+
+						// Optional
+						"disconnect": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							MaxItems: 1,
+							MinItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									// Required
+									"action": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+
+									// Optional
+									"grace_period_in_minutes": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
+
+									// Computed
+								},
+							},
+						},
+						"inactivity": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							MaxItems: 1,
+							MinItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									// Required
+									"action": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+
+									// Optional
+									"grace_period_in_minutes": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
+
+									// Computed
+								},
+							},
+						},
+
+						// Computed
+					},
+				},
+			},
 			"time_start_scheduled": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -277,6 +433,12 @@ func DesktopsDesktopPoolResource() *schema.Resource {
 				Type:             schema.TypeString,
 				Optional:         true,
 				DiffSuppressFunc: tfresource.TimeDiffSuppressFunction,
+			},
+			"use_dedicated_vm_host": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
 			},
 
 			// Computed
@@ -477,6 +639,39 @@ func (s *DesktopsDesktopPoolResourceCrud) Create() error {
 		}
 	}
 
+	if shapeConfig, ok := s.D.GetOkExists("shape_config"); ok {
+		if tmpList := shapeConfig.([]interface{}); len(tmpList) > 0 {
+			fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "shape_config", 0)
+			tmp, err := s.mapToCreateDesktopPoolShapeConfigDetails(fieldKeyFormat)
+			if err != nil {
+				return err
+			}
+			request.ShapeConfig = &tmp
+		}
+	}
+
+	if privateAccessDetails, ok := s.D.GetOkExists("private_access_details"); ok {
+		if tmpList := privateAccessDetails.([]interface{}); len(tmpList) > 0 {
+			fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "private_access_details", 0)
+			tmp, err := s.mapToCreateDesktopPoolPrivateAccessDetails(fieldKeyFormat)
+			if err != nil {
+				return err
+			}
+			request.PrivateAccessDetails = &tmp
+		}
+	}
+
+	if sessionLifecycleActions, ok := s.D.GetOkExists("session_lifecycle_actions"); ok {
+		if tmpList := sessionLifecycleActions.([]interface{}); len(tmpList) > 0 {
+			fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "session_lifecycle_actions", 0)
+			tmp, err := s.mapToCreateDesktopPoolDesktopSessionLifecycleActions(fieldKeyFormat)
+			if err != nil {
+				return err
+			}
+			request.SessionLifecycleActions = &tmp
+		}
+	}
+
 	if shapeName, ok := s.D.GetOkExists("shape_name"); ok {
 		tmp := shapeName.(string)
 		request.ShapeName = &tmp
@@ -511,6 +706,10 @@ func (s *DesktopsDesktopPoolResourceCrud) Create() error {
 			return err
 		}
 		request.TimeStopScheduled = &oci_common.SDKTime{Time: tmp}
+	}
+
+	if useDedicatedVmHost, ok := s.D.GetOkExists("use_dedicated_vm_host"); ok {
+		request.UseDedicatedVmHost = oci_desktops.CreateDesktopPoolDetailsUseDedicatedVmHostEnum(useDedicatedVmHost.(string))
 	}
 
 	request.RequestMetadata.RetryPolicy = tfresource.GetRetryPolicy(s.DisableNotFoundRetries, "desktops")
@@ -869,6 +1068,24 @@ func (s *DesktopsDesktopPoolResourceCrud) SetData() error {
 	}
 	s.D.Set("nsg_ids", schema.NewSet(tfresource.LiteralTypeHashCodeForSets, nsgIds))
 
+	if s.Res.ShapeConfig != nil {
+		s.D.Set("shape_config", []interface{}{DesktopPoolShapeConfigToMap(s.Res.ShapeConfig)})
+	} else {
+		s.D.Set("shape_config", nil)
+	}
+
+	if s.Res.PrivateAccessDetails != nil {
+		s.D.Set("private_access_details", []interface{}{DesktopPoolPrivateAccessDetailsToMap(s.Res.PrivateAccessDetails, false)})
+	} else {
+		s.D.Set("private_access_details", nil)
+	}
+
+	if s.Res.SessionLifecycleActions != nil {
+		s.D.Set("session_lifecycle_actions", []interface{}{DesktopSessionLifecycleActionsToMap(s.Res.SessionLifecycleActions)})
+	} else {
+		s.D.Set("session_lifecycle_actions", nil)
+	}
+
 	if s.Res.ShapeName != nil {
 		s.D.Set("shape_name", *s.Res.ShapeName)
 	}
@@ -899,7 +1116,171 @@ func (s *DesktopsDesktopPoolResourceCrud) SetData() error {
 		s.D.Set("time_stop_scheduled", s.Res.TimeStopScheduled.Format(time.RFC3339Nano))
 	}
 
+	s.D.Set("use_dedicated_vm_host", s.Res.UseDedicatedVmHost)
+
 	return nil
+}
+
+func (s *DesktopsDesktopPoolResourceCrud) mapToCreateDesktopPoolShapeConfigDetails(fieldKeyFormat string) (oci_desktops.CreateDesktopPoolShapeConfigDetails, error) {
+	result := oci_desktops.CreateDesktopPoolShapeConfigDetails{}
+
+	if baselineOcpuUtilization, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "baseline_ocpu_utilization")); ok {
+		result.BaselineOcpuUtilization = oci_desktops.CreateDesktopPoolShapeConfigDetailsBaselineOcpuUtilizationEnum(baselineOcpuUtilization.(string))
+	}
+
+	if memoryInGBs, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "memory_in_gbs")); ok {
+		tmp := memoryInGBs.(string)
+		tmpInt64, err := strconv.ParseInt(tmp, 10, 64)
+		if err != nil {
+			return result, fmt.Errorf("unable to convert memoryInGBs string: %s to an int64 and encountered error: %v", tmp, err)
+		}
+		result.MemoryInGBs = &tmpInt64
+	}
+
+	if ocpus, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "ocpus")); ok {
+		tmp := ocpus.(string)
+		tmpInt64, err := strconv.ParseInt(tmp, 10, 64)
+		if err != nil {
+			return result, fmt.Errorf("unable to convert ocpus string: %s to an int64 and encountered error: %v", tmp, err)
+		}
+		result.Ocpus = &tmpInt64
+	}
+
+	return result, nil
+}
+
+func DesktopPoolShapeConfigToMap(obj *oci_desktops.DesktopPoolShapeConfig) map[string]interface{} {
+	result := map[string]interface{}{}
+
+	result["baseline_ocpu_utilization"] = string(obj.BaselineOcpuUtilization)
+
+	if obj.MemoryInGBs != nil {
+		result["memory_in_gbs"] = strconv.FormatInt(*obj.MemoryInGBs, 10)
+	}
+
+	if obj.Ocpus != nil {
+		result["ocpus"] = strconv.FormatInt(*obj.Ocpus, 10)
+	}
+
+	return result
+}
+
+func (s *DesktopsDesktopPoolResourceCrud) mapToCreateDesktopPoolPrivateAccessDetails(fieldKeyFormat string) (oci_desktops.CreateDesktopPoolPrivateAccessDetails, error) {
+	result := oci_desktops.CreateDesktopPoolPrivateAccessDetails{}
+
+	if nsgIds, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "nsg_ids")); ok {
+		set := nsgIds.(*schema.Set)
+		interfaces := set.List()
+		tmp := make([]string, len(interfaces))
+		for i := range interfaces {
+			if interfaces[i] != nil {
+				tmp[i] = interfaces[i].(string)
+			}
+		}
+		if len(tmp) != 0 || s.D.HasChange(fmt.Sprintf(fieldKeyFormat, "nsg_ids")) {
+			result.NsgIds = tmp
+		}
+	}
+
+	if privateIp, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "private_ip")); ok {
+		tmp := privateIp.(string)
+		result.PrivateIp = &tmp
+	}
+
+	if subnetId, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "subnet_id")); ok {
+		tmp := subnetId.(string)
+		result.SubnetId = &tmp
+	}
+
+	return result, nil
+}
+
+func (s *DesktopsDesktopPoolResourceCrud) mapToCreateDesktopPoolDesktopSessionLifecycleActions(fieldKeyFormat string) (oci_desktops.CreateDesktopPoolDesktopSessionLifecycleActions, error) {
+	result := oci_desktops.CreateDesktopPoolDesktopSessionLifecycleActions{}
+
+	if disconnect, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "disconnect")); ok {
+		if tmpList := disconnect.([]interface{}); len(tmpList) > 0 {
+			fieldKeyFormatNextLevel := fmt.Sprintf("%s.%d.%%s", fmt.Sprintf(fieldKeyFormat, "disconnect"), 0)
+			tmp, err := s.mapToDisconnectConfig(fieldKeyFormatNextLevel)
+			if err != nil {
+				return result, fmt.Errorf("unable to convert disconnect, encountered error: %v", err)
+			}
+			result.Disconnect = &tmp
+		}
+	}
+
+	if inactivity, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "inactivity")); ok {
+		if tmpList := inactivity.([]interface{}); len(tmpList) > 0 {
+			fieldKeyFormatNextLevel := fmt.Sprintf("%s.%d.%%s", fmt.Sprintf(fieldKeyFormat, "inactivity"), 0)
+			tmp, err := s.mapToInactivityConfig(fieldKeyFormatNextLevel)
+			if err != nil {
+				return result, fmt.Errorf("unable to convert inactivity, encountered error: %v", err)
+			}
+			result.Inactivity = &tmp
+		}
+	}
+
+	return result, nil
+}
+
+func DesktopPoolPrivateAccessDetailsToMap(obj *oci_desktops.DesktopPoolPrivateAccessDetails, datasource bool) map[string]interface{} {
+	result := map[string]interface{}{}
+
+	if obj.EndpointFqdn != nil {
+		result["endpoint_fqdn"] = string(*obj.EndpointFqdn)
+	}
+
+	nsgIds := []interface{}{}
+	for _, item := range obj.NsgIds {
+		nsgIds = append(nsgIds, item)
+	}
+	if datasource {
+		result["nsg_ids"] = nsgIds
+	} else {
+		result["nsg_ids"] = schema.NewSet(tfresource.LiteralTypeHashCodeForSets, nsgIds)
+	}
+
+	if obj.PrivateIp != nil {
+		result["private_ip"] = string(*obj.PrivateIp)
+	}
+
+	if obj.SubnetId != nil {
+		result["subnet_id"] = string(*obj.SubnetId)
+	}
+
+	if obj.VcnId != nil {
+		result["vcn_id"] = string(*obj.VcnId)
+	}
+
+	return result
+}
+
+func CreateDesktopPoolDesktopSessionLifecycleActionsToMap(obj *oci_desktops.CreateDesktopPoolDesktopSessionLifecycleActions) map[string]interface{} {
+	result := map[string]interface{}{}
+
+	if obj.Disconnect != nil {
+		result["disconnect"] = []interface{}{DisconnectConfigToMap(obj.Disconnect)}
+	}
+
+	if obj.Inactivity != nil {
+		result["inactivity"] = []interface{}{InactivityConfigToMap(obj.Inactivity)}
+	}
+
+	return result
+}
+
+func DesktopSessionLifecycleActionsToMap(obj *oci_desktops.DesktopSessionLifecycleActions) map[string]interface{} {
+	result := map[string]interface{}{}
+
+	if obj.Disconnect != nil {
+		result["disconnect"] = []interface{}{DisconnectConfigToMap(obj.Disconnect)}
+	}
+
+	if obj.Inactivity != nil {
+		result["inactivity"] = []interface{}{InactivityConfigToMap(obj.Inactivity)}
+	}
+
+	return result
 }
 
 func (s *DesktopsDesktopPoolResourceCrud) mapToDesktopAvailabilityPolicy(fieldKeyFormat string) (oci_desktops.DesktopAvailabilityPolicy, error) {
@@ -933,11 +1314,11 @@ func (s *DesktopsDesktopPoolResourceCrud) mapToDesktopAvailabilityPolicy(fieldKe
 func DesktopAvailabilityPolicyToMap(obj *oci_desktops.DesktopAvailabilityPolicy) map[string]interface{} {
 	result := map[string]interface{}{}
 
-	if obj.StartSchedule != nil {
+	if obj.StartSchedule != nil && obj.StartSchedule.CronExpression != nil {
 		result["start_schedule"] = []interface{}{DesktopScheduleToMap(obj.StartSchedule)}
 	}
 
-	if obj.StopSchedule != nil {
+	if obj.StopSchedule != nil && obj.StopSchedule.CronExpression != nil {
 		result["stop_schedule"] = []interface{}{DesktopScheduleToMap(obj.StopSchedule)}
 	}
 
@@ -1023,6 +1404,11 @@ func (s *DesktopsDesktopPoolResourceCrud) mapToDesktopImage(fieldKeyFormat strin
 		result.ImageName = &tmp
 	}
 
+	if operatingSystem, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "operating_system")); ok {
+		tmp := operatingSystem.(string)
+		result.OperatingSystem = &tmp
+	}
+
 	return result, nil
 }
 
@@ -1035,6 +1421,10 @@ func DesktopImageToMap(obj *oci_desktops.DesktopImage) map[string]interface{} {
 
 	if obj.ImageName != nil {
 		result["image_name"] = string(*obj.ImageName)
+	}
+
+	if obj.OperatingSystem != nil {
+		result["operating_system"] = string(*obj.OperatingSystem)
 	}
 
 	return result
@@ -1137,6 +1527,60 @@ func DesktopScheduleToMap(obj *oci_desktops.DesktopSchedule) map[string]interfac
 
 	if obj.Timezone != nil {
 		result["timezone"] = string(*obj.Timezone)
+	}
+
+	return result
+}
+
+func (s *DesktopsDesktopPoolResourceCrud) mapToDisconnectConfig(fieldKeyFormat string) (oci_desktops.DisconnectConfig, error) {
+	result := oci_desktops.DisconnectConfig{}
+
+	if action, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "action")); ok {
+		result.Action = oci_desktops.DisconnectConfigActionEnum(action.(string))
+	}
+
+	if gracePeriodInMinutes, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "grace_period_in_minutes")); ok {
+		tmp := gracePeriodInMinutes.(int)
+		result.GracePeriodInMinutes = &tmp
+	}
+
+	return result, nil
+}
+
+func DisconnectConfigToMap(obj *oci_desktops.DisconnectConfig) map[string]interface{} {
+	result := map[string]interface{}{}
+
+	result["action"] = string(obj.Action)
+
+	if obj.GracePeriodInMinutes != nil {
+		result["grace_period_in_minutes"] = int(*obj.GracePeriodInMinutes)
+	}
+
+	return result
+}
+
+func (s *DesktopsDesktopPoolResourceCrud) mapToInactivityConfig(fieldKeyFormat string) (oci_desktops.InactivityConfig, error) {
+	result := oci_desktops.InactivityConfig{}
+
+	if action, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "action")); ok {
+		result.Action = oci_desktops.InactivityConfigActionEnum(action.(string))
+	}
+
+	if gracePeriodInMinutes, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "grace_period_in_minutes")); ok {
+		tmp := gracePeriodInMinutes.(int)
+		result.GracePeriodInMinutes = &tmp
+	}
+
+	return result, nil
+}
+
+func InactivityConfigToMap(obj *oci_desktops.InactivityConfig) map[string]interface{} {
+	result := map[string]interface{}{}
+
+	result["action"] = string(obj.Action)
+
+	if obj.GracePeriodInMinutes != nil {
+		result["grace_period_in_minutes"] = int(*obj.GracePeriodInMinutes)
 	}
 
 	return result

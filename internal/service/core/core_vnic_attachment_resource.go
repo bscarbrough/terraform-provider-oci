@@ -543,7 +543,7 @@ func (s *CoreVnicAttachmentResourceCrud) mapToCreateVnicDetails(fieldKeyFormat s
 	}
 
 	if securityAttributes, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "security_attributes")); ok {
-		result.SecurityAttributes = securityAttributes.(map[string]map[string]interface{})
+		result.SecurityAttributes = tfresource.MapToSecurityAttributes(securityAttributes.(map[string]interface{}))
 	}
 
 	if skipSourceDestCheck, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "skip_source_dest_check")); ok {
@@ -607,6 +607,10 @@ func (s *CoreVnicAttachmentResourceCrud) mapToUpdateVnicDetails(fieldKeyFormat s
 		result.SkipSourceDestCheck = &tmp
 	}
 
+	if securityAttributes, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "security_attributes")); ok {
+		result.SecurityAttributes = tfresource.MapToSecurityAttributes(securityAttributes.(map[string]interface{}))
+	}
+
 	return result, nil
 }
 
@@ -667,7 +671,9 @@ func VnicDetailsToMap(obj *oci_core.Vnic, createVnicDetails map[string]interface
 		result["private_ip"] = string(*obj.PrivateIp)
 	}
 
-	result["security_attributes"] = obj.SecurityAttributes
+	if obj.SecurityAttributes != nil {
+		result["security_attributes"] = tfresource.SecurityAttributesToMap(obj.SecurityAttributes)
+	}
 
 	if obj.SkipSourceDestCheck != nil {
 		result["skip_source_dest_check"] = bool(*obj.SkipSourceDestCheck)

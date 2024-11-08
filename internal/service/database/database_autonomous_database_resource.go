@@ -243,6 +243,100 @@ func DatabaseAutonomousDatabaseResource() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"encryption_key": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				MinItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						// Required
+
+						// Optional
+						"arn_role": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"autonomous_database_provider": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							Computed:         true,
+							DiffSuppressFunc: tfresource.EqualIgnoreCaseSuppressDiff,
+							ValidateFunc: validation.StringInSlice([]string{
+								"AWS",
+								"AZURE",
+								"OCI",
+								"OKV",
+								"ORACLE_MANAGED",
+							}, true),
+						},
+						"certificate_directory_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"certificate_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"directory_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"external_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"key_arn": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"key_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"kms_key_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"okv_kms_key": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"okv_uri": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"service_endpoint_uri": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"vault_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"vault_uri": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+
+						// Computed
+					},
+				},
+			},
 			"freeform_tags": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -442,12 +536,10 @@ func DatabaseAutonomousDatabaseResource() *schema.Resource {
 						"scheduled_start_time": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Computed: true,
 						},
 						"scheduled_stop_time": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Computed: true,
 						},
 
 						// Computed
@@ -463,6 +555,12 @@ func DatabaseAutonomousDatabaseResource() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
+			},
+			"security_attributes": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Computed: true,
+				Elem:     schema.TypeString,
 			},
 			"source": {
 				Type:             schema.TypeString,
@@ -777,6 +875,92 @@ func DatabaseAutonomousDatabaseResource() *schema.Resource {
 			"disaster_recovery_region_type": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+			"encryption_key_history_entry": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						// Required
+
+						// Optional
+
+						// Computed
+						"encryption_key": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									// Required
+
+									// Optional
+
+									// Computed
+									"arn_role": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"autonomous_database_provider": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"certificate_directory_name": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"certificate_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"directory_name": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"external_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"key_arn": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"key_name": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"kms_key_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"okv_kms_key": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"okv_uri": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"service_endpoint_uri": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"vault_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"vault_uri": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
+						"time_activated": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
 			},
 			"failed_data_recovery_in_seconds": {
 				Type:     schema.TypeInt,
@@ -1722,6 +1906,17 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) Update() error {
 		request.DisplayName = &tmp
 	}
 
+	if encryptionKey, ok := s.D.GetOkExists("encryption_key"); ok && s.D.HasChange("encryption_key") {
+		if tmpList := encryptionKey.([]interface{}); len(tmpList) > 0 {
+			fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "encryption_key", 0)
+			tmp, err := s.mapToAutonomousDatabaseEncryptionKeyDetails(fieldKeyFormat)
+			if err != nil {
+				return err
+			}
+			request.EncryptionKey = tmp
+		}
+	}
+
 	if dbName, ok := s.D.GetOkExists("db_name"); ok && s.D.HasChange("db_name") {
 		tmp := dbName.(string)
 		request.DbName = &tmp
@@ -1918,6 +2113,11 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) Update() error {
 	if secretVersionNumber, ok := s.D.GetOkExists("secret_version_number"); ok && s.D.HasChange("secret_version_number") {
 		tmp := secretVersionNumber.(int)
 		request.SecretVersionNumber = &tmp
+	}
+
+	if securityAttributes, ok := s.D.GetOkExists("security_attributes"); ok && s.D.HasChange("security_attributes") {
+		//request.SecurityAttributes = tfresource.ObjectMapToStringMap(securityAttributes.(map[string]interface{}))
+		request.SecurityAttributes = tfresource.MapToSecurityAttributes(securityAttributes.(map[string]interface{}))
 	}
 
 	if standbyWhitelistedIps, ok := s.D.GetOkExists("standby_whitelisted_ips"); ok {
@@ -2138,6 +2338,22 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) SetData() error {
 		s.D.Set("display_name", *s.Res.DisplayName)
 	}
 
+	if s.Res.EncryptionKey != nil {
+		encryptionKeyArray := []interface{}{}
+		if encryptionKeyMap := AutonomousDatabaseEncryptionKeyDetailsToMap(&s.Res.EncryptionKey); encryptionKeyMap != nil {
+			encryptionKeyArray = append(encryptionKeyArray, encryptionKeyMap)
+		}
+		s.D.Set("encryption_key", encryptionKeyArray)
+	} else {
+		s.D.Set("encryption_key", nil)
+	}
+
+	encryptionKeyHistoryEntry := []interface{}{}
+	for _, item := range s.Res.EncryptionKeyHistoryEntry {
+		encryptionKeyHistoryEntry = append(encryptionKeyHistoryEntry, AutonomousDatabaseEncryptionKeyHistoryEntryToMap(item))
+	}
+	s.D.Set("encryption_key_history_entry", encryptionKeyHistoryEntry)
+
 	if s.Res.FailedDataRecoveryInSeconds != nil {
 		s.D.Set("failed_data_recovery_in_seconds", *s.Res.FailedDataRecoveryInSeconds)
 	}
@@ -2354,6 +2570,8 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) SetData() error {
 	}
 	s.D.Set("scheduled_operations", schema.NewSet(scheduledOperationsForSets, scheduledOperations))
 
+	s.D.Set("security_attributes", tfresource.SecurityAttributesToMap(s.Res.SecurityAttributes))
+
 	if s.Res.ServiceConsoleUrl != nil {
 		s.D.Set("service_console_url", *s.Res.ServiceConsoleUrl)
 	}
@@ -2568,6 +2786,181 @@ func AutonomousDatabaseConnectionUrlsToMap(obj *oci_database.AutonomousDatabaseC
 
 	if obj.SqlDevWebUrl != nil {
 		result["sql_dev_web_url"] = string(*obj.SqlDevWebUrl)
+	}
+
+	return result
+}
+
+func (s *DatabaseAutonomousDatabaseResourceCrud) mapToAutonomousDatabaseEncryptionKeyDetails(fieldKeyFormat string) (oci_database.AutonomousDatabaseEncryptionKeyDetails, error) {
+	var baseObject oci_database.AutonomousDatabaseEncryptionKeyDetails
+	//discriminator
+	providerRaw, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "autonomous_database_provider"))
+	var provider string
+	if ok {
+		provider = providerRaw.(string)
+	} else {
+		provider = "" // default value
+	}
+	switch strings.ToLower(provider) {
+	case strings.ToLower("AWS"):
+		details := oci_database.AwsKeyDetails{}
+		if arnRole, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "arn_role")); ok {
+			tmp := arnRole.(string)
+			details.ArnRole = &tmp
+		}
+		if externalId, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "external_id")); ok {
+			tmp := externalId.(string)
+			details.ExternalId = &tmp
+		}
+		if keyArn, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "key_arn")); ok {
+			tmp := keyArn.(string)
+			details.KeyArn = &tmp
+		}
+		if serviceEndpointUri, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "service_endpoint_uri")); ok {
+			tmp := serviceEndpointUri.(string)
+			details.ServiceEndpointUri = &tmp
+		}
+		baseObject = details
+	case strings.ToLower("AZURE"):
+		details := oci_database.AzureKeyDetails{}
+		if keyName, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "key_name")); ok {
+			tmp := keyName.(string)
+			details.KeyName = &tmp
+		}
+		if vaultUri, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "vault_uri")); ok {
+			tmp := vaultUri.(string)
+			details.VaultUri = &tmp
+		}
+		baseObject = details
+	case strings.ToLower("OCI"):
+		details := oci_database.OciKeyDetails{}
+		if kmsKeyId, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "kms_key_id")); ok {
+			tmp := kmsKeyId.(string)
+			details.KmsKeyId = &tmp
+		}
+		if vaultId, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "vault_id")); ok {
+			tmp := vaultId.(string)
+			details.VaultId = &tmp
+		}
+		baseObject = details
+	case strings.ToLower("OKV"):
+		details := oci_database.OkvKeyDetails{}
+		if certificateDirectoryName, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "certificate_directory_name")); ok {
+			tmp := certificateDirectoryName.(string)
+			details.CertificateDirectoryName = &tmp
+		}
+		if certificateId, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "certificate_id")); ok {
+			tmp := certificateId.(string)
+			details.CertificateId = &tmp
+		}
+		if directoryName, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "directory_name")); ok {
+			tmp := directoryName.(string)
+			details.DirectoryName = &tmp
+		}
+		if okvKmsKey, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "okv_kms_key")); ok {
+			tmp := okvKmsKey.(string)
+			details.OkvKmsKey = &tmp
+		}
+		if okvUri, ok := s.D.GetOkExists(fmt.Sprintf(fieldKeyFormat, "okv_uri")); ok {
+			tmp := okvUri.(string)
+			details.OkvUri = &tmp
+		}
+		baseObject = details
+	case strings.ToLower("ORACLE_MANAGED"):
+		details := oci_database.OracleManagedKeyDetails{}
+		baseObject = details
+	default:
+		return nil, fmt.Errorf("unknown provider '%v' was specified", provider)
+	}
+	return baseObject, nil
+}
+
+func AutonomousDatabaseEncryptionKeyDetailsToMap(obj *oci_database.AutonomousDatabaseEncryptionKeyDetails) map[string]interface{} {
+	result := map[string]interface{}{}
+	switch v := (*obj).(type) {
+	case oci_database.AwsKeyDetails:
+		result["autonomous_database_provider"] = "AWS"
+
+		if v.ArnRole != nil {
+			result["arn_role"] = string(*v.ArnRole)
+		}
+
+		if v.ExternalId != nil {
+			result["external_id"] = string(*v.ExternalId)
+		}
+
+		if v.KeyArn != nil {
+			result["key_arn"] = string(*v.KeyArn)
+		}
+
+		if v.ServiceEndpointUri != nil {
+			result["service_endpoint_uri"] = string(*v.ServiceEndpointUri)
+		}
+	case oci_database.AzureKeyDetails:
+		result["autonomous_database_provider"] = "AZURE"
+
+		if v.KeyName != nil {
+			result["key_name"] = string(*v.KeyName)
+		}
+
+		if v.VaultUri != nil {
+			result["vault_uri"] = string(*v.VaultUri)
+		}
+	case oci_database.OciKeyDetails:
+		result["autonomous_database_provider"] = "OCI"
+
+		if v.KmsKeyId != nil {
+			result["kms_key_id"] = string(*v.KmsKeyId)
+		}
+
+		if v.VaultId != nil {
+			result["vault_id"] = string(*v.VaultId)
+		}
+	case oci_database.OkvKeyDetails:
+		result["autonomous_database_provider"] = "OKV"
+
+		if v.CertificateDirectoryName != nil {
+			result["certificate_directory_name"] = string(*v.CertificateDirectoryName)
+		}
+
+		if v.CertificateId != nil {
+			result["certificate_id"] = string(*v.CertificateId)
+		}
+
+		if v.DirectoryName != nil {
+			result["directory_name"] = string(*v.DirectoryName)
+		}
+
+		if v.OkvKmsKey != nil {
+			result["okv_kms_key"] = string(*v.OkvKmsKey)
+		}
+
+		if v.OkvUri != nil {
+			result["okv_uri"] = string(*v.OkvUri)
+		}
+	case oci_database.OracleManagedKeyDetails:
+		result["autonomous_database_provider"] = "ORACLE_MANAGED"
+	default:
+		log.Printf("[WARN] Received 'provider' of unknown type %v", *obj)
+		return nil
+	}
+
+	return result
+}
+
+func AutonomousDatabaseEncryptionKeyHistoryEntryToMap(obj oci_database.AutonomousDatabaseEncryptionKeyHistoryEntry) map[string]interface{} {
+	result := map[string]interface{}{}
+
+	if obj.EncryptionKey != nil {
+		encryptionKeyArray := []interface{}{}
+		if encryptionKeyMap := AutonomousDatabaseEncryptionKeyDetailsToMap(&obj.EncryptionKey); encryptionKeyMap != nil {
+			encryptionKeyArray = append(encryptionKeyArray, encryptionKeyMap)
+		}
+		result["encryption_key"] = encryptionKeyArray
+	}
+
+	if obj.TimeActivated != nil {
+		result["time_activated"] = obj.TimeActivated.String()
 	}
 
 	return result
@@ -2991,6 +3384,16 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 			tmp := displayName.(string)
 			details.DisplayName = &tmp
 		}
+		if encryptionKey, ok := s.D.GetOkExists("encryption_key"); ok {
+			if tmpList := encryptionKey.([]interface{}); len(tmpList) > 0 {
+				fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "encryption_key", 0)
+				tmp, err := s.mapToAutonomousDatabaseEncryptionKeyDetails(fieldKeyFormat)
+				if err != nil {
+					return err
+				}
+				details.EncryptionKey = tmp
+			}
+		}
 		if freeformTags, ok := s.D.GetOkExists("freeform_tags"); ok {
 			details.FreeformTags = tfresource.ObjectMapToStringMap(freeformTags.(map[string]interface{}))
 		}
@@ -3111,6 +3514,9 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 		if secretVersionNumber, ok := s.D.GetOkExists("secret_version_number"); ok {
 			tmp := secretVersionNumber.(int)
 			details.SecretVersionNumber = &tmp
+		}
+		if securityAttributes, ok := s.D.GetOkExists("security_attributes"); ok {
+			details.SecurityAttributes = tfresource.MapToSecurityAttributes(securityAttributes.(map[string]interface{}))
 		}
 		if standbyWhitelistedIps, ok := s.D.GetOkExists("standby_whitelisted_ips"); ok {
 			interfaces := standbyWhitelistedIps.([]interface{})
@@ -3279,6 +3685,16 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 			tmp := displayName.(string)
 			details.DisplayName = &tmp
 		}
+		if encryptionKey, ok := s.D.GetOkExists("encryption_key"); ok {
+			if tmpList := encryptionKey.([]interface{}); len(tmpList) > 0 {
+				fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "encryption_key", 0)
+				tmp, err := s.mapToAutonomousDatabaseEncryptionKeyDetails(fieldKeyFormat)
+				if err != nil {
+					return err
+				}
+				details.EncryptionKey = tmp
+			}
+		}
 		if freeformTags, ok := s.D.GetOkExists("freeform_tags"); ok {
 			details.FreeformTags = tfresource.ObjectMapToStringMap(freeformTags.(map[string]interface{}))
 		}
@@ -3397,6 +3813,9 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 		if secretVersionNumber, ok := s.D.GetOkExists("secret_version_number"); ok {
 			tmp := secretVersionNumber.(int)
 			details.SecretVersionNumber = &tmp
+		}
+		if securityAttributes, ok := s.D.GetOkExists("security_attributes"); ok {
+			details.SecurityAttributes = tfresource.MapToSecurityAttributes(securityAttributes.(map[string]interface{}))
 		}
 		if standbyWhitelistedIps, ok := s.D.GetOkExists("standby_whitelisted_ips"); ok {
 			interfaces := standbyWhitelistedIps.([]interface{})
@@ -3562,6 +3981,16 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 			tmp := displayName.(string)
 			details.DisplayName = &tmp
 		}
+		if encryptionKey, ok := s.D.GetOkExists("encryption_key"); ok {
+			if tmpList := encryptionKey.([]interface{}); len(tmpList) > 0 {
+				fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "encryption_key", 0)
+				tmp, err := s.mapToAutonomousDatabaseEncryptionKeyDetails(fieldKeyFormat)
+				if err != nil {
+					return err
+				}
+				details.EncryptionKey = tmp
+			}
+		}
 		if freeformTags, ok := s.D.GetOkExists("freeform_tags"); ok {
 			details.FreeformTags = tfresource.ObjectMapToStringMap(freeformTags.(map[string]interface{}))
 		}
@@ -3683,6 +4112,9 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 		if secretVersionNumber, ok := s.D.GetOkExists("secret_version_number"); ok {
 			tmp := secretVersionNumber.(int)
 			details.SecretVersionNumber = &tmp
+		}
+		if securityAttributes, ok := s.D.GetOkExists("security_attributes"); ok {
+			details.SecurityAttributes = tfresource.MapToSecurityAttributes(securityAttributes.(map[string]interface{}))
 		}
 		if standbyWhitelistedIps, ok := s.D.GetOkExists("standby_whitelisted_ips"); ok {
 			interfaces := standbyWhitelistedIps.([]interface{})
@@ -3837,6 +4269,16 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 			tmp := displayName.(string)
 			details.DisplayName = &tmp
 		}
+		if encryptionKey, ok := s.D.GetOkExists("encryption_key"); ok {
+			if tmpList := encryptionKey.([]interface{}); len(tmpList) > 0 {
+				fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "encryption_key", 0)
+				tmp, err := s.mapToAutonomousDatabaseEncryptionKeyDetails(fieldKeyFormat)
+				if err != nil {
+					return err
+				}
+				details.EncryptionKey = tmp
+			}
+		}
 		if freeformTags, ok := s.D.GetOkExists("freeform_tags"); ok {
 			details.FreeformTags = tfresource.ObjectMapToStringMap(freeformTags.(map[string]interface{}))
 		}
@@ -3951,6 +4393,9 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 		if secretVersionNumber, ok := s.D.GetOkExists("secret_version_number"); ok {
 			tmp := secretVersionNumber.(int)
 			details.SecretVersionNumber = &tmp
+		}
+		if securityAttributes, ok := s.D.GetOkExists("security_attributes"); ok {
+			details.SecurityAttributes = tfresource.MapToSecurityAttributes(securityAttributes.(map[string]interface{}))
 		}
 		if standbyWhitelistedIps, ok := s.D.GetOkExists("standby_whitelisted_ips"); ok {
 			interfaces := standbyWhitelistedIps.([]interface{})
@@ -4100,6 +4545,16 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 			tmp := displayName.(string)
 			details.DisplayName = &tmp
 		}
+		if encryptionKey, ok := s.D.GetOkExists("encryption_key"); ok {
+			if tmpList := encryptionKey.([]interface{}); len(tmpList) > 0 {
+				fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "encryption_key", 0)
+				tmp, err := s.mapToAutonomousDatabaseEncryptionKeyDetails(fieldKeyFormat)
+				if err != nil {
+					return err
+				}
+				details.EncryptionKey = tmp
+			}
+		}
 		if freeformTags, ok := s.D.GetOkExists("freeform_tags"); ok {
 			details.FreeformTags = tfresource.ObjectMapToStringMap(freeformTags.(map[string]interface{}))
 		}
@@ -4206,6 +4661,9 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 		if secretVersionNumber, ok := s.D.GetOkExists("secret_version_number"); ok {
 			tmp := secretVersionNumber.(int)
 			details.SecretVersionNumber = &tmp
+		}
+		if securityAttributes, ok := s.D.GetOkExists("security_attributes"); ok {
+			details.SecurityAttributes = tfresource.MapToSecurityAttributes(securityAttributes.(map[string]interface{}))
 		}
 		if standbyWhitelistedIps, ok := s.D.GetOkExists("standby_whitelisted_ips"); ok {
 			interfaces := standbyWhitelistedIps.([]interface{})
@@ -4457,6 +4915,9 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 				details.ScheduledOperations = tmp
 			}
 		}
+		if securityAttributes, ok := s.D.GetOkExists("security_attributes"); ok {
+			details.SecurityAttributes = tfresource.MapToSecurityAttributes(securityAttributes.(map[string]interface{}))
+		}
 		if standbyWhitelistedIps, ok := s.D.GetOkExists("standby_whitelisted_ips"); ok {
 			interfaces := standbyWhitelistedIps.([]interface{})
 			tmp := make([]string, len(interfaces))
@@ -4612,6 +5073,16 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 			tmp := displayName.(string)
 			details.DisplayName = &tmp
 		}
+		if encryptionKey, ok := s.D.GetOkExists("encryption_key"); ok {
+			if tmpList := encryptionKey.([]interface{}); len(tmpList) > 0 {
+				fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "encryption_key", 0)
+				tmp, err := s.mapToAutonomousDatabaseEncryptionKeyDetails(fieldKeyFormat)
+				if err != nil {
+					return err
+				}
+				details.EncryptionKey = tmp
+			}
+		}
 		if freeformTags, ok := s.D.GetOkExists("freeform_tags"); ok {
 			details.FreeformTags = tfresource.ObjectMapToStringMap(freeformTags.(map[string]interface{}))
 		}
@@ -4734,6 +5205,9 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 		if secretVersionNumber, ok := s.D.GetOkExists("secret_version_number"); ok {
 			tmp := secretVersionNumber.(int)
 			details.SecretVersionNumber = &tmp
+		}
+		if securityAttributes, ok := s.D.GetOkExists("security_attributes"); ok {
+			details.SecurityAttributes = tfresource.MapToSecurityAttributes(securityAttributes.(map[string]interface{}))
 		}
 		if standbyWhitelistedIps, ok := s.D.GetOkExists("standby_whitelisted_ips"); ok {
 			interfaces := standbyWhitelistedIps.([]interface{})
@@ -4882,6 +5356,16 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 			tmp := displayName.(string)
 			details.DisplayName = &tmp
 		}
+		if encryptionKey, ok := s.D.GetOkExists("encryption_key"); ok {
+			if tmpList := encryptionKey.([]interface{}); len(tmpList) > 0 {
+				fieldKeyFormat := fmt.Sprintf("%s.%d.%%s", "encryption_key", 0)
+				tmp, err := s.mapToAutonomousDatabaseEncryptionKeyDetails(fieldKeyFormat)
+				if err != nil {
+					return err
+				}
+				details.EncryptionKey = tmp
+			}
+		}
 		if freeformTags, ok := s.D.GetOkExists("freeform_tags"); ok {
 			details.FreeformTags = tfresource.ObjectMapToStringMap(freeformTags.(map[string]interface{}))
 		}
@@ -5004,6 +5488,9 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 		if secretVersionNumber, ok := s.D.GetOkExists("secret_version_number"); ok {
 			tmp := secretVersionNumber.(int)
 			details.SecretVersionNumber = &tmp
+		}
+		if securityAttributes, ok := s.D.GetOkExists("security_attributes"); ok {
+			details.SecurityAttributes = tfresource.MapToSecurityAttributes(securityAttributes.(map[string]interface{}))
 		}
 		if standbyWhitelistedIps, ok := s.D.GetOkExists("standby_whitelisted_ips"); ok {
 			interfaces := standbyWhitelistedIps.([]interface{})
@@ -5266,6 +5753,9 @@ func (s *DatabaseAutonomousDatabaseResourceCrud) populateTopLevelPolymorphicCrea
 		if secretVersionNumber, ok := s.D.GetOkExists("secret_version_number"); ok {
 			tmp := secretVersionNumber.(int)
 			details.SecretVersionNumber = &tmp
+		}
+		if securityAttributes, ok := s.D.GetOkExists("security_attributes"); ok {
+			details.SecurityAttributes = tfresource.MapToSecurityAttributes(securityAttributes.(map[string]interface{}))
 		}
 		if standbyWhitelistedIps, ok := s.D.GetOkExists("standby_whitelisted_ips"); ok {
 			interfaces := standbyWhitelistedIps.([]interface{})

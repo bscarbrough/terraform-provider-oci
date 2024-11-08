@@ -30,6 +30,24 @@ resource "oci_database_cloud_vm_cluster" "test_cloud_vm_cluster" {
 
 	#Optional
 	backup_network_nsg_ids = var.cloud_vm_cluster_backup_network_nsg_ids
+	cloud_automation_update_details {
+
+		#Optional
+		apply_update_time_preference {
+
+			#Optional
+			apply_update_preferred_end_time = var.cloud_vm_cluster_cloud_automation_update_details_apply_update_time_preference_apply_update_preferred_end_time
+			apply_update_preferred_start_time = var.cloud_vm_cluster_cloud_automation_update_details_apply_update_time_preference_apply_update_preferred_start_time
+		}
+		freeze_period {
+
+			#Optional
+			freeze_period_end_time = var.cloud_vm_cluster_cloud_automation_update_details_freeze_period_freeze_period_end_time
+			freeze_period_start_time = var.cloud_vm_cluster_cloud_automation_update_details_freeze_period_freeze_period_start_time
+		}
+		is_early_adoption_enabled = var.cloud_vm_cluster_cloud_automation_update_details_is_early_adoption_enabled
+		is_freeze_period_enabled = var.cloud_vm_cluster_cloud_automation_update_details_is_freeze_period_enabled
+	}
 	cluster_name = var.cloud_vm_cluster_cluster_name
 	data_collection_options {
 
@@ -60,6 +78,7 @@ resource "oci_database_cloud_vm_cluster" "test_cloud_vm_cluster" {
 	private_zone_id = oci_dns_zone.test_zone.id
 	scan_listener_port_tcp = var.cloud_vm_cluster_scan_listener_port_tcp
 	scan_listener_port_tcp_ssl = var.cloud_vm_cluster_scan_listener_port_tcp_ssl
+	security_attributes = var.cloud_vm_cluster_security_attributes
 	subscription_id = var.tenant_subscription_id
 	system_version = var.cloud_vm_cluster_system_version
 	time_zone = var.cloud_vm_cluster_time_zone
@@ -72,6 +91,15 @@ The following arguments are supported:
 
 * `backup_network_nsg_ids` - (Optional) (Updatable) A list of the [OCIDs](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the network security groups (NSGs) that the backup network of this DB system belongs to. Setting this to an empty array after the list is created removes the resource from all NSGs. For more information about NSGs, see [Security Rules](https://docs.cloud.oracle.com/iaas/Content/Network/Concepts/securityrules.htm). Applicable only to Exadata systems. 
 * `backup_subnet_id` - (Required) The [OCID](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the backup network subnet associated with the cloud VM cluster. 
+* `cloud_automation_update_details` - (Optional) (Updatable) Specifies the properties necessary for cloud automation updates. This includes modifying the apply update time preference, enabling or disabling early adoption, and enabling, modifying, or disabling the update freeze period. 
+	* `apply_update_time_preference` - (Optional) (Updatable) Configure the time slot for applying VM cloud automation software updates to the cluster. When nothing is selected, the default time slot is 12 AM to 2 AM UTC. Any 2-hour slot is available starting at 12 AM. 
+		* `apply_update_preferred_end_time` - (Optional) (Updatable) End time for polling VM cloud automation software updates for the cluster. If the endTime is not specified, 2 AM UTC is used by default. 
+		* `apply_update_preferred_start_time` - (Optional) (Updatable) Start time for polling VM cloud automation software updates for the cluster. If the startTime is not specified, 12 AM UTC is used by default. 
+	* `freeze_period` - (Optional) (Updatable) Enables a freeze period for the VM cluster prohibiting the VMs from getting cloud automation software updates during critical business cycles. Freeze period start date. Starts at 12:00 AM UTC on the selected date and ends at 11:59:59 PM UTC on the selected date. Validates to ensure the freeze period does not exceed 45 days. 
+		* `freeze_period_end_time` - (Optional) (Updatable) End time of the freeze period cycle. 
+		* `freeze_period_start_time` - (Optional) (Updatable) Start time of the freeze period cycle. 
+	* `is_early_adoption_enabled` - (Optional) (Updatable) Annotates whether the cluster should be part of early access to apply VM cloud automation software updates. Those clusters annotated as early access will download the software bits for cloud automation in the first week after the update is available, while other clusters will have to wait until the following week. 
+	* `is_freeze_period_enabled` - (Optional) (Updatable) Specifies if the freeze period is enabled for the VM cluster to prevent the VMs from receiving cloud automation software updates during critical business cycles. Freeze period starts at 12:00 AM UTC and ends at 11:59:59 PM UTC on the selected date. Ensure that the freezing period does not exceed 45 days. 
 * `cloud_exadata_infrastructure_id` - (Required) The [OCID](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the cloud Exadata infrastructure resource.
 * `cluster_name` - (Optional) The cluster name for cloud VM cluster. The cluster name must begin with an alphabetic character, and may contain hyphens (-). Underscores (_) are not permitted. The cluster name can be no longer than 11 characters and is not case sensitive. 
 * `compartment_id` - (Required) (Updatable) The [OCID](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the compartment.
@@ -114,6 +142,7 @@ The following arguments are supported:
 * `private_zone_id` - (Optional) The private zone id in which DNS records need to be created.
 * `scan_listener_port_tcp` - (Optional) The TCP Single Client Access Name (SCAN) port. The default port is 1521.
 * `scan_listener_port_tcp_ssl` - (Optional) The TCPS Single Client Access Name (SCAN) port. The default port is 2484.
+* `security_attributes` - (Optional) (Updatable) Security Attributes for this resource. Each key is predefined and scoped to a namespace. For more information, see [Resource Tags](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/resourcetags.htm). Example: `{"Oracle-ZPR": {"MaxEgressCount": {"value": "42", "mode": "audit"}}}` 
 * `ssh_public_keys` - (Required) (Updatable) The public key portion of one or more key pairs used for SSH access to the cloud VM cluster.
 * `subnet_id` - (Required) The [OCID](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the subnet associated with the cloud VM cluster. 
 * `subscription_id` - (Optional) The [OCID](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the subscription with which resource needs to be associated with.
@@ -133,6 +162,15 @@ The following attributes are exported:
 * `backup_subnet_id` - The [OCID](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the backup network subnet associated with the cloud VM cluster.
 
 	**Subnet Restriction:** See the subnet restrictions information for **subnetId**. 
+* `cloud_automation_update_details` - Specifies the properties necessary for cloud automation updates. This includes modifying the apply update time preference, enabling or disabling early adoption, and enabling, modifying, or disabling the update freeze period. 
+	* `apply_update_time_preference` - Configure the time slot for applying VM cloud automation software updates to the cluster. When nothing is selected, the default time slot is 12 AM to 2 AM UTC. Any 2-hour slot is available starting at 12 AM. 
+		* `apply_update_preferred_end_time` - End time for polling VM cloud automation software updates for the cluster. If the endTime is not specified, 2 AM UTC is used by default. 
+		* `apply_update_preferred_start_time` - Start time for polling VM cloud automation software updates for the cluster. If the startTime is not specified, 12 AM UTC is used by default. 
+	* `freeze_period` - Enables a freeze period for the VM cluster prohibiting the VMs from getting cloud automation software updates during critical business cycles. Freeze period start date. Starts at 12:00 AM UTC on the selected date and ends at 11:59:59 PM UTC on the selected date. Validates to ensure the freeze period does not exceed 45 days. 
+		* `freeze_period_end_time` - End time of the freeze period cycle. 
+		* `freeze_period_start_time` - Start time of the freeze period cycle. 
+	* `is_early_adoption_enabled` - Annotates whether the cluster should be part of early access to apply VM cloud automation software updates. Those clusters annotated as early access will download the software bits for cloud automation in the first week after the update is available, while other clusters will have to wait until the following week. 
+	* `is_freeze_period_enabled` - Specifies if the freeze period is enabled for the VM cluster to prevent the VMs from receiving cloud automation software updates during critical business cycles. Freeze period starts at 12:00 AM UTC and ends at 11:59:59 PM UTC on the selected date. Ensure that the freezing period does not exceed 45 days. 
 * `cloud_exadata_infrastructure_id` - The [OCID](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the cloud Exadata infrastructure.
 * `cluster_name` - The cluster name for cloud VM cluster. The cluster name must begin with an alphabetic character, and may contain hyphens (-). Underscores (_) are not permitted. The cluster name can be no longer than 11 characters and is not case sensitive. 
 * `compartment_id` - The [OCID](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the compartment.
@@ -182,6 +220,7 @@ The following attributes are exported:
 	**Note:** For a single-node DB system, this list is empty. 
 * `scan_listener_port_tcp` - The TCP Single Client Access Name (SCAN) port. The default port is 1521.
 * `scan_listener_port_tcp_ssl` - The TCPS Single Client Access Name (SCAN) port. The default port is 2484.
+* `security_attributes` - Security Attributes for this resource. Each key is predefined and scoped to a namespace. For more information, see [Resource Tags](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/resourcetags.htm). Example: `{"Oracle-ZPR": {"MaxEgressCount": {"value": "42", "mode": "audit"}}}` 
 * `shape` - The model name of the Exadata hardware running the cloud VM cluster. 
 * `ssh_public_keys` - The public key portion of one or more key pairs used for SSH access to the cloud VM cluster.
 * `state` - The current state of the cloud VM cluster.

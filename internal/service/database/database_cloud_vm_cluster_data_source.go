@@ -77,6 +77,12 @@ func (s *DatabaseCloudVmClusterDataSourceCrud) SetData() error {
 		s.D.Set("backup_subnet_id", *s.Res.BackupSubnetId)
 	}
 
+	if s.Res.CloudAutomationUpdateDetails != nil {
+		s.D.Set("cloud_automation_update_details", []interface{}{CloudAutomationUpdateDetailsToMap(s.Res.CloudAutomationUpdateDetails)})
+	} else {
+		s.D.Set("cloud_automation_update_details", nil)
+	}
+
 	if s.Res.CloudExadataInfrastructureId != nil {
 		s.D.Set("cloud_exadata_infrastructure_id", *s.Res.CloudExadataInfrastructureId)
 	}
@@ -202,6 +208,8 @@ func (s *DatabaseCloudVmClusterDataSourceCrud) SetData() error {
 	if s.Res.ScanListenerPortTcpSsl != nil {
 		s.D.Set("scan_listener_port_tcp_ssl", *s.Res.ScanListenerPortTcpSsl)
 	}
+
+	s.D.Set("security_attributes", tfresource.SecurityAttributesToMap(s.Res.SecurityAttributes))
 
 	if s.Res.Shape != nil {
 		s.D.Set("shape", *s.Res.Shape)
